@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "539281411395",
+    "project_id": "pc-cooker-ba74b",
+    "storage_bucket": "pc-cooker-ba74b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:539281411395:android:b22ea9e0cc01b4a4e533f6",
+        "android_client_info": {
+          "package_name": "com.app.pccooker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "539281411395-mhnn6nfrs0m467pokn8bddlacaenc5sk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhP_N3HLPwcE6srCCfObgjtXnyVcUh0cs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "539281411395-mhnn6nfrs0m467pokn8bddlacaenc5sk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
