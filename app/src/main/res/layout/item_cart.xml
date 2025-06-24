@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_margin="8dp"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="6dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Row: Image + Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/componentImage"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_placeholder" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/componentNameText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Component Name"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/componentDescriptionText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Description here"
+                    android:textSize="14sp"
+                    android:textColor="#777" />
+
+                <TextView
+                    android:id="@+id/componentPriceText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₹12,000"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"
+                    android:layout_marginTop="6dp"/>
+
+                <LinearLayout
+                    android:id="@+id/ratingLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/deleteButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_delete"
+                android:contentDescription="Delete"
+                android:tint="#D32F2F"
+                android:padding="4dp"
+                android:layout_gravity="top|end" />
+        </LinearLayout>
+
+        <!-- Quantity controls -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="12dp">
+
+            <ImageView
+                android:id="@+id/decrementButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_remove"
+                android:background="@drawable/bg_quantity_btn"
+                android:padding="6dp" />
+
+            <TextView
+                android:id="@+id/quantityText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="12dp"
+                android:text="1"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/incrementButton"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_add"
+                android:background="@drawable/bg_quantity_btn"
+                android:padding="6dp" />
+        </LinearLayout>
+
+        <!-- Action buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <Button
+                android:id="@+id/saveForLaterBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save for Later"
+                android:textSize="12sp"
+                android:paddingHorizontal="16dp"
+                android:layout_marginEnd="8dp"
+                style="@style/Widget.MaterialComponents.Button.TextButton" />
+
+            <Button
+                android:id="@+id/moveToCartBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Move to Cart"
+                android:textSize="12sp"
+                android:paddingHorizontal="16dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:visibility="gone"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

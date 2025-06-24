@@ -11,13 +11,15 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
+        google()            // ✅ Required for Firebase
         mavenCentral()
     }
 }
 
-rootProject.name = "PC Cooker"
+rootProject.name = "PCCooker"
 include(":app")

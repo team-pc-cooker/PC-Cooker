@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:layout_marginBottom="12dp"
+    android:background="#FFFFFF"
+    android:elevation="4dp">
+
+    <ImageView
+        android:id="@+id/componentImage"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="Component Image" />
+
+    <TextView
+        android:id="@+id/componentName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Component Name"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp"/>
+
+    <TextView
+        android:id="@+id/componentPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="₹14500"
+        android:textSize="14sp"
+        android:textColor="#2E7D32"
+        android:paddingBottom="2dp"/>
+
+    <TextView
+        android:id="@+id/componentRating"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⭐ 4.5"
+        android:textSize="14sp"
+        android:paddingBottom="4dp"/>
+
+</LinearLayout>

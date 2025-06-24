@@ -1,18 +1,21 @@
 package com.app.pccooker;
 
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
+
     private List<String> categories;
     private OnCategoryClickListener listener;
 
+    // ✅ Callback interface
     public interface OnCategoryClickListener {
         void onCategoryClick(String category);
     }
@@ -34,10 +37,11 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
         String category = categories.get(position);
         holder.categoryName.setText(category);
+
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(v.getContext(), ComponentListActivity.class);
-            intent.putExtra("category", category);
-            v.getContext().startActivity(intent);
+            if (listener != null) {
+                listener.onCategoryClick(category); // 👈 Correct way to delegate click handling
+            }
         });
     }
 

@@ -1,0 +1,6 @@
+<fragment android:id="@+id/navigation_checkout"
+    android:name="com.app.pccooker.CheckoutFragment"
+    android:label="Checkout"
+    tools:layout="@layout/fragment_checkout"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

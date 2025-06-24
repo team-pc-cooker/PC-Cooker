@@ -1,53 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardBackgroundColor="#80000000">
+    card_view:cardCornerRadius="8dp"
+    android:elevation="4dp">
 
     <LinearLayout
+        android:orientation="vertical"
+        android:layout_margin="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/componentImage"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:scaleType="centerCrop"/>
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Component Image" />
+
+        <TextView
+            android:id="@+id/nameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Component Name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingTop="6dp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/descriptionText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Short description"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/priceText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₹19999"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_green_dark"
+            android:paddingTop="4dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginStart="16dp">
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:paddingTop="8dp">
 
-            <TextView
-                android:id="@+id/componentName"
-                android:layout_width="match_parent"
+            <Button
+                android:id="@+id/selectButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                android:textStyle="bold"/>
+                android:text="Select" />
 
-            <TextView
-                android:id="@+id/componentDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="#CCCCCC"
-                android:layout_marginTop="4dp"/>
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/componentPrice"
-                android:layout_width="match_parent"
+            <Button
+                android:id="@+id/saveButton"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="#4CAF50"
-                android:textStyle="bold"
-                android:layout_marginTop="8dp"/>
+                android:text="Save for Later" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

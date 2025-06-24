@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 🔄 Image Slider -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/imageSlider"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 🔍 Search Bar -->
+        <EditText
+            android:id="@+id/searchBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Search components..."
+            android:padding="12dp"
+            android:background="@drawable/search_background"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#AAAAAA"
+            android:layout_marginBottom="24dp" />
+
+        <!-- 🧱 Menu Buttons -->
+        <Button
+            android:id="@+id/buildPcButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Build PC"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:padding="16dp" />
+
+        <Button
+            android:id="@+id/serviceButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Service"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#2196F3"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:padding="16dp" />
+
+        <Button
+            android:id="@+id/sellPcButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sell PC"
+            android:backgroundTint="#FF9800"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:padding="16dp" />
+    </LinearLayout>
+</ScrollView>
