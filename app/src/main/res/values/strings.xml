@@ -25,6 +25,15 @@
     </string-array>
     <string name="app_name">PC Cooker</string>
 
+    <string-array name="address_types">
+        <item>Home</item>
+        <item>Work</item>
+        <item>Other</item>
+    </string-array>
+
+
+
+
     <!-- If not already present, you can also add: -->
     <string name="app_description">Build your custom PC, get service And more</string>
 </resources>

@@ -29,6 +29,11 @@
             android:name=".BuildPCActivity"
             android:exported="false" />
 
+        <activity android:name=".ManageAddressActivity" />
+        <activity android:name=".EditAddressActivity" />
+
+
+
 
     </application>
 

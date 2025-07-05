@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#ffffff">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/editName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Full Name"
+            android:padding="10dp"
+            android:background="@drawable/input_background"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/editMobile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mobile Number"
+            android:inputType="phone"
+            android:maxLength="10"
+            android:padding="10dp"
+            android:background="@drawable/input_background"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/editAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Full Address"
+            android:minLines="3"
+            android:inputType="textPostalAddress"
+            android:padding="10dp"
+            android:background="@drawable/input_background"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/editPincode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Pincode"
+            android:maxLength="6"
+            android:inputType="number"
+            android:padding="10dp"
+            android:background="@drawable/input_background"
+            android:layout_marginBottom="12dp" />
+
+        <Spinner
+            android:id="@+id/editStateSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" />
+
+        <Spinner
+            android:id="@+id/editCitySpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save address as:"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp" />
+
+        <RadioGroup
+            android:id="@+id/editLabelGroup"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp">
+
+            <RadioButton
+                android:id="@+id/editRadioHome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Home"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/editRadioWork"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Work"
+                android:layout_marginStart="16dp" />
+
+            <RadioButton
+                android:id="@+id/editRadioOther"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Other"
+                android:layout_marginStart="16dp" />
+        </RadioGroup>
+
+        <EditText
+            android:id="@+id/editCustomLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter custom label"
+            android:visibility="gone"
+            android:padding="10dp"
+            android:background="@drawable/input_background"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btnUpdateAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Update Address"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#2196F3" />
+
+        <CheckBox
+            android:id="@+id/checkboxDefault"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set as default address"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="16dp"
+            />
+
+    </LinearLayout>
+</ScrollView>

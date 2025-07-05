@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="8dp"
+    android:layout_marginHorizontal="4dp"
+    card_view:cardCornerRadius="8dp"
+    card_view:cardElevation="4dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <!-- Address Label (e.g., Home / Work / Other) -->
+        <TextView
+            android:id="@+id/labelText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Home"
+            android:textStyle="bold"
+            android:textColor="@color/purple_700"
+            android:textSize="16sp" />
+
+        <!-- Delete icon on right -->
+        <ImageView
+            android:id="@+id/deleteBtn"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_delete"
+            android:contentDescription="Delete address"
+            card_view:tint="@android:color/holo_red_dark" />
+
+        <!-- Address Details (Name, Address Line, Pincode) -->
+        <TextView
+            android:id="@+id/detailsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/labelText"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="4dp"
+            android:text="John Doe\n123 Main Street, Vijayawada\nAndhra Pradesh - 520001"
+            android:textColor="#333"
+            android:textSize="14sp" />
+
+        <!-- Mobile number -->
+        <TextView
+            android:id="@+id/mobileText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/detailsText"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="6dp"
+            android:text="📞 7897892656"
+            android:textColor="#555"
+            android:textSize="13sp" />
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

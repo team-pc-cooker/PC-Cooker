@@ -95,8 +95,8 @@ public class CategoryComponentFragment extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
 
         FirebaseFirestore.getInstance()
-                .collection("pc_components")  // ✅ Corrected collection name
-                .document(category)           // e.g., "PROCESSOR"
+                .collection("pc_components")
+                .document(category)
                 .collection("items")
                 .get()
                 .addOnSuccessListener(query -> {
@@ -104,19 +104,26 @@ public class CategoryComponentFragment extends Fragment {
                     for (QueryDocumentSnapshot doc : query) {
                         try {
                             PCComponent component = doc.toObject(PCComponent.class);
+
+                            // Set fallback/default values to avoid null issues
+                            if (component.getName() == null) component.setName("Unnamed");
+                            if (component.getDescription() == null) component.setDescription("No description");
+                            if (component.getPrice() == 0) component.setPrice(1);  // Avoid blank/0 price
+                            if (component.getImageUrl() == null) component.setImageUrl(""); // Prevent crash
+
                             componentList.add(component);
-                            Log.d("FirebaseData", "Fetched: " + component.getName());
                         } catch (Exception e) {
-                            Log.e("ComponentParse", "Error parsing component", e);
+                            Log.e("CategoryComponent", "Error parsing component", e);
                         }
                     }
                     adapter.notifyDataSetChanged();
                     progressBar.setVisibility(View.GONE);
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("ComponentFetch", "Firestore fetch failed", e);
+                    Log.e("CategoryComponent", "Fetch failed", e);
                     progressBar.setVisibility(View.GONE);
                 });
+
     }
 
 
