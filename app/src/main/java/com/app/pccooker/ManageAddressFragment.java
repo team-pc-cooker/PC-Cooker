@@ -1,7 +1,9 @@
 package com.app.pccooker;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.*;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,6 +44,12 @@ public class ManageAddressFragment extends Fragment {
         adapter = new AddressAdapter(requireContext(), addressList, this::deleteAddress);
         addressRecyclerView.setAdapter(adapter);
 
+        adapter.setOnEditClickListener(address -> {
+            Intent intent = new Intent(getContext(), EditAddressActivity.class);
+            intent.putExtra("addressData", address);
+            startActivityForResult(intent, 100);
+        });
+
         loadAddresses();
 
         addAddressBtn.setOnClickListener(v -> {
@@ -53,7 +61,7 @@ public class ManageAddressFragment extends Fragment {
     }
 
     private void loadAddresses() {
-        if (userId == null) return;n;
+        if (userId == null) return;
 
         db.collection("users").document(userId).collection("addresses")
                 .get()
@@ -85,27 +93,12 @@ public class ManageAddressFragment extends Fragment {
                 .addOnFailureListener(e ->
                         Toast.makeText(getContext(), "Failed to delete address", Toast.LENGTH_SHORT).show());
     }
-}n;
 
-        if (address.getId() != null) {
-            db.collection("users").document(userId)
-                    .collection("addresses").document(address.getId())
-                    .delete()
-                    .addOnSuccessListener(unused -> {
-                        addressList.remove(address);
-                        adapter.notifyDataSetChanged();
-                        Toast.makeText(getContext(), "Address deleted", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(getContext(), "Error deleting address", Toast.LENGTH_SHORT).show();
-                    });
-
-
-
-        }
-        else {
-            Toast.makeText(getContext(), "Address ID missing", Toast.LENGTH_SHORT).show();
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100) {
+            loadAddresses();  // Refresh list after edit
         }
     }
 }
-

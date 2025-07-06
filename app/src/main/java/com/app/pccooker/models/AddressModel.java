@@ -8,6 +8,7 @@ public class AddressModel implements Parcelable {
     private String name;
     private String mobile;
     private String address;
+    private String landmark;
     private String pincode;
     private String state;
     private String city;
@@ -16,11 +17,12 @@ public class AddressModel implements Parcelable {
 
     public AddressModel() {} // Required by Firebase
 
-    public AddressModel(String id, String name, String mobile, String address, String pincode, String state, String city, String label, boolean isDefault) {
+    public AddressModel(String id, String name, String mobile, String address, String landmark, String pincode, String state, String city, String label, boolean isDefault) {
         this.id = id;
         this.name = name;
         this.mobile = mobile;
         this.address = address;
+        this.landmark = landmark;
         this.pincode = pincode;
         this.state = state;
         this.city = city;
@@ -34,6 +36,7 @@ public class AddressModel implements Parcelable {
         name = in.readString();
         mobile = in.readString();
         address = in.readString();
+        landmark = in.readString();
         pincode = in.readString();
         state = in.readString();
         city = in.readString();
@@ -69,6 +72,7 @@ public class AddressModel implements Parcelable {
         parcel.writeString(name);
         parcel.writeString(mobile);
         parcel.writeString(address);
+        parcel.writeString(landmark);
         parcel.writeString(pincode);
         parcel.writeString(state);
         parcel.writeString(city);
@@ -80,6 +84,10 @@ public class AddressModel implements Parcelable {
     public String getName() { return name; }
     public String getMobile() { return mobile; }
     public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
+
+    public String getLandmark() { return landmark; }
+    public void setLandmark(String landmark) { this.landmark = landmark; }
     public String getPincode() { return pincode; }
     public String getState() { return state; }
     public String getCity() { return city; }

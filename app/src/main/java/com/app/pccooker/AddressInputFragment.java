@@ -22,13 +22,13 @@ import java.util.*;
 
 public class AddressInputFragment extends Fragment {
 
-    private EditText nameInput, mobileInput, addressInput, pincodeInput, inputCustomLabel;
+    private EditText nameInput, mobileInput, addressInput, pincodeInput, inputCustomLabel, inputLandmark;
     private Spinner stateSpinner, citySpinner;
     private Button saveButton, viewSavedBtn;
     private RadioGroup labelGroup;
     private RadioButton radioHome, radioWork, radioOther;
 
-    private final String[] states = {"Select State", "Andhra Pradesh", "Telangana", "Tamil Nadu"};
+    private final String[] states = {"Select State", "Andhra Pradesh", "Telangana"};
     private final Map<String, List<String>> stateToCities = new HashMap<>();
 
     private FirebaseAuth mAuth;
@@ -51,6 +51,7 @@ public class AddressInputFragment extends Fragment {
         stateSpinner = view.findViewById(R.id.stateSpinner);
         citySpinner = view.findViewById(R.id.citySpinner);
         inputCustomLabel = view.findViewById(R.id.inputCustomLabel);
+        inputLandmark = view.findViewById(R.id.inputLandmark);
         saveButton = view.findViewById(R.id.btnSaveAddress);
         viewSavedBtn = view.findViewById(R.id.btnViewSavedAddresses);
 
@@ -169,22 +170,33 @@ public class AddressInputFragment extends Fragment {
     }
 
     private boolean validateInputs() {
-        String name = nameInput.getText().toString().trim();
-        String mobile = mobileInput.getText().toString().trim();
-        String address = addressInput.getText().toString().trim();
-        String pincode = pincodeInput.getText().toString().trim();
-        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(mobile) || TextUtils.isEmpty(address) || TextUtils.isEmpty(pincode)) {
-            Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(nameInput.getText()) ||
+                TextUtils.isEmpty(mobileInput.getText()) ||
+                TextUtils.isEmpty(addressInput.getText()) ||
+                TextUtils.isEmpty(pincodeInput.getText()) ||
+                TextUtils.isEmpty(inputLandmark.getText())) {
+            Toast.makeText(getContext(), "Please fill all fields including landmark", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (!mobile.matches("^[6-9]\\d{9}$")) {
-            mobileInput.setError("Enter valid Indian mobile number");
+
+        if (!Patterns.PHONE.matcher(mobileInput.getText()).matches() ||
+                !mobileInput.getText().toString().matches("^[6-9]\\d{9}$")) {
+            mobileInput.setError("Enter valid mobile");
             return false;
         }
-        if (pincode.length() != 6) {
-            pincodeInput.setError("Enter valid 6-digit pincode");
+
+        if (pincodeInput.getText().toString().length() != 6) {
+            pincodeInput.setError("Invalid Pincode");
             return false;
         }
+
+        // Validate Other label
+        if (radioOther.isChecked() && TextUtils.isEmpty(inputCustomLabel.getText())) {
+            inputCustomLabel.setError("Please enter custom label");
+            Toast.makeText(getContext(), "Please enter a custom label for 'Other' option", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
         return true;
     }
 
@@ -227,6 +239,7 @@ public class AddressInputFragment extends Fragment {
                         data.put("state", stateSpinner.getSelectedItem().toString());
                         data.put("city", citySpinner.getSelectedItem() != null ? citySpinner.getSelectedItem().toString() : "");
                         data.put("label", label);
+                        data.put("landmark", inputLandmark.getText().toString().trim());
 
                         db.collection("users").document(userId)
                                 .collection("addresses")
@@ -251,6 +264,7 @@ public class AddressInputFragment extends Fragment {
         citySpinner.setSelection(0);
         labelGroup.check(R.id.radioHome);
         inputCustomLabel.setText("");
+        inputLandmark.setText("");
         inputCustomLabel.setVisibility(View.GONE);
     }
 

@@ -35,7 +35,7 @@ public class EditAddressActivity extends AppCompatActivity {
 
 
     private FirebaseFirestore db;
-    private final String[] states = {"Select State", "Andhra Pradesh", "Telangana", "Tamil Nadu"};
+    private final ArrayList<String> states = new ArrayList<>();
     private final Map<String, List<String>> stateToCities = new HashMap<>();
 
     @Override
@@ -82,21 +82,27 @@ public class EditAddressActivity extends AppCompatActivity {
     private void loadCityDataFromAssets() {
         try {
             InputStream is = getAssets().open("andhra_cities.json");
-            byte[] buffer = new byte[is.available()];
+            int size = is.available();
+            byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
+            String json = new String(buffer, "UTF-8");
+            JSONObject obj = new JSONObject(json);
 
-            JSONObject obj = new JSONObject(new String(buffer));
-            for (String state : states) {
-                if (obj.has(state)) {
-                    JSONArray array = obj.getJSONArray(state);
-                    List<String> cities = new ArrayList<>();
-                    cities.add("Select City");
-                    for (int i = 0; i < array.length(); i++) {
-                        cities.add(array.getString(i));
-                    }
-                    stateToCities.put(state, cities);
+            states.clear();
+            states.add("Select State");
+
+            Iterator<String> keys = obj.keys();
+            while (keys.hasNext()) {
+                String state = keys.next();
+                states.add(state);
+
+                JSONArray cityArray = obj.getJSONArray(state);
+                List<String> cities = new ArrayList<>();
+                for (int i = 0; i < cityArray.length(); i++) {
+                    cities.add(cityArray.getString(i));
                 }
+                stateToCities.put(state, cities);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,7 +115,7 @@ public class EditAddressActivity extends AppCompatActivity {
 
         stateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                String selectedState = states[pos];
+                String selectedState = states.get(pos);
                 List<String> cities = stateToCities.get(selectedState);
                 if (cities != null) {
                     ArrayAdapter<String> cityAdapter = new ArrayAdapter<>(EditAddressActivity.this, android.R.layout.simple_spinner_dropdown_item, cities);
