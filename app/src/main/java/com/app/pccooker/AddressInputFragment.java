@@ -93,6 +93,20 @@ public class AddressInputFragment extends Fragment {
             if (validateInputs()) saveAddressToFirestore();
         });
 
+        return view;
+    }
+
+    private void setSpinnerSelection(Spinner spinner, String value) {
+        if (spinner.getAdapter() != null) {
+            for (int i = 0; i < spinner.getAdapter().getCount(); i++) {
+                if (spinner.getAdapter().getItem(i).toString().equalsIgnoreCase(value)) {
+                    spinner.setSelection(i);
+                    break;
+                }
+            }
+        }
+    }
+
         view.findViewById(R.id.btnViewSavedAddresses).setOnClickListener(v -> {
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new ManageAddressFragment())  // ensure this ID exists
@@ -135,23 +149,43 @@ public class AddressInputFragment extends Fragment {
         if (pincode.length() == 6) {
             PincodeUtils.lookupPincode(pincode, getContext(), (city, state) -> {
                 if (city != null && state != null) {
-                    // Step 1: Set the state spinner
-                    setSpinnerSelection(stateSpinner, state);
+                    if ("OTHER_STATE".equals(city)) {
+                        // Show message for other states
+                        Toast.makeText(getContext(), 
+                            "Sorry! We are currently not operating our services in " + state + ". We only serve Andhra Pradesh.", 
+                            Toast.LENGTH_LONG).show();
+                        // Reset spinners to default
+                        stateSpinner.setSelection(0);
+                        citySpinner.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, new String[]{"Select City"}));
+                    } else {
+                        // Valid Andhra Pradesh pincode
+                        // Step 1: Set the state spinner to Andhra Pradesh
+                        setSpinnerSelection(stateSpinner, "Andhra Pradesh");
 
-                    // Step 2: Post delayed to wait for city spinner to load
-                    stateSpinner.postDelayed(() -> {
-                        List<String> cities = stateToCities.get(state);
-                        if (cities != null) {
-                            ArrayAdapter<String> cityAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, cities);
-                            citySpinner.setAdapter(cityAdapter);
-                            int index = cities.indexOf(city);
-                            if (index != -1) {
-                                citySpinner.setSelection(index);
+                        // Step 2: Post delayed to wait for city spinner to load
+                        stateSpinner.postDelayed(() -> {
+                            List<String> cities = stateToCities.get("Andhra Pradesh");
+                            if (cities != null) {
+                                ArrayAdapter<String> cityAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, cities);
+                                citySpinner.setAdapter(cityAdapter);
+                                int index = cities.indexOf(city);
+                                if (index != -1) {
+                                    citySpinner.setSelection(index);
+                                } else {
+                                    // If exact city not found, try to find closest match
+                                    for (int i = 0; i < cities.size(); i++) {
+                                        if (cities.get(i).toLowerCase().contains(city.toLowerCase()) || 
+                                            city.toLowerCase().contains(cities.get(i).toLowerCase())) {
+                                            citySpinner.setSelection(i);
+                                            break;
+                                        }
+                                    }
+                                }
                             }
-                        }
-                    }, 100); // delay ensures city spinner is updated after state
+                        }, 100); // delay ensures city spinner is updated after state
+                    }
                 } else {
-                    Toast.makeText(getContext(), "Invalid Pincode", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Invalid Pincode. Please enter a valid 6-digit pincode.", Toast.LENGTH_SHORT).show();
                 }
             });
         }

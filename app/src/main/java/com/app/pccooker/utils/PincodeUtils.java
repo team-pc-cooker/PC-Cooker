@@ -38,13 +38,26 @@ public class PincodeUtils {
                 response -> {
                     try {
                         JSONObject jsonObject = response.getJSONObject(0);
-                        JSONArray postOffices = jsonObject.getJSONArray("PostOffice");
+                        String status = jsonObject.getString("Status");
+                        
+                        if (status.equals("Success")) {
+                            JSONArray postOffices = jsonObject.getJSONArray("PostOffice");
 
-                        if (postOffices.length() > 0) {
-                            JSONObject firstOffice = postOffices.getJSONObject(0);
-                            String city = firstOffice.getString("District");
-                            String state = firstOffice.getString("State");
-                            callback.onResult(city, state);
+                            if (postOffices.length() > 0) {
+                                JSONObject firstOffice = postOffices.getJSONObject(0);
+                                String city = firstOffice.getString("District");
+                                String state = firstOffice.getString("State");
+                                
+                                // Check if the state is Andhra Pradesh
+                                if ("Andhra Pradesh".equalsIgnoreCase(state)) {
+                                    callback.onResult(city, state);
+                                } else {
+                                    // For other states, return special indicator
+                                    callback.onResult("OTHER_STATE", state);
+                                }
+                            } else {
+                                callback.onResult(null, null);
+                            }
                         } else {
                             callback.onResult(null, null);
                         }

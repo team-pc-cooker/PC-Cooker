@@ -169,64 +169,101 @@ public class EditAddressActivity extends AppCompatActivity {
         });
 
         inputPincode.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override public void afterTextChanged(Editable s) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
                 if (s.length() == 6) {
-                    validatePincode(s.toString());
+                    validatePincode();
                 }
             }
         });
 
-        updateBtn.setOnClickListener(v -> {
-            if (!validate()) return;
-
-            String label;
-            int checkedId = labelGroup.getCheckedRadioButtonId();
-            if (checkedId == R.id.editRadioHome) label = "Home";
-            else if (checkedId == R.id.editRadioWork) label = "Work";
-            else label = inputCustomLabel.getText().toString().trim();
-
-            Map<String, Object> updated = new HashMap<>();
-            updated.put("name", inputName.getText().toString().trim());
-            updated.put("mobile", inputMobile.getText().toString().trim());
-            updated.put("address", inputAddress.getText().toString().trim());
-            updated.put("pincode", inputPincode.getText().toString().trim());
-            updated.put("state", stateSpinner.getSelectedItem().toString());
-            updated.put("city", citySpinner.getSelectedItem() != null ? citySpinner.getSelectedItem().toString() : "");
-            updated.put("label", label);
-            updated.put("isDefault", checkboxDefault.isChecked());
-
-
-            String uid = FirebaseAuth.getInstance().getUid();
-            if (uid == null || currentAddress == null || currentAddress.getId() == null) return;
-
-            db.collection("users").document(uid)
-                    .collection("addresses").document(currentAddress.getId())
-                    .set(updated)
-                    .addOnSuccessListener(unused -> {
-                        Snackbar.make(updateBtn, "Address updated", Snackbar.LENGTH_SHORT).show();
-
-                        finish();
-                    })
-                    .addOnFailureListener(e -> Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show());
-        });
+        updateBtn.setOnClickListener(v -> updateAddress());
     }
 
-    private void validatePincode(String pincode) {
-        PincodeUtils.lookupPincode(pincode, this, (city, state) -> {
-            if (city != null && state != null) {
-                setSpinnerSelection(stateSpinner, state);
-                List<String> cities = stateToCities.get(state);
-                if (cities != null) {
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(EditAddressActivity.this, android.R.layout.simple_spinner_dropdown_item, cities);
-                    citySpinner.setAdapter(adapter);
-                    setSpinnerSelection(citySpinner, city);
+    private void validatePincode() {
+        String pincode = inputPincode.getText().toString().trim();
+        if (pincode.length() == 6) {
+            PincodeUtils.lookupPincode(pincode, this, (city, state) -> {
+                if (city != null && state != null) {
+                    if ("OTHER_STATE".equals(city)) {
+                        // Show message for other states
+                        Toast.makeText(this, 
+                            "Sorry! We are currently not operating our services in " + state + ". We only serve Andhra Pradesh.", 
+                            Toast.LENGTH_LONG).show();
+                        // Reset spinners to default
+                        stateSpinner.setSelection(0);
+                        citySpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, new String[]{"Select City"}));
+                    } else {
+                        // Valid Andhra Pradesh pincode
+                        setSpinnerSelection(stateSpinner, "Andhra Pradesh");
+
+                        // Post delayed to wait for city spinner to load
+                        stateSpinner.postDelayed(() -> {
+                            List<String> cities = stateToCities.get("Andhra Pradesh");
+                            if (cities != null) {
+                                ArrayAdapter<String> cityAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, cities);
+                                citySpinner.setAdapter(cityAdapter);
+                                int index = cities.indexOf(city);
+                                if (index != -1) {
+                                    citySpinner.setSelection(index);
+                                } else {
+                                    // If exact city not found, try to find closest match
+                                    for (int i = 0; i < cities.size(); i++) {
+                                        if (cities.get(i).toLowerCase().contains(city.toLowerCase()) || 
+                                            city.toLowerCase().contains(cities.get(i).toLowerCase())) {
+                                            citySpinner.setSelection(i);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }, 100);
+                    }
+                } else {
+                    Toast.makeText(this, "Invalid Pincode. Please enter a valid 6-digit pincode.", Toast.LENGTH_SHORT).show();
                 }
-            } else {
-                Toast.makeText(this, "Invalid Pincode", Toast.LENGTH_SHORT).show();
-            }
-        });
+            });
+        }
+    }
+
+    private void updateAddress() {
+        if (!validate()) return;
+
+        String label;
+        int checkedId = labelGroup.getCheckedRadioButtonId();
+        if (checkedId == R.id.editRadioHome) label = "Home";
+        else if (checkedId == R.id.editRadioWork) label = "Work";
+        else label = inputCustomLabel.getText().toString().trim();
+
+        Map<String, Object> updated = new HashMap<>();
+        updated.put("name", inputName.getText().toString().trim());
+        updated.put("mobile", inputMobile.getText().toString().trim());
+        updated.put("address", inputAddress.getText().toString().trim());
+        updated.put("pincode", inputPincode.getText().toString().trim());
+        updated.put("state", stateSpinner.getSelectedItem().toString());
+        updated.put("city", citySpinner.getSelectedItem() != null ? citySpinner.getSelectedItem().toString() : "");
+        updated.put("label", label);
+        updated.put("isDefault", checkboxDefault.isChecked());
+
+
+        String uid = FirebaseAuth.getInstance().getUid();
+        if (uid == null || currentAddress == null || currentAddress.getId() == null) return;
+
+        db.collection("users").document(uid)
+                .collection("addresses").document(currentAddress.getId())
+                .set(updated)
+                .addOnSuccessListener(unused -> {
+                    Snackbar.make(updateBtn, "Address updated", Snackbar.LENGTH_SHORT).show();
+
+                    finish();
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show());
     }
 
     private boolean validate() {
