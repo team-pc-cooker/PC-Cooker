@@ -33,6 +33,8 @@ public class ManageAddressFragment extends Fragment {
         addressRecyclerView = view.findViewById(R.id.addressRecyclerView);
         addressRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        Button addAddressBtn = view.findViewById(R.id.addAddressBtn);
+
         db = FirebaseFirestore.getInstance();
         userId = FirebaseAuth.getInstance().getCurrentUser() != null ?
                 FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
@@ -42,11 +44,16 @@ public class ManageAddressFragment extends Fragment {
 
         loadAddresses();
 
+        addAddressBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), AddAddressActivity.class);
+            startActivity(intent);
+        });
+
         return view;
     }
 
     private void loadAddresses() {
-        if (userId == null) return;
+        if (userId == null) return;n;
 
         db.collection("users").document(userId).collection("addresses")
                 .get()
@@ -67,6 +74,18 @@ public class ManageAddressFragment extends Fragment {
 
     private void deleteAddress(AddressModel address) {
         if (userId == null || address.getId() == null) return;
+
+        db.collection("users").document(userId).collection("addresses")
+                .document(address.getId())
+                .delete()
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(getContext(), "Address deleted", Toast.LENGTH_SHORT).show();
+                    loadAddresses(); // Refresh list
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(getContext(), "Failed to delete address", Toast.LENGTH_SHORT).show());
+    }
+}n;
 
         if (address.getId() != null) {
             db.collection("users").document(userId)

@@ -59,17 +59,16 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.AddressV
         return addressList.size();
     }
 
-    static class AddressViewHolder extends RecyclerView.ViewHolder {
-        TextView detailsText, mobileText, labelText;
-        ImageButton deleteBtn, editBtn;
+    public static class AddressViewHolder extends RecyclerView.ViewHolder {
+        TextView labelText, detailsText, mobileText;
+        ImageView deleteBtn;
 
         public AddressViewHolder(@NonNull View itemView) {
             super(itemView);
+            labelText = itemView.findViewById(R.id.labelText);
             detailsText = itemView.findViewById(R.id.detailsText);
             mobileText = itemView.findViewById(R.id.mobileText);
-            labelText = itemView.findViewById(R.id.labelText);
             deleteBtn = itemView.findViewById(R.id.deleteBtn);
-            editBtn = itemView.findViewById(R.id.editBtn);
         }
     }
 }

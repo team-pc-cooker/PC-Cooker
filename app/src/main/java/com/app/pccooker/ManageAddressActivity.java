@@ -59,21 +59,20 @@ public class ManageAddressActivity extends AppCompatActivity {
                 .addOnSuccessListener(query -> {
                     addressList.clear();
                     for (DocumentSnapshot doc : query.getDocuments()) {
-                        AddressModel model = getIntent().getParcelableExtra("addressData");
+                        AddressModel model = doc.toObject(AddressModel.class);
                         if (model != null) {
                             model.setId(doc.getId()); // Set Firestore doc ID
                             addressList.add(model);
                         }
                     }
                     adapter.notifyDataSetChanged();
+                    
+                    if (addressList.isEmpty()) {
+                        Toast.makeText(this, "No saved addresses found.", Toast.LENGTH_SHORT).show();
+                    }
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Failed to load addresses", Toast.LENGTH_SHORT).show());
-
-        if (addressList.isEmpty()) {
-            Toast.makeText(this, "No saved addresses found.", Toast.LENGTH_SHORT).show();
-        }
-
     }
 
     private void deleteAddress(AddressModel address) {
