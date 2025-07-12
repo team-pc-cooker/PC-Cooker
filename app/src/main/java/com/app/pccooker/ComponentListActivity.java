@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.pccooker.models.PCComponent;
+import com.app.pccooker.ComponentModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ public class ComponentListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ComponentAdapter adapter;
-    private List<PCComponent> componentList;
+    private List<ComponentModel> componentList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,17 +26,11 @@ public class ComponentListActivity extends AppCompatActivity {
 
         componentList = new ArrayList<>();
 
-        adapter = new ComponentAdapter(componentList, new ComponentAdapter.OnComponentActionListener() {
+        adapter = new ComponentAdapter(this, componentList, new ComponentAdapter.OnComponentClickListener() {
             @Override
-            public void onSelectClicked(PCComponent component) {
+            public void onComponentClick(ComponentModel component) {
                 // Add selected component to cart
-                CartManager.getInstance().addToCart(component);
-            }
-
-            @Override
-            public void onSaveForLaterClicked(PCComponent component) {
-                // Optional: Handle "save for later" if needed
-                // CartManager.getInstance().saveForLater(component);
+                CartManager.getInstance(ComponentListActivity.this).addToCart(component);
             }
         });
 
@@ -47,8 +41,23 @@ public class ComponentListActivity extends AppCompatActivity {
 
     private void loadSampleComponents() {
         // Sample data (replace with real data or Firestore fetch)
-        componentList.add(new PCComponent("1", "Ryzen 5 5600X", "Fast 6-core processor", "https://example.com/image.jpg", "PROCESSOR", 20000, 1));
-        componentList.add(new PCComponent("2", "Intel i5 12400F", "Efficient and powerful", "https://example.com/image2.jpg", "PROCESSOR", 18000, 1));
+        ComponentModel component1 = new ComponentModel();
+        component1.setId("1");
+        component1.setName("Ryzen 5 5600X");
+        component1.setDescription("Fast 6-core processor");
+        component1.setImageUrl("https://example.com/image.jpg");
+        component1.setCategory("PROCESSOR");
+        component1.setPrice(20000);
+        componentList.add(component1);
+
+        ComponentModel component2 = new ComponentModel();
+        component2.setId("2");
+        component2.setName("Intel i5 12400F");
+        component2.setDescription("Efficient and powerful");
+        component2.setImageUrl("https://example.com/image2.jpg");
+        component2.setCategory("PROCESSOR");
+        component2.setPrice(18000);
+        componentList.add(component2);
 
         adapter.notifyDataSetChanged();
     }

@@ -43,25 +43,51 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Total: ₹0"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold"
-            android:paddingTop="12dp" />
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp" />
 
-        <Button
-            android:id="@+id/confirmOrderButton"
+        <!-- Payment Options -->
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pay Now with UPI"
-            android:layout_marginTop="16dp" />
+            android:text="💳 Payment Options"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/payTokenButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pay Token Amount (20%)"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/payFullButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pay Full Amount"
+            android:backgroundTint="#2196F3"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp" />
 
         <TextView
-            android:id="@+id/summaryTotal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Total: ₹0"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:paddingTop="12dp" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="💡 Tip: Pay token amount now and remaining after delivery"
+            android:textSize="12sp"
+            android:textColor="#666666"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
 
     </LinearLayout>
 </ScrollView>

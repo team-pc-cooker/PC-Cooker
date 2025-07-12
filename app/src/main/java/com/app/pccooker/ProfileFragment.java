@@ -67,7 +67,7 @@ public class ProfileFragment extends Fragment {
         layoutMyOrders.setOnClickListener(v -> {
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragment_container, new MyOrdersFragment())
+                    .replace(R.id.fragment_container, new OrderHistoryFragment())
                     .addToBackStack(null)
                     .commit();
         });

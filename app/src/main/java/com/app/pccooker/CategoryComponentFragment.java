@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.*;
 
-import com.app.pccooker.models.PCComponent;
+import com.app.pccooker.ComponentModel;
 import com.google.firebase.firestore.*;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class CategoryComponentFragment extends Fragment {
 
     private String category;
     private ComponentAdapter adapter;
-    private final List<PCComponent> componentList = new ArrayList<>();
+    private final List<ComponentModel> componentList = new ArrayList<>();
 
     public static CategoryComponentFragment newInstance(String category) {
         CategoryComponentFragment fragment = new CategoryComponentFragment();
@@ -62,27 +62,17 @@ public class CategoryComponentFragment extends Fragment {
 
         }
 
-        adapter = new ComponentAdapter(componentList, new ComponentAdapter.OnComponentActionListener() {
+        adapter = new ComponentAdapter(requireContext(), componentList, new ComponentAdapter.OnComponentClickListener() {
             @Override
-            public void onSelectClicked(PCComponent component) {
-                if (!CartManager.getInstance().isInCart(component)) {
-                    CartManager.getInstance().addToCart(component);
+            public void onComponentClick(ComponentModel component) {
+                if (!CartManager.getInstance(requireContext()).isInCart(component)) {
+                    CartManager.getInstance(requireContext()).addToCart(component);
                     Toast.makeText(getContext(), "Added to cart", Toast.LENGTH_SHORT).show();
                     if (getActivity() instanceof MainActivity) {
                         ((MainActivity) getActivity()).updateCartBadge();
                     }
                 } else {
                     Toast.makeText(getContext(), "Already in cart", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onSaveForLaterClicked(PCComponent component) {
-                if (!CartManager.getInstance().isSavedForLater(component)) {
-                    CartManager.getInstance().saveForLater(component);
-                    Toast.makeText(getContext(), "Saved for later", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getContext(), "Already in saved list", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -103,7 +93,7 @@ public class CategoryComponentFragment extends Fragment {
                     componentList.clear();
                     for (QueryDocumentSnapshot doc : query) {
                         try {
-                            PCComponent component = doc.toObject(PCComponent.class);
+                            ComponentModel component = doc.toObject(ComponentModel.class);
 
                             // Set fallback/default values to avoid null issues
                             if (component.getName() == null) component.setName("Unnamed");

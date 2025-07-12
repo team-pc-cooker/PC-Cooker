@@ -84,7 +84,6 @@ public class AddressModel implements Parcelable {
     public String getName() { return name; }
     public String getMobile() { return mobile; }
     public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
 
     public String getLandmark() { return landmark; }
     public void setLandmark(String landmark) { this.landmark = landmark; }

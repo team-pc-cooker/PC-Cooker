@@ -10,7 +10,7 @@ public class CartUtils {
     public static void updateBadgeCount(Context context, BottomNavigationView bottomNavigationView) {
         if (bottomNavigationView == null) return;
 
-        int count = CartManager.getInstance().getItemCount();
+        int count = CartManager.getInstance(context).getCartItemCount();
 
         BadgeDrawable badge = bottomNavigationView.getOrCreateBadge(R.id.navigation_cart);
         if (count > 0) {

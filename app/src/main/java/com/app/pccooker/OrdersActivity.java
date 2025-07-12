@@ -5,7 +5,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.*;
 
-import com.app.pccooker.models.OrderModel;
+import com.app.pccooker.OrderModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 import java.util.*;
@@ -25,7 +25,10 @@ public class OrdersActivity extends AppCompatActivity {
 
         ordersRecyclerView = findViewById(R.id.ordersRecyclerView);
         ordersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new OrderAdapter(orderList);
+        adapter = new OrderAdapter(this, orderList, order -> {
+            // Handle order click
+            Toast.makeText(this, "Order clicked: " + order.getOrderNumber(), Toast.LENGTH_SHORT).show();
+        });
         ordersRecyclerView.setAdapter(adapter);
 
         setSupportActionBar(findViewById(R.id.toolbar));
@@ -39,9 +42,11 @@ public class OrdersActivity extends AppCompatActivity {
                 .get().addOnSuccessListener(query -> {
                     orderList.clear();
                     for (DocumentSnapshot doc : query.getDocuments()) {
-                        String id = doc.getId();
-                        String status = doc.getString("status");
-                        orderList.add(new OrderModel(id, status));
+                        OrderModel order = doc.toObject(OrderModel.class);
+                        if (order != null) {
+                            order.setOrderId(doc.getId());
+                            orderList.add(order);
+                        }
                     }
                     adapter.notifyDataSetChanged();
                 })

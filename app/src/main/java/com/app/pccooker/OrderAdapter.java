@@ -1,32 +1,52 @@
 package com.app.pccooker;
 
+import android.content.Context;
 import android.view.*;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.app.pccooker.models.OrderModel;
+import com.app.pccooker.OrderModel;
 import java.util.List;
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder> {
 
-    List<OrderModel> orderList;
+    private final List<OrderModel> orderList;
+    private final OnOrderClickListener listener;
 
-    public OrderAdapter(List<OrderModel> orderList) {
+    public interface OnOrderClickListener {
+        void onOrderClick(OrderModel order);
+    }
+
+    public OrderAdapter(Context context, List<OrderModel> orderList, OnOrderClickListener listener) {
         this.orderList = orderList;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
     public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_2, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_order, parent, false);
         return new OrderViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         OrderModel order = orderList.get(position);
-        holder.orderId.setText("Order ID: " + order.getOrderId());
-        holder.status.setText("Status: " + order.getStatus());
+        
+        holder.orderNumber.setText("Order #" + order.getOrderNumber());
+        holder.orderDate.setText(order.getFormattedDate());
+        holder.orderAmount.setText(order.getFormattedAmount());
+        holder.orderStatus.setText(order.getStatus());
+        holder.componentCount.setText(order.getComponentCount() + " components");
+        
+        // Set status color
+        holder.orderStatus.setTextColor(android.graphics.Color.parseColor(order.getStatusColor()));
+        
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onOrderClick(order);
+            }
+        });
     }
 
     @Override
@@ -35,12 +55,15 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     }
 
     static class OrderViewHolder extends RecyclerView.ViewHolder {
-        TextView orderId, status;
+        TextView orderNumber, orderDate, orderAmount, orderStatus, componentCount;
 
         public OrderViewHolder(@NonNull View itemView) {
             super(itemView);
-            orderId = itemView.findViewById(android.R.id.text1);
-            status = itemView.findViewById(android.R.id.text2);
+            orderNumber = itemView.findViewById(R.id.orderNumber);
+            orderDate = itemView.findViewById(R.id.orderDate);
+            orderAmount = itemView.findViewById(R.id.orderAmount);
+            orderStatus = itemView.findViewById(R.id.orderStatus);
+            componentCount = itemView.findViewById(R.id.componentCount);
         }
     }
 }

@@ -93,6 +93,15 @@ public class AddressInputFragment extends Fragment {
             if (validateInputs()) saveAddressToFirestore();
         });
 
+        viewSavedBtn.setOnClickListener(v -> {
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new ManageAddressFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+        checkIfUserHasSavedAddresses();
+
         return view;
     }
 
@@ -105,18 +114,6 @@ public class AddressInputFragment extends Fragment {
                 }
             }
         }
-    }
-
-        view.findViewById(R.id.btnViewSavedAddresses).setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new ManageAddressFragment())  // ensure this ID exists
-                    .addToBackStack(null)
-                    .commit();
-        });
-
-        checkIfUserHasSavedAddresses();
-
-        return view;
     }
 
     private void loadCityDataFromAssets() {
@@ -192,16 +189,7 @@ public class AddressInputFragment extends Fragment {
     }
 
 
-    private void setSpinnerSelection(Spinner spinner, String value) {
-        ArrayAdapter adapter = (ArrayAdapter) spinner.getAdapter();
-        if (adapter == null) return;
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equalsIgnoreCase(value)) {
-                spinner.setSelection(i);
-                break;
-            }
-        }
-    }
+
 
     private boolean validateInputs() {
         if (TextUtils.isEmpty(nameInput.getText()) ||

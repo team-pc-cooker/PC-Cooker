@@ -83,10 +83,20 @@ public class MainActivity extends AppCompatActivity {
     public void updateCartBadge() {
         if (bottomNav != null) {
             BadgeDrawable badge = bottomNav.getOrCreateBadge(R.id.navigation_cart);
-            int count = CartManager.getInstance().getItemCount();
+            int count = CartManager.getInstance(this).getCartItemCount();
             badge.setVisible(count > 0);
             badge.setNumber(count);
         }
+    }
+
+    public void showOrderConfirmation(String orderNumber) {
+        // Navigate to order confirmation or show success message
+        // For now, just show a toast and navigate to profile
+        android.widget.Toast.makeText(this, "Order #" + orderNumber + " placed successfully!", 
+                                     android.widget.Toast.LENGTH_LONG).show();
+        
+        // Navigate to profile to show order history
+        switchToTab(R.id.navigation_profile);
     }
 
 }

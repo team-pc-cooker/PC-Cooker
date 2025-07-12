@@ -55,9 +55,14 @@ public class HomeFragment extends Fragment {
     }
 
     private void performSearch(String query) {
-        if (query.isEmpty()) return;
+        if (query.isEmpty()) {
+            Toast.makeText(getContext(), "Please enter a search term", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        Toast.makeText(getContext(), "No results found for: " + query, Toast.LENGTH_SHORT).show();
+        // Navigate to component search with the query
+        ComponentSearchFragment searchFragment = ComponentSearchFragment.newInstance(query);
+        ((MainActivity) requireActivity()).loadFragment(searchFragment);
     }
 
     private void setupImageSlider() {
@@ -96,11 +101,11 @@ public class HomeFragment extends Fragment {
         });
 
         serviceButton.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Service screen coming soon", Toast.LENGTH_SHORT).show();
+            ((MainActivity) requireActivity()).loadFragment(new ServiceFragment());
         });
 
         sellPcButton.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Sell PC screen coming soon", Toast.LENGTH_SHORT).show();
+            ((MainActivity) requireActivity()).loadFragment(new SellPCFragment());
         });
     }
 }

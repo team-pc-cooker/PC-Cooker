@@ -35,32 +35,35 @@
             android:id="@+id/buildPcButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Build PC"
+            android:text="🚀 Get Started"
             android:layout_marginBottom="16dp"
             android:backgroundTint="#4CAF50"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
-            android:padding="16dp" />
+            android:padding="16dp"
+            android:textSize="16sp" />
 
         <Button
             android:id="@+id/serviceButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Service"
+            android:text="🔧 Service"
             android:layout_marginBottom="16dp"
             android:backgroundTint="#2196F3"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
-            android:padding="16dp" />
+            android:padding="16dp"
+            android:textSize="16sp" />
 
         <Button
             android:id="@+id/sellPcButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sell PC"
+            android:text="💰 Sell Your PC"
             android:backgroundTint="#FF9800"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
-            android:padding="16dp" />
+            android:padding="16dp"
+            android:textSize="16sp" />
     </LinearLayout>
 </ScrollView>

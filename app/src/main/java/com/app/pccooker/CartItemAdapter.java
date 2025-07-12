@@ -9,7 +9,7 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.pccooker.models.PCComponent;
+import com.app.pccooker.ComponentModel;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
@@ -17,18 +17,18 @@ import java.util.List;
 public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartViewHolder> {
 
     private final Context context;
-    private final List<PCComponent> componentList;
+    private final List<ComponentModel> componentList;
     private final OnCartActionListener listener;
     private final boolean isSavedList;
 
     public interface OnCartActionListener {
-        void onRemoveClicked(PCComponent component);
-        void onSaveForLaterClicked(PCComponent component);
-        void onMoveToCartClicked(PCComponent component);
-        void onQuantityChanged(PCComponent component, int newQuantity);
+        void onRemoveClicked(ComponentModel component);
+        void onSaveForLaterClicked(ComponentModel component);
+        void onMoveToCartClicked(ComponentModel component);
+        void onQuantityChanged(ComponentModel component, int newQuantity);
     }
 
-    public CartItemAdapter(Context context, List<PCComponent> components,
+    public CartItemAdapter(Context context, List<ComponentModel> components,
                            OnCartActionListener listener, boolean isSavedList) {
         this.context = context;
         this.componentList = components;
@@ -45,16 +45,16 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
 
     @Override
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
-        PCComponent component = componentList.get(position);
+        ComponentModel component = componentList.get(position);
 
         holder.nameText.setText(component.getName());
         holder.descriptionText.setText(component.getDescription());
-        holder.priceText.setText("₹" + component.getPrice());
-        holder.quantityText.setText(String.valueOf(component.getQuantity()));
+        holder.priceText.setText("₹" + String.format("%.0f", component.getPrice()));
+        holder.quantityText.setText("1"); // Default quantity for now
 
         // Rating stars
         holder.ratingLayout.removeAllViews();
-        int rating = component.getRating();
+        int rating = (int) component.getRating();
         for (int i = 0; i < rating; i++) {
             ImageView star = new ImageView(context);
             star.setImageResource(R.drawable.ic_star);
@@ -87,19 +87,13 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
             holder.quantityText.setVisibility(View.VISIBLE);
 
             holder.incrementBtn.setOnClickListener(v -> {
-                int qty = component.getQuantity();
-                component.setQuantity(qty + 1);
-                holder.quantityText.setText(String.valueOf(component.getQuantity()));
-                if (listener != null) listener.onQuantityChanged(component, qty + 1);
+                // TODO: Implement quantity management for ComponentModel
+                if (listener != null) listener.onQuantityChanged(component, 1);
             });
 
             holder.decrementBtn.setOnClickListener(v -> {
-                int qty = component.getQuantity();
-                if (qty > 1) {
-                    component.setQuantity(qty - 1);
-                    holder.quantityText.setText(String.valueOf(component.getQuantity()));
-                    if (listener != null) listener.onQuantityChanged(component, qty - 1);
-                }
+                // TODO: Implement quantity management for ComponentModel
+                if (listener != null) listener.onQuantityChanged(component, 1);
             });
 
             holder.saveForLater.setOnClickListener(v -> {
