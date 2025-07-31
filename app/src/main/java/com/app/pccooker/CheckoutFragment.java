@@ -14,7 +14,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.pccooker.models.PCComponent;
+import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.CartItem;
 
 import java.util.List;
 
@@ -72,7 +73,7 @@ public class CheckoutFragment extends Fragment {
     private void loadSummary() {
         CartManager.getInstance(requireContext()).loadCartFromFirebase(new CartManager.OnCartLoadedListener() {
             @Override
-            public void onCartLoaded(List<ComponentModel> cartItems) {
+            public void onCartLoaded(List<CartItem> cartItems) {
                 if (cartItems == null || cartItems.isEmpty()) {
                     Toast.makeText(getContext(), "Your cart is empty.", Toast.LENGTH_SHORT).show();
                     return;
@@ -91,7 +92,7 @@ public class CheckoutFragment extends Fragment {
     private void setupPaymentButtons() {
         CartManager.getInstance(requireContext()).loadCartFromFirebase(new CartManager.OnCartLoadedListener() {
             @Override
-            public void onCartLoaded(List<ComponentModel> cartItems) {
+            public void onCartLoaded(List<CartItem> cartItems) {
                 double total = CartManager.getInstance(requireContext()).getCartTotal();
                 double tokenAmount = total * 0.20; // 20% token amount
                 

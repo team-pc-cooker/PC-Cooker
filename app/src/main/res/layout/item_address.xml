@@ -1,61 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="8dp"
-    android:layout_marginHorizontal="4dp"
-    card_view:cardCornerRadius="8dp"
-    card_view:cardElevation="4dp">
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/addressCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/address_card_bg">
 
-        <!-- Address Label (e.g., Home / Work / Other) -->
-        <TextView
-            android:id="@+id/labelText"
-            android:layout_width="wrap_content"
+        <!-- Header with Label and Selection Icon -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Home"
-            android:textStyle="bold"
-            android:textColor="@color/purple_700"
-            android:textSize="16sp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
 
-        <!-- Delete icon on right -->
-        <ImageView
-            android:id="@+id/deleteBtn"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_delete"
-            android:contentDescription="Delete address"
-            card_view:tint="@android:color/holo_red_dark" />
+            <TextView
+                android:id="@+id/labelText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Home"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#4CAF50"
+                android:background="@drawable/label_background"
+                android:padding="4dp"
+                android:gravity="center" />
 
-        <!-- Address Details (Name, Address Line, Pincode) -->
-        <TextView
-            android:id="@+id/detailsText"
-            android:layout_width="wrap_content"
+            <ImageView
+                android:id="@+id/selectedIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_check"
+                android:visibility="gone"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- Address Details -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/labelText"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="4dp"
-            android:text="John Doe\n123 Main Street, Vijayawada\nAndhra Pradesh - 520001"
-            android:textColor="#333"
-            android:textSize="14sp" />
+            android:orientation="vertical"
+            android:layout_marginBottom="12dp">
 
-        <!-- Mobile number -->
-        <TextView
-            android:id="@+id/mobileText"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/nameText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="John Doe"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#333"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/mobileText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📞 9876543210"
+                android:textSize="14sp"
+                android:textColor="#666"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/addressText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="123 Main Street, Apartment 4B\nHyderabad, Andhra Pradesh - 500001"
+                android:textSize="14sp"
+                android:textColor="#333"
+                android:lineSpacingExtra="2dp" />
+        </LinearLayout>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/detailsText"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="6dp"
-            android:text="📞 7897892656"
-            android:textColor="#555"
-            android:textSize="13sp" />
-    </RelativeLayout>
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <Button
+                android:id="@+id/editButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Edit"
+                android:textSize="12sp"
+                android:paddingHorizontal="16dp"
+                android:layout_marginEnd="8dp"
+                style="@style/Widget.MaterialComponents.Button.TextButton" />
+
+            <Button
+                android:id="@+id/deleteButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Delete"
+                android:textSize="12sp"
+                android:paddingHorizontal="16dp"
+                android:textColor="#D32F2F"
+                style="@style/Widget.MaterialComponents.Button.TextButton" />
+        </LinearLayout>
+    </LinearLayout>
 </androidx.cardview.widget.CardView>

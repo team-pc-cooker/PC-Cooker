@@ -17,7 +17,7 @@ import com.google.firebase.firestore.*;
 
 import java.util.*;
 
-public class ManageAddressFragment extends Fragment {
+public class ManageAddressFragment extends Fragment implements AddressAdapter.OnAddressActionListener {
 
     private RecyclerView addressRecyclerView;
     private AddressAdapter adapter;
@@ -41,14 +41,8 @@ public class ManageAddressFragment extends Fragment {
         userId = FirebaseAuth.getInstance().getCurrentUser() != null ?
                 FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
 
-        adapter = new AddressAdapter(requireContext(), addressList, this::deleteAddress);
+        adapter = new AddressAdapter(requireContext(), addressList, this);
         addressRecyclerView.setAdapter(adapter);
-
-        adapter.setOnEditClickListener(address -> {
-            Intent intent = new Intent(getContext(), EditAddressActivity.class);
-            intent.putExtra("addressData", address);
-            startActivityForResult(intent, 100);
-        });
 
         loadAddresses();
 
@@ -78,6 +72,23 @@ public class ManageAddressFragment extends Fragment {
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(getContext(), "Failed to load addresses", Toast.LENGTH_SHORT).show());
+    }
+
+    @Override
+    public void onAddressSelected(AddressModel address) {
+        // Not used in manage address fragment
+    }
+
+    @Override
+    public void onAddressEdit(AddressModel address) {
+        Intent intent = new Intent(getContext(), EditAddressActivity.class);
+        intent.putExtra("addressData", address);
+        startActivityForResult(intent, 100);
+    }
+
+    @Override
+    public void onAddressDelete(AddressModel address) {
+        deleteAddress(address);
     }
 
     private void deleteAddress(AddressModel address) {

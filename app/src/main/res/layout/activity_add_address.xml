@@ -34,11 +34,12 @@
             android:inputType="textPostalAddress"
             android:layout_marginTop="8dp" />
 
-        <EditText
+<EditText
             android:id="@+id/inputCity"
             android:hint="City"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
             android:layout_marginTop="8dp" />
 
         <EditText
@@ -46,6 +47,7 @@
             android:hint="State"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
             android:layout_marginTop="8dp" />
 
         <EditText

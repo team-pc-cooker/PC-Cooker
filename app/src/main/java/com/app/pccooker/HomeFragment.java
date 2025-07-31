@@ -2,6 +2,8 @@ package com.app.pccooker;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +11,9 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,6 +24,9 @@ public class HomeFragment extends Fragment {
 
     private EditText searchBar;
     private ViewPager2 viewPager;
+    private ImageButton aiAssistantButton;
+    private Handler searchHandler = new Handler();
+    private Runnable searchRunnable;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -35,6 +42,7 @@ public class HomeFragment extends Fragment {
 
         searchBar = view.findViewById(R.id.searchBar);
         viewPager = view.findViewById(R.id.imageSlider);
+        aiAssistantButton = view.findViewById(R.id.aiAssistantButton);
 
         setupSearchBar();
         setupImageSlider();
@@ -52,6 +60,24 @@ public class HomeFragment extends Fragment {
             }
             return false;
         });
+
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (searchRunnable != null) searchHandler.removeCallbacks(searchRunnable);
+                searchRunnable = () -> {
+                    String query = s.toString().trim();
+                    if (!query.isEmpty()) {
+                        performSearch(query);
+                    }
+                };
+                searchHandler.postDelayed(searchRunnable, 400); // debounce
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 
     private void performSearch(String query) {
@@ -59,7 +85,6 @@ public class HomeFragment extends Fragment {
             Toast.makeText(getContext(), "Please enter a search term", Toast.LENGTH_SHORT).show();
             return;
         }
-
         // Navigate to component search with the query
         ComponentSearchFragment searchFragment = ComponentSearchFragment.newInstance(query);
         ((MainActivity) requireActivity()).loadFragment(searchFragment);
@@ -106,6 +131,12 @@ public class HomeFragment extends Fragment {
 
         sellPcButton.setOnClickListener(v -> {
             ((MainActivity) requireActivity()).loadFragment(new SellPCFragment());
+        });
+
+        // AI Assistant button
+        aiAssistantButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), AIAssistantActivity.class);
+            startActivity(intent);
         });
     }
 }

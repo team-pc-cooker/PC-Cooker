@@ -1,5 +1,6 @@
 package com.app.pccooker;
 
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,34 +10,36 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.CartItem;
 import com.bumptech.glide.Glide;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartViewHolder> {
 
     private final Context context;
-    private final List<ComponentModel> componentList;
+    private final List<CartItem> cartItemList;
     private final OnCartActionListener listener;
     private final boolean isSavedList;
 
     public interface OnCartActionListener {
-        void onRemoveClicked(ComponentModel component);
-        void onSaveForLaterClicked(ComponentModel component);
-        void onMoveToCartClicked(ComponentModel component);
-        void onQuantityChanged(ComponentModel component, int newQuantity);
+        void onRemoveClicked(CartItem cartItem);
+        void onSaveForLaterClicked(CartItem cartItem);
+        void onMoveToCartClicked(CartItem cartItem);
+        void onQuantityChanged(CartItem cartItem, int newQuantity);
     }
 
-    public CartItemAdapter(Context context, List<ComponentModel> components,
+    public CartItemAdapter(Context context, List<CartItem> cartItems,
                            OnCartActionListener listener, boolean isSavedList) {
         this.context = context;
-        this.componentList = components;
+        this.cartItemList = cartItems;
         this.listener = listener;
         this.isSavedList = isSavedList;
     }
 
-    @NonNull
+    @NotNull
     @Override
     public CartViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_cart, parent, false);
@@ -45,71 +48,106 @@ public class CartItemAdapter extends RecyclerView.Adapter<CartItemAdapter.CartVi
 
     @Override
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
-        ComponentModel component = componentList.get(position);
+        try {
+            CartItem cartItem = cartItemList.get(position);
+            if (cartItem == null) return;
 
-        holder.nameText.setText(component.getName());
-        holder.descriptionText.setText(component.getDescription());
-        holder.priceText.setText("₹" + String.format("%.0f", component.getPrice()));
-        holder.quantityText.setText("1"); // Default quantity for now
+            // Set text with null checks
+            holder.nameText.setText(cartItem.getName() != null ? cartItem.getName() : "Unknown Component");
+            holder.descriptionText.setText(cartItem.getDescription() != null ? cartItem.getDescription() : "No description available");
+            holder.priceText.setText("₹" + String.format("%.0f", cartItem.getPrice()));
+            
+            // Get quantity from cart item (default to 1 if not set)
+            int quantity = cartItem.getQuantity() > 0 ? cartItem.getQuantity() : 1;
+            holder.quantityText.setText(String.valueOf(quantity));
 
-        // Rating stars
-        holder.ratingLayout.removeAllViews();
-        int rating = (int) component.getRating();
-        for (int i = 0; i < rating; i++) {
-            ImageView star = new ImageView(context);
-            star.setImageResource(R.drawable.ic_star);
-            star.setLayoutParams(new LinearLayout.LayoutParams(48, 48));
-            holder.ratingLayout.addView(star);
+            // Rating stars
+            holder.ratingLayout.removeAllViews();
+            int rating = (int) Math.max(0, Math.min(5, cartItem.getRating())); // Clamp between 0-5
+            for (int i = 0; i < rating; i++) {
+                ImageView star = new ImageView(context);
+                star.setImageResource(R.drawable.ic_star);
+                star.setLayoutParams(new LinearLayout.LayoutParams(48, 48));
+                holder.ratingLayout.addView(star);
+            }
+
+            // Load image with error handling
+            if (cartItem.getImageUrl() != null && !cartItem.getImageUrl().isEmpty()) {
+                Glide.with(context)
+                        .load(cartItem.getImageUrl())
+                        .placeholder(R.drawable.ic_placeholder)
+                        .error(R.drawable.ic_placeholder)
+                        .into(holder.componentImage);
+            } else {
+                holder.componentImage.setImageResource(R.drawable.ic_placeholder);
+            }
+
+            // Action Buttons
+            if (isSavedList) {
+                holder.saveForLater.setVisibility(View.GONE);
+                holder.moveToCart.setVisibility(View.VISIBLE);
+                holder.incrementBtn.setVisibility(View.GONE);
+                holder.decrementBtn.setVisibility(View.GONE);
+                holder.quantityText.setVisibility(View.GONE);
+
+                holder.moveToCart.setOnClickListener(v -> {
+                    if (listener != null) listener.onMoveToCartClicked(cartItem);
+                });
+
+            } else {
+                holder.saveForLater.setVisibility(View.VISIBLE);
+                holder.moveToCart.setVisibility(View.GONE);
+                holder.incrementBtn.setVisibility(View.VISIBLE);
+                holder.decrementBtn.setVisibility(View.VISIBLE);
+                holder.quantityText.setVisibility(View.VISIBLE);
+
+                holder.incrementBtn.setOnClickListener(v -> {
+                    try {
+                        int currentQuantity = Integer.parseInt(holder.quantityText.getText().toString());
+                        int newQuantity = currentQuantity + 1;
+                        holder.quantityText.setText(String.valueOf(newQuantity));
+                        if (listener != null) listener.onQuantityChanged(cartItem, newQuantity);
+                    } catch (NumberFormatException e) {
+                        // Handle invalid number format
+                        holder.quantityText.setText("1");
+                        if (listener != null) listener.onQuantityChanged(cartItem, 1);
+                    }
+                });
+
+                holder.decrementBtn.setOnClickListener(v -> {
+                    try {
+                        int currentQuantity = Integer.parseInt(holder.quantityText.getText().toString());
+                        if (currentQuantity > 1) {
+                            int newQuantity = currentQuantity - 1;
+                            holder.quantityText.setText(String.valueOf(newQuantity));
+                            if (listener != null) listener.onQuantityChanged(cartItem, newQuantity);
+                        }
+                    } catch (NumberFormatException e) {
+                        // Handle invalid number format
+                        holder.quantityText.setText("1");
+                        if (listener != null) listener.onQuantityChanged(cartItem, 1);
+                    }
+                });
+
+                holder.saveForLater.setOnClickListener(v -> {
+                    if (listener != null) listener.onSaveForLaterClicked(cartItem);
+                });
+            }
+
+            // Delete icon (works in both modes)
+            holder.deleteBtn.setOnClickListener(v -> {
+                if (listener != null) listener.onRemoveClicked(cartItem);
+            });
+            
+        } catch (Exception e) {
+            // Handle any unexpected errors gracefully
+            android.util.Log.e("CartItemAdapter", "Error binding view holder at position " + position, e);
         }
-
-        Glide.with(context)
-                .load(component.getImageUrl())
-                .placeholder(R.drawable.ic_placeholder)
-                .into(holder.componentImage);
-
-        // Action Buttons
-        if (isSavedList) {
-            holder.saveForLater.setVisibility(View.GONE);
-            holder.moveToCart.setVisibility(View.VISIBLE);
-            holder.incrementBtn.setVisibility(View.GONE);
-            holder.decrementBtn.setVisibility(View.GONE);
-            holder.quantityText.setVisibility(View.GONE);
-
-            holder.moveToCart.setOnClickListener(v -> {
-                if (listener != null) listener.onMoveToCartClicked(component);
-            });
-
-        } else {
-            holder.saveForLater.setVisibility(View.VISIBLE);
-            holder.moveToCart.setVisibility(View.GONE);
-            holder.incrementBtn.setVisibility(View.VISIBLE);
-            holder.decrementBtn.setVisibility(View.VISIBLE);
-            holder.quantityText.setVisibility(View.VISIBLE);
-
-            holder.incrementBtn.setOnClickListener(v -> {
-                // TODO: Implement quantity management for ComponentModel
-                if (listener != null) listener.onQuantityChanged(component, 1);
-            });
-
-            holder.decrementBtn.setOnClickListener(v -> {
-                // TODO: Implement quantity management for ComponentModel
-                if (listener != null) listener.onQuantityChanged(component, 1);
-            });
-
-            holder.saveForLater.setOnClickListener(v -> {
-                if (listener != null) listener.onSaveForLaterClicked(component);
-            });
-        }
-
-        // Delete icon (works in both modes)
-        holder.deleteBtn.setOnClickListener(v -> {
-            if (listener != null) listener.onRemoveClicked(component);
-        });
     }
 
     @Override
     public int getItemCount() {
-        return componentList.size();
+        return cartItemList != null ? cartItemList.size() : 0;
     }
 
     static class CartViewHolder extends RecyclerView.ViewHolder {

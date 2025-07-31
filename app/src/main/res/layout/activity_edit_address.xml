@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="#ffffff">
+    android:background="@drawable/bg_sky_blue_gradient">
 
     <LinearLayout
         android:orientation="vertical"
@@ -55,13 +55,17 @@
         <Spinner
             android:id="@+id/editStateSpinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
+            android:background="@drawable/input_background"
+            android:padding="12dp"
             android:layout_marginBottom="12dp" />
 
         <Spinner
             android:id="@+id/editCitySpinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
+            android:background="@drawable/input_background"
+            android:padding="12dp"
             android:layout_marginBottom="16dp" />
 
         <TextView
@@ -127,7 +131,9 @@
             android:layout_height="wrap_content"
             android:text="Update Address"
             android:textColor="@android:color/white"
-            android:backgroundTint="#2196F3" />
+            android:backgroundTint="@color/sky_blue_primary"
+            android:textStyle="bold"
+            android:elevation="4dp" />
 
         <CheckBox
             android:id="@+id/checkboxDefault"

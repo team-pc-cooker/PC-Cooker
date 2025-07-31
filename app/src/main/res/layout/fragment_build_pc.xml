@@ -3,71 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#121212"
     android:padding="16dp">
-
-    <!-- Title -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="🚀 Build Your PC"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:gravity="center"
-        android:layout_marginBottom="20dp" />
-
-    <!-- Budget Section -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/bg_card"
-        android:padding="16dp"
-        android:layout_marginBottom="20dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="💰 Set Your Budget"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="12dp" />
-
-        <EditText
-            android:id="@+id/budgetInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter your budget (₹)"
-            android:inputType="number"
-            android:padding="12dp"
-            android:background="@drawable/input_background"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#AAAAAA"
-            android:layout_marginBottom="12dp" />
-
-        <Button
-            android:id="@+id/autoSelectButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="🤖 Select Automatically"
-            android:backgroundTint="#4CAF50"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            android:padding="12dp" />
-
-        <TextView
-            android:id="@+id/budgetText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Or manually select components below:"
-            android:textSize="14sp"
-            android:textColor="#CCCCCC"
-            android:layout_marginTop="12dp"
-            android:gravity="center" />
-
-    </LinearLayout>
 
     <!-- Component Categories -->
     <TextView

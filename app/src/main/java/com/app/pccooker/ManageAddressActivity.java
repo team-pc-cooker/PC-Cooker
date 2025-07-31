@@ -14,7 +14,7 @@ import com.google.firebase.firestore.*;
 
 import java.util.*;
 
-public class ManageAddressActivity extends AppCompatActivity {
+public class ManageAddressActivity extends AppCompatActivity implements AddressAdapter.OnAddressActionListener {
 
     private RecyclerView addressRecyclerView;
     private Button addAddressBtn;
@@ -39,7 +39,7 @@ public class ManageAddressActivity extends AppCompatActivity {
         uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         db = FirebaseFirestore.getInstance();
 
-        adapter = new AddressAdapter(this, addressList, this::deleteAddress);
+        adapter = new AddressAdapter(this, addressList, this);
 
 
 
@@ -73,6 +73,21 @@ public class ManageAddressActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Failed to load addresses", Toast.LENGTH_SHORT).show());
+    }
+
+    @Override
+    public void onAddressSelected(AddressModel address) {
+        // Not used in manage address activity
+    }
+
+    @Override
+    public void onAddressEdit(AddressModel address) {
+        EditAddressActivity.startEditAddress(this, address);
+    }
+
+    @Override
+    public void onAddressDelete(AddressModel address) {
+        deleteAddress(address);
     }
 
     private void deleteAddress(AddressModel address) {

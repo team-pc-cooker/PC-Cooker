@@ -20,8 +20,16 @@ public class MainActivity extends AppCompatActivity {
         bottomNav = findViewById(R.id.bottomNavigation);
         setupBottomNavigation();
 
+        // Firebase data is now populated via scripts
+
         if (savedInstanceState == null) {
-            loadFragment(new HomeFragment());
+            // Check if we should show cart (coming from AI summary)
+            if (getIntent().getBooleanExtra("show_cart", false)) {
+                loadFragment(new CartFragment());
+                bottomNav.setSelectedItemId(R.id.navigation_cart);
+            } else {
+                loadFragment(new HomeFragment());
+            }
         }
     }
     public void setCartBadge(int count) {
@@ -63,7 +71,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        CartUtils.updateBadgeCount(this, bottomNav);
+        updateCartBadge();
+    }
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        updateCartBadge();
     }
 
     public void loadFragment(Fragment fragment) {

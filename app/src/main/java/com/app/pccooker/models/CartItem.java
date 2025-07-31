@@ -5,6 +5,9 @@ public class CartItem {
     private String name;
     private String imageUrl;
     private double price;
+    private int quantity;
+    private String description;
+    private double rating;
 
     public CartItem() {} // Needed for Firebase
 
@@ -13,6 +16,7 @@ public class CartItem {
         this.name = name;
         this.imageUrl = imageUrl;
         this.price = price;
+        this.quantity = 1; // Default quantity
     }
 
     // Getters & Setters
@@ -27,4 +31,13 @@ public class CartItem {
 
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }
+
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public double getRating() { return rating; }
+    public void setRating(double rating) { this.rating = rating; }
 }

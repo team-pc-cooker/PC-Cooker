@@ -36,11 +36,11 @@ public class BuildPCActivity extends AppCompatActivity {
 
         // Set up adapter with click listener
         categoryAdapter = new CategoryAdapter(categories, category -> {
-            // Convert category to lowercase (to match Firestore document ID)
-            String categoryKey = category.toLowerCase().replace(" ", "_");
+            // Convert category to uppercase (to match fragment logic)
+            String categoryKey = category.toUpperCase();
 
-            Intent intent = new Intent(BuildPCActivity.this, CategoryComponentFragment.class);
-            intent.putExtra("categoryName", categoryKey);  // e.g., "processor"
+            Intent intent = new Intent(BuildPCActivity.this, CategoryComponentActivity.class);
+            intent.putExtra("categoryName", categoryKey);  // e.g., "PROCESSOR"
             startActivity(intent);
         });
 

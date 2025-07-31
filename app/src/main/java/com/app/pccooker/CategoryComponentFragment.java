@@ -57,14 +57,22 @@ public class CategoryComponentFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if (getArguments() != null) {
             category = getArguments().getString(ARG_CATEGORY);
-            titleText.setText(category);
+            if (titleText != null) {
+                titleText.setText(category);
+            }
             Log.d("CategoryComponent", "Category: " + category);
+        }
 
+        if (getContext() == null) {
+            Log.e("CategoryComponent", "Context is null");
+            return;
         }
 
         adapter = new ComponentAdapter(requireContext(), componentList, new ComponentAdapter.OnComponentClickListener() {
             @Override
             public void onComponentClick(ComponentModel component) {
+                if (getContext() == null) return;
+                
                 if (!CartManager.getInstance(requireContext()).isInCart(component)) {
                     CartManager.getInstance(requireContext()).addToCart(component);
                     Toast.makeText(getContext(), "Added to cart", Toast.LENGTH_SHORT).show();
@@ -77,44 +85,116 @@ public class CategoryComponentFragment extends Fragment {
             }
         });
 
-        recyclerView.setAdapter(adapter);
-        fetchComponents();
+        if (recyclerView != null) {
+            recyclerView.setAdapter(adapter);
+        }
+        
+        if (category != null && !category.isEmpty()) {
+            fetchComponents();
+        } else {
+            Log.e("CategoryComponent", "Category is null or empty");
+            Toast.makeText(getContext(), "Invalid category", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void fetchComponents() {
+        if (!isAdded() || getContext() == null) {
+            Log.e("CategoryComponent", "Fragment not attached or context is null");
+            return;
+        }
+        
         progressBar.setVisibility(View.VISIBLE);
+        
+        Log.d("CategoryComponent", "Fetching components for category: " + category);
 
-        FirebaseFirestore.getInstance()
-                .collection("pc_components")
-                .document(category)
-                .collection("items")
-                .get()
-                .addOnSuccessListener(query -> {
-                    componentList.clear();
-                    for (QueryDocumentSnapshot doc : query) {
-                        try {
-                            ComponentModel component = doc.toObject(ComponentModel.class);
-
-                            // Set fallback/default values to avoid null issues
-                            if (component.getName() == null) component.setName("Unnamed");
-                            if (component.getDescription() == null) component.setDescription("No description");
-                            if (component.getPrice() == 0) component.setPrice(1);  // Avoid blank/0 price
-                            if (component.getImageUrl() == null) component.setImageUrl(""); // Prevent crash
-
-                            componentList.add(component);
-                        } catch (Exception e) {
-                            Log.e("CategoryComponent", "Error parsing component", e);
+        // Fetch components from Firebase
+                    FirebaseFirestore.getInstance()
+                            .collection("pc_components")
+                            .document(category)
+                            .collection("items")
+                            .get()
+                            .addOnSuccessListener(itemsQuery -> {
+                                if (!isAdded()) return;
+                                
+                                Log.d("CategoryComponent", "Found " + itemsQuery.size() + " items for category: " + category);
+                                componentList.clear();
+                                
+                                if (itemsQuery.isEmpty()) {
+                                    Log.w("CategoryComponent", "No components found for category: " + category);
+                                    if (getContext() != null) {
+                            Toast.makeText(getContext(), "No components found for " + category, Toast.LENGTH_SHORT).show();
                         }
-                    }
-                    adapter.notifyDataSetChanged();
-                    progressBar.setVisibility(View.GONE);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("CategoryComponent", "Fetch failed", e);
-                    progressBar.setVisibility(View.GONE);
-                });
+                        if (progressBar != null) {
+                            progressBar.setVisibility(View.GONE);
+                                    }
+                                    return;
+                                }
+                                
+                                Log.d("CategoryComponent", "Processing " + itemsQuery.size() + " components for category: " + category);
+                                
+                                for (QueryDocumentSnapshot doc : itemsQuery) {
+                                    try {
+                                        Log.d("CategoryComponent", "Processing document: " + doc.getId());
+                                        ComponentModel component = doc.toObject(ComponentModel.class);
 
+                                        if (component == null) {
+                                            Log.e("CategoryComponent", "Failed to parse component from document: " + doc.getId());
+                                            continue;
+                                        }
+
+                                        // Set fallback/default values to avoid null issues
+                                        if (component.getName() == null || component.getName().isEmpty()) {
+                                            component.setName("Unnamed Component");
+                                        }
+                                        if (component.getDescription() == null || component.getDescription().isEmpty()) {
+                                            component.setDescription("No description available");
+                                        }
+                                        if (component.getPrice() <= 0) {
+                                            component.setPrice(1000); // Default price
+                                        }
+                                        if (component.getRating() <= 0) {
+                                            component.setRating(3.0); // Default rating
+                                        }
+                                        if (component.getRatingCount() <= 0) {
+                                            component.setRatingCount(10); // Default rating count
+                                        }
+                                        if (component.getImageUrl() == null) {
+                                            component.setImageUrl("");
+                                        }
+                                        if (component.getBrand() == null || component.getBrand().isEmpty()) {
+                                            component.setBrand("Unknown Brand");
+                                        }
+                                        if (component.getCategory() == null || component.getCategory().isEmpty()) {
+                                            component.setCategory(category);
+                                        }
+
+                                        componentList.add(component);
+                                        Log.d("CategoryComponent", "Successfully added component: " + component.getName() + " (Price: " + component.getPrice() + ", Rating: " + component.getRating() + ")");
+                                    } catch (Exception e) {
+                                        Log.e("CategoryComponent", "Error parsing component from document: " + doc.getId(), e);
+                                        // Skip this component and continue with the next one
+                                    }
+                                }
+                                
+                                Log.d("CategoryComponent", "Total components loaded: " + componentList.size());
+                                if (adapter != null) {
+                                    adapter.notifyDataSetChanged();
+                                }
+                                if (progressBar != null) {
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                if (!isAdded()) return;
+                                
+                                Log.e("CategoryComponent", "Failed to fetch items for category: " + category, e);
+                                if (getContext() != null) {
+                                    Toast.makeText(getContext(), "Failed to load components: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                                if (progressBar != null) {
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            });
     }
-
 
 }

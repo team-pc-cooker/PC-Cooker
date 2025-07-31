@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ffffff"
+    android:background="@drawable/bg_premium_gradient"
     android:padding="16dp">
 
     <LinearLayout
@@ -129,14 +129,15 @@
             android:text="Save Address"
             android:backgroundTint="#2196F3"
             android:textColor="@android:color/white" />
+        
         <Button
-            android:id="@+id/btnViewSavedAddresses"
+            android:id="@+id/btnProceedToPayment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="View Saved Addresses"
+            android:text="Proceed to Payment"
             android:layout_marginTop="12dp"
             android:visibility="gone"
-            android:backgroundTint="#4CAF50"
+            android:backgroundTint="#FF5722"
             android:textColor="@android:color/white"/>
 
 

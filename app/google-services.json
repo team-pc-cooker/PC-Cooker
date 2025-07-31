@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "539281411395",
+    "firebase_url": "https://pc-cooker-ba74b-default-rtdb.firebaseio.com",
     "project_id": "pc-cooker-ba74b",
     "storage_bucket": "pc-cooker-ba74b.firebasestorage.app"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "539281411395-mhire4s41ok6jd120u84fu63ac5u2nht.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.pccooker",
+            "certificate_hash": "b63f1e3d99f0d1ed6ad87ad2a10f7caebae51166"
+          }
+        },
         {
           "client_id": "539281411395-mhnn6nfrs0m467pokn8bddlacaenc5sk.apps.googleusercontent.com",
           "client_type": 3

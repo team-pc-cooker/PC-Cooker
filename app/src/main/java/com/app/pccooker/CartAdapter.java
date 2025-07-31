@@ -8,16 +8,15 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.app.pccooker.models.PCComponent;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 
-    private final List<PCComponent> cartItems;
+    private final List<ComponentModel> cartItems;
 
-    public CartAdapter(List<PCComponent> cartItems) {
+    public CartAdapter(List<ComponentModel> cartItems) {
         this.cartItems = cartItems;
     }
 
@@ -31,7 +30,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
-        PCComponent component = cartItems.get(position);
+        ComponentModel component = cartItems.get(position);
         holder.nameText.setText(component.getName());
         holder.descriptionText.setText(component.getDescription());
         holder.priceText.setText("₹" + component.getPrice());

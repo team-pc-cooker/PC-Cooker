@@ -39,37 +39,50 @@ public class ComponentAdapter extends RecyclerView.Adapter<ComponentAdapter.Comp
 
     @Override
     public void onBindViewHolder(@NonNull ComponentViewHolder holder, int position) {
-        ComponentModel component = componentList.get(position);
-        
-        holder.nameText.setText(component.getName());
-        holder.brandText.setText(component.getBrand());
-        holder.priceText.setText("₹" + String.format("%.0f", component.getPrice()));
-        holder.ratingText.setText(String.format("%.1f", component.getRating()) + " ★");
-        holder.ratingCountText.setText("(" + component.getRatingCount() + ")");
-        
-        // Load image with placeholder
-        if (component.getImageUrl() != null && !component.getImageUrl().isEmpty()) {
-            Glide.with(holder.itemView.getContext())
-                    .load(component.getImageUrl())
-                    .placeholder(R.drawable.ic_placeholder)
-                    .error(R.drawable.ic_placeholder)
-                    .into(holder.imageView);
-        } else {
+        try {
+            ComponentModel component = componentList.get(position);
+            
+            // Safely set text with null checks
+            holder.nameText.setText(component.getName() != null ? component.getName() : "Unknown Component");
+            holder.brandText.setText(component.getBrand() != null ? component.getBrand() : "Unknown Brand");
+            holder.priceText.setText("₹" + String.format("%.0f", component.getPrice()));
+            holder.ratingText.setText(String.format("%.1f", component.getRating()) + " ★");
+            holder.ratingCountText.setText("(" + component.getRatingCount() + ")");
+            
+            // Load image with placeholder
+            if (component.getImageUrl() != null && !component.getImageUrl().isEmpty()) {
+                Glide.with(holder.itemView.getContext())
+                        .load(component.getImageUrl())
+                        .placeholder(R.drawable.ic_placeholder)
+                        .error(R.drawable.ic_placeholder)
+                        .into(holder.imageView);
+            } else {
+                holder.imageView.setImageResource(R.drawable.ic_placeholder);
+            }
+
+            // Set stock status
+            if (component.isInStock()) {
+                holder.stockText.setText("In Stock");
+                holder.stockText.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.holo_green_dark));
+            } else {
+                holder.stockText.setText("Out of Stock");
+                holder.stockText.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.holo_red_dark));
+            }
+
+            holder.itemView.setOnClickListener(v -> {
+                if (listener != null) listener.onComponentClick(component);
+            });
+        } catch (Exception e) {
+            android.util.Log.e("ComponentAdapter", "Error binding component at position " + position, e);
+            // Set default values to prevent crash
+            holder.nameText.setText("Error loading component");
+            holder.brandText.setText("");
+            holder.priceText.setText("₹0");
+            holder.ratingText.setText("0.0 ★");
+            holder.ratingCountText.setText("(0)");
+            holder.stockText.setText("Unknown");
             holder.imageView.setImageResource(R.drawable.ic_placeholder);
         }
-
-        // Set stock status
-        if (component.isInStock()) {
-            holder.stockText.setText("In Stock");
-            holder.stockText.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.holo_green_dark));
-        } else {
-            holder.stockText.setText("Out of Stock");
-            holder.stockText.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.holo_red_dark));
-        }
-
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) listener.onComponentClick(component);
-        });
     }
 
     @Override

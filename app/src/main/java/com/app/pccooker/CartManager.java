@@ -3,6 +3,7 @@ package com.app.pccooker;
 import android.content.Context;
 import android.widget.Toast;
 import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.CartItem;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.Map;
 
 public class CartManager {
     private static CartManager instance;
-    private final List<ComponentModel> cartItems = new ArrayList<>();
+    private final List<CartItem> cartItems = new ArrayList<>();
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
     private final Context context;
@@ -32,14 +33,26 @@ public class CartManager {
 
     public void addToCart(ComponentModel component) {
         // Check if component already exists in cart
-        for (ComponentModel item : cartItems) {
+        for (CartItem item : cartItems) {
             if (item.getId().equals(component.getId())) {
-                Toast.makeText(context, "Component already in cart", Toast.LENGTH_SHORT).show();
+                // Don't increment quantity - just show message
+                Toast.makeText(context, component.getName() + " is already in cart", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
         
-        cartItems.add(component);
+        // Create new cart item with quantity 1
+        CartItem cartItem = new CartItem(
+            component.getId(),
+            component.getName(),
+            component.getImageUrl(),
+            component.getPrice()
+        );
+        cartItem.setDescription(component.getDescription());
+        cartItem.setRating(component.getRating());
+        cartItem.setQuantity(1); // Always start with quantity 1
+        
+        cartItems.add(cartItem);
         saveCartToFirebase();
         Toast.makeText(context, component.getName() + " added to cart", Toast.LENGTH_SHORT).show();
     }
@@ -54,20 +67,24 @@ public class CartManager {
         saveCartToFirebase();
     }
 
-    public List<ComponentModel> getCartItems() {
+    public List<CartItem> getCartItems() {
         return new ArrayList<>(cartItems);
     }
 
     public double getCartTotal() {
         double total = 0;
-        for (ComponentModel item : cartItems) {
-            total += item.getPrice();
+        for (CartItem item : cartItems) {
+            total += item.getPrice() * item.getQuantity();
         }
         return total;
     }
 
     public int getCartItemCount() {
-        return cartItems.size();
+        int count = 0;
+        for (CartItem item : cartItems) {
+            count += item.getQuantity();
+        }
+        return count;
     }
 
     public boolean isCartEmpty() {
@@ -75,7 +92,7 @@ public class CartManager {
     }
 
     public boolean isInCart(ComponentModel component) {
-        for (ComponentModel item : cartItems) {
+        for (CartItem item : cartItems) {
             if (item.getId().equals(component.getId())) {
                 return true;
             }
@@ -100,7 +117,7 @@ public class CartManager {
         savedItem.put("price", component.getPrice());
         savedItem.put("brand", component.getBrand());
         savedItem.put("imageUrl", component.getImageUrl());
-        savedItem.put("amazonUrl", component.getAmazonUrl());
+        savedItem.put("amazonUrl", component.getProductUrl());
         savedItem.put("description", component.getDescription());
         savedItem.put("rating", component.getRating());
         savedItem.put("ratingCount", component.getRatingCount());
@@ -120,36 +137,13 @@ public class CartManager {
     }
 
     public void updateQuantity(String componentId, int newQuantity) {
-        // Update quantity in Firebase
-        String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
-        if (userId == null) return;
-
-        db.collection("users").document(userId)
-            .collection("cart")
-            .document("items")
-            .get()
-            .addOnSuccessListener(documentSnapshot -> {
-                if (documentSnapshot.exists()) {
-                    List<Map<String, Object>> cartData = (List<Map<String, Object>>) documentSnapshot.getData().get("items");
-                    if (cartData != null) {
-                        for (Map<String, Object> item : cartData) {
-                            if (componentId.equals(item.get("id"))) {
-                                item.put("quantity", newQuantity);
-                                break;
-                            }
-                        }
-                        
-                        // Update the cart
-                        Map<String, Object> updateData = new HashMap<>();
-                        updateData.put("items", cartData);
-                        
-                        db.collection("users").document(userId)
-                            .collection("cart")
-                            .document("items")
-                            .set(updateData);
-                    }
-                }
-            });
+        for (CartItem item : cartItems) {
+            if (item.getId().equals(componentId)) {
+                item.setQuantity(newQuantity);
+                break;
+            }
+        }
+        saveCartToFirebase();
     }
 
     private void saveCartToFirebase() {
@@ -157,28 +151,25 @@ public class CartManager {
         if (userId == null) return;
 
         List<Map<String, Object>> cartData = new ArrayList<>();
-        for (ComponentModel component : cartItems) {
+        for (CartItem cartItem : cartItems) {
             Map<String, Object> itemData = new HashMap<>();
-            itemData.put("id", component.getId());
-            itemData.put("name", component.getName());
-            itemData.put("category", component.getCategory());
-            itemData.put("price", component.getPrice());
-            itemData.put("brand", component.getBrand());
-            itemData.put("imageUrl", component.getImageUrl());
-            itemData.put("amazonUrl", component.getAmazonUrl());
-            itemData.put("description", component.getDescription());
-            itemData.put("rating", component.getRating());
-            itemData.put("ratingCount", component.getRatingCount());
-            itemData.put("inStock", component.isInStock());
-            itemData.put("model", component.getModel());
-            itemData.put("specifications", component.getSpecifications());
+            itemData.put("id", cartItem.getId());
+            itemData.put("name", cartItem.getName());
+            itemData.put("imageUrl", cartItem.getImageUrl());
+            itemData.put("price", cartItem.getPrice());
+            itemData.put("quantity", cartItem.getQuantity());
+            itemData.put("description", cartItem.getDescription());
+            itemData.put("rating", cartItem.getRating());
             cartData.add(itemData);
         }
+
+        Map<String, Object> cartDocument = new HashMap<>();
+        cartDocument.put("items", cartData);
 
         db.collection("users").document(userId)
             .collection("cart")
             .document("items")
-            .set(cartData)
+            .set(cartDocument)
             .addOnSuccessListener(aVoid -> {
                 // Cart saved successfully
             })
@@ -190,6 +181,8 @@ public class CartManager {
     public void loadCartFromFirebase(OnCartLoadedListener listener) {
         String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
         if (userId == null) {
+            // Clear local cart when no user is logged in
+            cartItems.clear();
             if (listener != null) listener.onCartLoaded(new ArrayList<>());
             return;
         }
@@ -199,39 +192,63 @@ public class CartManager {
             .document("items")
             .get()
             .addOnSuccessListener(documentSnapshot -> {
-                cartItems.clear();
+                cartItems.clear(); // Always clear first to prevent duplicates
+                
+                // Only load items if document exists and has valid data
                 if (documentSnapshot.exists() && documentSnapshot.getData() != null) {
-                    List<Map<String, Object>> cartData = (List<Map<String, Object>>) documentSnapshot.getData().get("items");
-                    if (cartData != null) {
+                    Object itemsObj = documentSnapshot.getData().get("items");
+                    if (itemsObj instanceof List) {
+                        List<Map<String, Object>> cartData = (List<Map<String, Object>>) itemsObj;
+                        
                         for (Map<String, Object> itemData : cartData) {
-                            ComponentModel component = new ComponentModel(
-                                (String) itemData.get("id"),
-                                (String) itemData.get("name"),
-                                (String) itemData.get("category"),
-                                ((Number) itemData.get("price")).doubleValue(),
-                                ((Number) itemData.get("rating")).doubleValue(),
-                                ((Number) itemData.get("ratingCount")).intValue(),
-                                (String) itemData.get("imageUrl"),
-                                (String) itemData.get("amazonUrl"),
-                                (String) itemData.get("description"),
-                                (Map<String, String>) itemData.get("specifications"),
-                                (Boolean) itemData.get("inStock"),
-                                (String) itemData.get("brand"),
-                                (String) itemData.get("model")
-                            );
-                            cartItems.add(component);
+                            try {
+                                // Validate required fields
+                                String id = (String) itemData.get("id");
+                                String name = (String) itemData.get("name");
+                                if (id == null || name == null) continue;
+                                
+                                CartItem cartItem = new CartItem(
+                                    id,
+                                    name,
+                                    (String) itemData.getOrDefault("imageUrl", ""),
+                                    itemData.get("price") != null ? ((Number) itemData.get("price")).doubleValue() : 0.0
+                                );
+                                
+                                // Set quantity (default to 1 if not present or invalid)
+                                Object quantityObj = itemData.get("quantity");
+                                int quantity = 1;
+                                if (quantityObj instanceof Number) {
+                                    quantity = Math.max(1, ((Number) quantityObj).intValue());
+                                }
+                                cartItem.setQuantity(quantity);
+                                
+                                // Set optional fields
+                                if (itemData.get("description") != null) {
+                                    cartItem.setDescription((String) itemData.get("description"));
+                                }
+                                if (itemData.get("rating") instanceof Number) {
+                                    cartItem.setRating(((Number) itemData.get("rating")).doubleValue());
+                                }
+                                
+                                cartItems.add(cartItem);
+                            } catch (Exception e) {
+                                // Skip invalid items
+                                System.err.println("Error loading cart item: " + e.getMessage());
+                            }
                         }
                     }
                 }
+                
                 if (listener != null) listener.onCartLoaded(new ArrayList<>(cartItems));
             })
             .addOnFailureListener(e -> {
-                Toast.makeText(context, "Failed to load cart", Toast.LENGTH_SHORT).show();
+                System.err.println("Failed to load cart: " + e.getMessage());
+                cartItems.clear(); // Clear on error
                 if (listener != null) listener.onCartLoaded(new ArrayList<>());
             });
     }
 
     public interface OnCartLoadedListener {
-        void onCartLoaded(List<ComponentModel> cartItems);
+        void onCartLoaded(List<CartItem> cartItems);
     }
 }

@@ -23,6 +23,12 @@ import java.util.*;
 
 public class EditAddressActivity extends AppCompatActivity {
 
+    public static void startEditAddress(android.content.Context context, AddressModel address) {
+        android.content.Intent intent = new android.content.Intent(context, EditAddressActivity.class);
+        intent.putExtra("addressData", address);
+        context.startActivity(intent);
+    }
+
     private EditText inputName, inputMobile, inputAddress, inputPincode, inputCustomLabel;
     private Spinner stateSpinner, citySpinner;
     private RadioGroup labelGroup;

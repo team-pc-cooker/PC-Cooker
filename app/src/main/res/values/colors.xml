@@ -1,26 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Sky Blue Theme Colors -->
+    <color name="sky_blue_primary">#87CEEB</color>
+    <color name="sky_blue_light">#B0E0E6</color>
+    <color name="sky_blue_dark">#4682B4</color>
+    <color name="sky_blue_accent">#00BFFF</color>
+    <color name="sky_blue_gradient_start">#87CEEB</color>
+    <color name="sky_blue_gradient_end">#B0E0E6</color>
+    
+    <!-- Professional UI Colors -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="text_primary">#333333</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_light">#999999</color>
+    <color name="background_light">#F8F9FA</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="border_light">#E0E0E0</color>
+    
+    <!-- Action Colors -->
+    <color name="success_green">#4CAF50</color>
+    <color name="warning_orange">#FF9800</color>
+    <color name="error_red">#F44336</color>
+    <color name="info_blue">#2196F3</color>
+    
+    <!-- Legacy Colors (for compatibility) -->
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="red">#F44336</color> <!-- Material Red -->
+    <color name="red">#F44336</color>
     <color name="blue">#03A9F4</color>
     <color name="green">#4CAF50</color>
-
-
-    <color name="colorPrimary">#3F51B5</color>
-
+    <color name="colorPrimary">#87CEEB</color>
     <color name="dark_gray">#666666</color>
-
-    <color name="purple_200">#BB86FC</color> <!-- Add this if it's missing -->
-
+    <color name="purple_200">#BB86FC</color>
     <color name="gray">#AAAAAA</color>
-    <color name="teal_700">#018786</color> <!-- or your primary accent -->
-
-
-
-
-
+    <color name="teal_700">#018786</color>
 </resources>

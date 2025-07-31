@@ -1,37 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cartRootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f9f9f9"
-    android:padding="8dp">
+    android:orientation="vertical"
+android:background="@drawable/bg_sky_blue_gradient"
+    android:padding="16dp">
+
+    <!-- Header -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        app:title="Shopping Cart"
+        app:titleTextColor="#000000" />
 
     <!-- Empty Cart Message -->
     <LinearLayout
         android:id="@+id/emptyCartLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:padding="32dp">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_empty_cart"
+            android:layout_marginBottom="16dp" />
 
         <TextView
             android:id="@+id/emptyMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Your cart is empty"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#666" />
+            android:textColor="#666"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add some components to get started!"
+            android:textSize="14sp"
+            android:textColor="#999"
+            android:gravity="center" />
     </LinearLayout>
 
     <!-- Cart Items Section -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/cartRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/totalLayout"
-        android:layout_marginBottom="8dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"
+        android:clipToPadding="false"
+        android:nestedScrollingEnabled="true"
         android:visibility="gone" />
 
     <!-- Saved for Later Section -->
@@ -39,20 +70,21 @@
         android:id="@+id/savedLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/cartRecyclerView"
-        android:layout_above="@+id/totalLayout"
         android:orientation="vertical"
         android:visibility="gone"
-        android:paddingTop="12dp">
+        android:background="#FFFFFF"
+        android:layout_margin="8dp"
+        android:padding="16dp"
+        android:elevation="2dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Saved for Later"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#333"
-            android:paddingBottom="4dp" />
+            android:layout_marginBottom="12dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/savedRecyclerView"
@@ -65,31 +97,46 @@
         android:id="@+id/totalLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="12dp"
-        android:background="#ffffff"
-        android:elevation="4dp"
-        android:visibility="gone">
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:elevation="8dp"
+        android:visibility="gone"
+        android:padding="16dp">
 
-        <TextView
-            android:id="@+id/totalPriceText"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="₹0"
-            android:textColor="#000"
-            android:textStyle="bold"
-            android:textSize="18sp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Total Amount:"
+                android:textColor="#666"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/totalPriceText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹0"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:textSize="20sp" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/checkoutButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
             android:text="Proceed to Checkout"
             android:backgroundTint="#FF5722"
-            android:textColor="#FFF" />
+            android:textColor="#FFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

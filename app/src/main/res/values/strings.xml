@@ -35,5 +35,6 @@
 
 
     <!-- If not already present, you can also add: -->
-    <string name="app_description">Build your custom PC, get service And more</string>
+    <string name="app_description">Build your custom PC, get service And more…We cook Your PC</string>
+    <string name="default_web_client_id">539281411395-mhnn6nfrs0m467pokn8bddlacaenc5sk.apps.googleusercontent.com</string>
 </resources>
