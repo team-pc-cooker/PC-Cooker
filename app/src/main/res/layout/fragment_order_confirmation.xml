@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5">
+
+    <!-- Header -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        app:title="Order Confirmation"
+        app:titleTextColor="#000000" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <!-- Success Icon -->
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:src="@drawable/ic_checkout"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="24dp"
+                app:tint="#4CAF50" />
+
+            <!-- Thank You Message -->
+            <TextView
+                android:id="@+id/thankYouText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thank You!"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#4CAF50"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your order has been placed successfully"
+                android:textSize="16sp"
+                android:textColor="#666"
+                android:gravity="center"
+                android:layout_marginBottom="32dp" />
+
+            <!-- Order Details Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Order Details"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#333"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:id="@+id/orderIdText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Order ID: ORD123456789"
+                        android:textSize="16sp"
+                        android:textColor="#666"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/orderDetailsText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="We'll send you an email confirmation with tracking details."
+                        android:textSize="14sp"
+                        android:textColor="#999"
+                        android:lineSpacingExtra="4dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- What's Next Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="What's Next?"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#333"
+                        android:layout_marginBottom="16dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1."
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#FF5722"
+                            android:layout_marginEnd="12dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="You'll receive an email confirmation"
+                            android:textSize="14sp"
+                            android:textColor="#666" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2."
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#FF5722"
+                            android:layout_marginEnd="12dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="We'll start processing your order"
+                            android:textSize="14sp"
+                            android:textColor="#666" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="3."
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#FF5722"
+                            android:layout_marginEnd="12dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="You'll get tracking updates"
+                            android:textSize="14sp"
+                            android:textColor="#666" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:elevation="8dp"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/continueShoppingButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Continue Shopping"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:backgroundTint="#FF5722"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/viewOrdersButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="View My Orders"
+            android:textSize="14sp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:textColor="#FF5722" />
+    </LinearLayout>
+</LinearLayout> 

@@ -1,0 +1,16 @@
+{
+  "name": "pccooker-firestore-import",
+  "version": "1.0.0",
+  "description": "Script to import PC component data into Firestore",
+  "main": "firestore-import-script.js",
+  "scripts": {
+    "import": "node firestore-import-script.js",
+    "test": "node test-firebase-connection.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^11.11.0"
+  },
+  "keywords": ["firebase", "firestore", "import", "pc-components"],
+  "author": "PC Cooker Team",
+  "license": "MIT"
+} 

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        android:padding="16dp">
+
+        <!-- Top Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:id="@+id/backButton"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:padding="4dp" />
+
+            <TextView
+                android:id="@+id/categoryTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="PROCESSOR"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:gravity="center" />
+
+            <ImageView
+                android:id="@+id/filterButton"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_sort_by_size"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:padding="4dp" />
+        </LinearLayout>
+
+        <!-- Search Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/search_background"
+            android:gravity="center_vertical"
+            android:padding="8dp"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_search"
+                android:layout_marginEnd="8dp"
+                android:alpha="0.6" />
+
+            <EditText
+                android:id="@+id/searchInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Search components..."
+                android:background="@null"
+                android:textSize="14sp"
+                android:inputType="text"
+                android:maxLines="1" />
+        </LinearLayout>
+
+        <!-- Filter Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/priceRangeText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Up to ₹50,000"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:background="@drawable/filter_chip_background"
+                android:padding="6dp"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/sortByText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sort by: Rating"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:background="@drawable/filter_chip_background"
+                android:padding="6dp"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Components Grid -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/componentRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"
+        android:clipToPadding="false" />
+
+</LinearLayout> 

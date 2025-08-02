@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_sky_blue_gradient"
+    android:padding="16dp">
+
+    <!-- Header -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        app:title="Select Delivery Address"
+        app:titleTextColor="#000000" />
+
+    <!-- Empty Address Message -->
+    <LinearLayout
+        android:id="@+id/emptyAddressLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:padding="32dp">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_placeholder"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No addresses found"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#666"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add a delivery address to continue"
+            android:textSize="14sp"
+            android:textColor="#999"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <!-- Address List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/addressRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"
+        android:clipToPadding="false"
+        android:visibility="gone" />
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/addNewAddressButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="+ Add New Address"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#FFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/proceedToPaymentButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Select Address First"
+            android:backgroundTint="#FF5722"
+            android:textColor="#FFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:enabled="false" />
+    </LinearLayout>
+
+</LinearLayout> 
