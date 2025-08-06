@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Build Name"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/buildNameEdit"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint="Enter build name"
+        android:textSize="16sp"
+        android:textColor="@color/text_primary"
+        android:background="@drawable/modern_edit_text_bg"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"
+        android:maxLines="1"
+        android:inputType="text" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Description (Optional)"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/buildDescriptionEdit"
+        android:layout_width="match_parent"
+        android:layout_height="96dp"
+        android:hint="Enter build description"
+        android:textSize="14sp"
+        android:textColor="@color/text_primary"
+        android:background="@drawable/modern_edit_text_bg"
+        android:padding="12dp"
+        android:gravity="top|start"
+        android:maxLines="4"
+        android:inputType="textMultiLine|textCapSentences" />
+
+</LinearLayout>

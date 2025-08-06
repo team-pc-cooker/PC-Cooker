@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/filter_bar_background"
+    android:padding="16dp"
+    android:elevation="4dp">
+
+    <!-- Filter Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Advanced Filters"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:fontFamily="sans-serif-medium" />
+
+        <Button
+            android:id="@+id/clearFiltersButton"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Clear All"
+            android:textSize="12sp"
+            android:textColor="@color/brand_primary"
+            android:background="@drawable/clear_filters_button"
+            android:padding="8dp"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+
+    <!-- Price Range Filter -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price Range"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/minPriceText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹0"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:minWidth="60dp" />
+
+            <com.google.android.material.slider.RangeSlider
+                android:id="@+id/priceRangeSlider"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:valueFrom="0"
+                android:valueTo="100000"
+                app:values="@array/default_price_range"
+                app:thumbColor="@color/brand_primary"
+                app:trackColorActive="@color/brand_primary"
+                app:trackColorInactive="@color/slider_inactive" />
+
+            <TextView
+                android:id="@+id/maxPriceText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹100k"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:minWidth="60dp"
+                android:gravity="end" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Brand Filter -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Brand"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/brandChipGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="false"
+            app:chipSpacingHorizontal="8dp">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipIntel"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Intel"
+                app:chipBackgroundColor="@color/filter_chip_background"
+                app:chipStrokeColor="@color/brand_primary" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAMD"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AMD"
+                app:chipBackgroundColor="@color/filter_chip_background"
+                app:chipStrokeColor="@color/brand_primary" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipNVIDIA"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NVIDIA"
+                app:chipBackgroundColor="@color/filter_chip_background"
+                app:chipStrokeColor="@color/brand_primary" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipASUS"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ASUS"
+                app:chipBackgroundColor="@color/filter_chip_background"
+                app:chipStrokeColor="@color/brand_primary" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipMSI"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MSI"
+                app:chipBackgroundColor="@color/filter_chip_background"
+                app:chipStrokeColor="@color/brand_primary" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipGigabyte"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gigabyte"
+                app:chipBackgroundColor="@color/filter_chip_background"
+                app:chipStrokeColor="@color/brand_primary" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </LinearLayout>
+
+    <!-- Socket Type Filter -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Socket Type"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/socketChipGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="false"
+            app:chipSpacingHorizontal="8dp">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAM4"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AM4"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAM5"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AM5"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipLGA1700"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LGA1700"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipLGA1200"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LGA1200"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipLGA1155"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LGA1155"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </LinearLayout>
+
+    <!-- RAM Type Filter -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="RAM Type"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/ramChipGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:chipSpacingHorizontal="8dp">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipDDR3"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DDR3"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipDDR4"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DDR4"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipDDR5"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DDR5"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </LinearLayout>
+
+    <!-- Storage Type Filter -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Storage Type"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/storageChipGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="false"
+            app:chipSpacingHorizontal="8dp">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipHDD"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HDD"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipSSD"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SSD"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipNVMe"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NVMe"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </LinearLayout>
+
+    <!-- Build Type Filter -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Build Type"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/buildTypeChipGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:chipSpacingHorizontal="8dp">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipBudgetBuild"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Budget Build"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipGamingBuild"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gaming Build"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipOfficeBuild"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Office Build"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipWorkstationBuild"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Workstation"
+                app:chipBackgroundColor="@color/filter_chip_background" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </LinearLayout>
+
+    <!-- Apply Filters Button -->
+    <Button
+        android:id="@+id/applyFiltersButton"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="Apply Filters"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:background="@drawable/modern_primary_button"
+        android:textAllCaps="false"
+        android:fontFamily="sans-serif-medium"
+        android:elevation="4dp" />
+
+</LinearLayout>

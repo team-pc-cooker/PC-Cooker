@@ -1,0 +1,62 @@
+COMPLETE COMPONENT LIST FROM FIREBASE
+==================================================
+
+Total Components: 32
+Total Categories: 6
+
+
+CABINET (2 components):
+----------------------------------------
+- Zebronics Gaming Case with RGB (Zebronics) - ₹2,400
+- ANT Esports ICE-120AG (ANT Esports) - ₹1,500
+
+
+GRAPHIC CARD (6 components):
+----------------------------------------
+- Intel Arc A750 (used/discount) (Intel) - ₹25,000
+- AMD Radeon RX 6600 (AMD) - ₹27,000
+- NVIDIA GeForce GT 730 4GB DDR3 (NVIDIA) - ₹3,753
+- Used NVIDIA RTX 2060 (NVIDIA) - ₹22,000
+- NVIDIA GeForce GT 710 2GB (NVIDIA) - ₹2,845
+- AMD Radeon RX 550 4GB (AMD) - ₹9,499
+
+
+MOTHERBOARD (10 components):
+----------------------------------------
+- MSI A520M-A PRO (MSI) - ₹3,920
+- ASUS TUF B450M-PLUS (ASUS) - ₹7,200
+- ASRock A520M-HDV (ASRock) - ₹4,100
+- Gigabyte B760M DS3H (Gigabyte) - ₹13,395
+- Biostar B660MH (Biostar) - ₹8,800
+- Gigabyte H610M-K (Gigabyte) - ₹7,800
+- ASRock B660M-HDV (ASRock) - ₹8,200
+- ASUS EX-B760M-V5 (ASUS) - ₹9,308
+- ASUS PRIME A520M-K (ASUS) - ₹4,536
+- MSI PRO B660M-A DDR4 (MSI) - ₹10,200
+
+
+POWER SUPPLY (3 components):
+----------------------------------------
+- Circle 550W Bronze (Circle) - ₹2,399
+- Zebronics 500W PSU (Zebronics) - ₹1,100
+- Antec 450W PSU (Antec) - ₹1,800
+
+
+RAM (6 components):
+----------------------------------------
+- Hynix 4GB DDR3 1600MHz (Hynix) - ₹420
+- Corsair Vengeance LPX 8GB DDR4 3000MHz (Corsair) - ₹2,800
+- Adata 4GB DDR4 2666MHz (Adata) - ₹1,160
+- G.Skill Ripjaws V 8GB DDR4 3200MHz (G.Skill) - ₹2,550
+- Samsung 4GB DDR3 1600MHz (Samsung) - ₹900
+- Crucial 8GB DDR4 3200MHz (Crucial) - ₹2,600
+
+
+STORAGE (5 components):
+----------------------------------------
+- Seagate Barracuda 1TB HDD (Seagate) - ₹2,700
+- Crucial BX500 240GB SSD (Crucial) - ₹1,940
+- Samsung 980 NVMe 250GB (Samsung) - ₹4,400
+- WD Blue 500GB HDD (WD) - ₹1,500
+- Kingston A400 480GB SSD (Kingston) - ₹2,800
+
