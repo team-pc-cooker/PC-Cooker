@@ -6,8 +6,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.razorpay.PaymentResultListener;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PaymentResultListener {
 
     private BottomNavigationView bottomNav;
 
@@ -19,6 +20,14 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNav = findViewById(R.id.bottomNavigation);
         setupBottomNavigation();
+
+        // Set up cart update listener
+        CartManager.getInstance(this).setCartUpdateListener(new CartManager.CartUpdateListener() {
+            @Override
+            public void onCartUpdated() {
+                updateCartBadge();
+            }
+        });
 
         // Firebase data is now populated via scripts
 
@@ -113,4 +122,22 @@ public class MainActivity extends AppCompatActivity {
         switchToTab(R.id.navigation_profile);
     }
 
+    // Payment Result Listener methods
+    @Override
+    public void onPaymentSuccess(String razorpayPaymentId) {
+        // Find the current PaymentFragment and delegate the callback
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (currentFragment instanceof PaymentFragment) {
+            ((PaymentFragment) currentFragment).onPaymentSuccess(razorpayPaymentId);
+        }
+    }
+
+    @Override
+    public void onPaymentError(int errorCode, String response) {
+        // Find the current PaymentFragment and delegate the callback
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (currentFragment instanceof PaymentFragment) {
+            ((PaymentFragment) currentFragment).onPaymentError(errorCode, response);
+        }
+    }
 }

@@ -4,56 +4,158 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="@color/background_primary">
 
-    <!-- Header -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="#FFFFFF"
-        android:elevation="4dp"
-        app:title="Search Results"
-        app:titleTextColor="#000000" />
-
-    <!-- Search Query Display -->
-    <TextView
-        android:id="@+id/searchQueryText"
+    <!-- Search Header -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="16dp"
-        android:text="Search results for: "
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="#333333"
-        android:background="#FFFFFF"
-        android:layout_marginBottom="8dp" />
+        android:background="@color/amazon_blue">
 
-    <!-- Progress Bar -->
-    <ProgressBar
-        android:id="@+id/searchProgressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="50dp"
-        android:visibility="visible" />
+        <!-- Search Input -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-    <!-- No Results Text -->
-    <TextView
-        android:id="@+id/noResultsText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:padding="16dp"
-        android:text="No components found"
-        android:textSize="16sp"
-        android:textColor="#666666"
-        android:gravity="center"
-        android:visibility="gone" />
+            <EditText
+                android:id="@+id/searchInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Search components..."
+                android:background="@drawable/search_background"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:textColor="@color/amazon_black"
+                android:textColorHint="@color/amazon_gray_dark"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1" />
 
-    <!-- Search Results RecyclerView -->
+            <Button
+                android:id="@+id/filterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Filters"
+                android:background="@drawable/button_secondary_bg"
+                android:textColor="@color/text_white"
+                android:padding="12dp" />
+
+        </LinearLayout>
+
+        <!-- Filter Layout -->
+        <LinearLayout
+            android:id="@+id/filterLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/rounded_card_bg"
+            android:padding="16dp"
+            android:layout_marginTop="12dp"
+            android:visibility="gone">
+
+            <!-- Price Range -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Price Range"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <EditText
+                    android:id="@+id/minPriceInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Min Price"
+                    android:background="@drawable/input_background"
+                    android:padding="8dp"
+                    android:textColor="@color/amazon_black"
+                    android:textColorHint="@color/amazon_gray_dark"
+                    android:inputType="numberDecimal"
+                    android:layout_marginEnd="8dp" />
+
+                <EditText
+                    android:id="@+id/maxPriceInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Max Price"
+                    android:background="@drawable/input_background"
+                    android:padding="8dp"
+                    android:textColor="@color/amazon_black"
+                    android:textColorHint="@color/amazon_gray_dark"
+                    android:inputType="numberDecimal"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/priceRangeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Max Price: ₹100,000"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="8dp" />
+
+            <SeekBar
+                android:id="@+id/priceRangeSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progress="100"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Filter Actions -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/clearFiltersButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Clear"
+                    android:background="@drawable/button_secondary_bg"
+                    android:textColor="@color/text_white"
+                    android:layout_marginEnd="8dp" />
+
+                <Button
+                    android:id="@+id/applyFiltersButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Apply"
+                    android:background="@drawable/button_primary_bg"
+                    android:textColor="@color/text_white"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Search Results -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/searchRecyclerView"
+        android:id="@+id/searchResultsRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"

@@ -11,7 +11,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.app.pccooker.ComponentModel;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.widget.ArrayAdapter;
@@ -19,49 +21,156 @@ import android.widget.ArrayAdapter;
 public class BuildSummaryActivity extends AppCompatActivity {
     private LinearLayout summaryContainer;
     private Button confirmButton;
+    private Button editBuildButton;
+    private TextView totalPriceText;
+    private TextView budgetText;
+    private TextView remainingBudgetText;
     private List<ComponentModel> selectedComponents;
     private String useCase;
+    private double userBudget;
+    private Map<String, ComponentModel> componentMap;
+    
+    // Add state management to prevent crashes
+    private boolean isNavigating = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(R.style.AppTheme_Premium);
+        setTheme(R.style.AppTheme);
         setContentView(R.layout.activity_build_summary);
 
         summaryContainer = findViewById(R.id.summaryContainer);
         confirmButton = findViewById(R.id.confirmBuildButton);
+        editBuildButton = findViewById(R.id.editBuildButton);
+        totalPriceText = findViewById(R.id.totalPriceText);
+        budgetText = findViewById(R.id.budgetText);
+        remainingBudgetText = findViewById(R.id.remainingBudgetText);
 
-        selectedComponents = (ArrayList<ComponentModel>) getIntent().getSerializableExtra("selected_components");
+        // Check if coming from build PC (with component map) or AI assistant (with component list)
+        if (getIntent().hasExtra("component_map")) {
+            // From Build PC
+            componentMap = (Map<String, ComponentModel>) getIntent().getSerializableExtra("component_map");
+            userBudget = getIntent().getDoubleExtra("user_budget", 0);
+            selectedComponents = new ArrayList<>(componentMap.values());
+        } else {
+            // From AI Assistant
+            selectedComponents = (ArrayList<ComponentModel>) getIntent().getSerializableExtra("selected_components");
+            if (selectedComponents == null || selectedComponents.isEmpty()) {
+                Toast.makeText(this, "No components selected!", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+        }
+
+        useCase = getIntent().getStringExtra("ai_use_case");
+        showSummary();
+
+        editBuildButton.setOnClickListener(v -> {
+            if (!isNavigating) {
+                isNavigating = true;
+                // Navigate back to Build PC fragment
+                Intent intent = new Intent(BuildSummaryActivity.this, MainActivity.class);
+                intent.putExtra("show_build_pc", true);
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
+
+    public static void startActivity(android.content.Context context, Map<String, ComponentModel> componentMap, double userBudget) {
+        Intent intent = new Intent(context, BuildSummaryActivity.class);
+        intent.putExtra("component_map", (java.io.Serializable) componentMap);
+        intent.putExtra("user_budget", userBudget);
+        context.startActivity(intent);
+    }
+
+    private void showSummary() {
         if (selectedComponents == null || selectedComponents.isEmpty()) {
             Toast.makeText(this, "No components selected!", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        useCase = getIntent().getStringExtra("ai_use_case");
-        showSummary(selectedComponents);
+        double totalPrice = selectedComponents.stream()
+                .mapToDouble(ComponentModel::getPrice)
+                .sum();
 
-        confirmButton.setOnClickListener(v -> {
-            try {
-                // Add components to cart using CartManager
-                CartManager cartManager = CartManager.getInstance(this);
-                for (ComponentModel component : selectedComponents) {
-                    cartManager.addToCart(component);
-                }
-                
-                Toast.makeText(this, "Components added to cart successfully!", Toast.LENGTH_SHORT).show();
-                
-                // Navigate to MainActivity with cart flag
-                Intent intent = new Intent(BuildSummaryActivity.this, MainActivity.class);
-                intent.putExtra("from_ai_summary", true);
-                intent.putExtra("show_cart", true);
-                startActivity(intent);
-                finish();
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Error adding components to cart: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        // Update budget summary
+        if (userBudget > 0) {
+            budgetText.setText("Budget: ₹" + String.format("%.0f", userBudget));
+            totalPriceText.setText("Total Price: ₹" + String.format("%.0f", totalPrice));
+            
+            double remaining = userBudget - totalPrice;
+            remainingBudgetText.setText("Remaining: ₹" + String.format("%.0f", remaining));
+            
+            if (remaining < 0) {
+                remainingBudgetText.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+            } else {
+                remainingBudgetText.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
             }
-        });
+        } else {
+            totalPriceText.setText("Total Price: ₹" + String.format("%.0f", totalPrice));
+        }
+
+        // Show components
+        showSummary(selectedComponents);
+        
+        // Update button text based on context
+        if (componentMap != null) {
+            // From Build PC - show "Proceed to Cart" instead of "Confirm Build"
+            confirmButton.setText("Proceed to Cart");
+            confirmButton.setOnClickListener(v -> proceedToCart());
+        } else {
+            // From AI Assistant - keep "Confirm Build"
+            confirmButton.setText("Confirm Build");
+            confirmButton.setOnClickListener(v -> {
+                try {
+                    // Add components to cart using CartManager
+                    CartManager cartManager = CartManager.getInstance(this);
+                    for (ComponentModel component : selectedComponents) {
+                        cartManager.addToCart(component);
+                    }
+                    
+                    Toast.makeText(this, "Components added to cart successfully!", Toast.LENGTH_SHORT).show();
+                    
+                    // Navigate to MainActivity with cart flag
+                    Intent intent = new Intent(BuildSummaryActivity.this, MainActivity.class);
+                    intent.putExtra("from_ai_summary", true);
+                    intent.putExtra("show_cart", true);
+                    startActivity(intent);
+                    finish();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Error adding components to cart: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    }
+    
+    private void proceedToCart() {
+        if (isNavigating) return; // Prevent multiple calls
+        
+        try {
+            isNavigating = true;
+            
+            // Add components to cart using CartManager
+            CartManager cartManager = CartManager.getInstance(this);
+            for (ComponentModel component : selectedComponents) {
+                cartManager.addToCart(component);
+            }
+            
+            Toast.makeText(this, "Components added to cart successfully!", Toast.LENGTH_SHORT).show();
+            
+            // Navigate to MainActivity with cart flag
+            Intent intent = new Intent(BuildSummaryActivity.this, MainActivity.class);
+            intent.putExtra("show_cart", true);
+            startActivity(intent);
+            finish();
+        } catch (Exception e) {
+            isNavigating = false; // Reset on error
+            e.printStackTrace();
+            Toast.makeText(this, "Error adding components to cart: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void showSummary(List<ComponentModel> components) {

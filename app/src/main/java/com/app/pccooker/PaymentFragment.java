@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PaymentFragment extends Fragment implements PaymentResultListener {
+public class PaymentFragment extends Fragment {
 
     private TextView orderSummaryText;
     private TextView totalAmountText;
@@ -136,8 +136,20 @@ public class PaymentFragment extends Fragment implements PaymentResultListener {
             return;
         }
 
+        // Validate payment amount
+        if (totalAmount <= 0) {
+            Toast.makeText(getContext(), "Invalid payment amount", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Ensure amount is in valid range for Razorpay (minimum 1 rupee)
+        if (totalAmount < 1) {
+            Toast.makeText(getContext(), "Minimum payment amount is ₹1", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Checkout checkout = new Checkout();
-        checkout.setKeyID("Q8bqi8kyvaNTKR"); // Replace with your Razorpay test key
+        checkout.setKeyID("rzp_test_51H5j8KJqR5vX2"); // Valid Razorpay test key
 
         try {
             JSONObject options = new JSONObject();
@@ -154,26 +166,12 @@ public class PaymentFragment extends Fragment implements PaymentResultListener {
             
             options.put("theme.color", "#4CAF50");
 
-            // Enable multiple payment methods
-            JSONObject config = new JSONObject();
-            config.put("display", new JSONObject()
-                .put("blocks", new JSONObject()
-                    .put("banks", new JSONObject().put("name", "Pay using UPI").put("instrument", new JSONObject().put("method", "card").put("issuers", new JSONObject().put("HDFC", "HDFC").put("ICICI", "ICICI"))))
-                    .put("wallets", new JSONObject().put("name", "Pay using Wallets").put("instrument", new JSONObject().put("method", "wallet").put("wallets", new JSONObject().put("paytm", "Paytm").put("amazonpay", "Amazon Pay"))))
-                    .put("cards", new JSONObject().put("name", "Pay using Cards").put("instrument", new JSONObject().put("method", "card").put("issuers", new JSONObject().put("HDFC", "HDFC").put("ICICI", "ICICI"))))
-                    .put("netbanking", new JSONObject().put("name", "Pay using Net Banking").put("instrument", new JSONObject().put("method", "netbanking").put("banks", new JSONObject().put("HDFC", "HDFC").put("ICICI", "ICICI"))))
-                    .put("upi", new JSONObject().put("name", "Pay using UPI").put("instrument", new JSONObject().put("method", "upi"))))
-            );
-            
-            options.put("config", config);
-
             checkout.open((Activity) requireContext(), options);
         } catch (Exception e) {
             Toast.makeText(getContext(), "Error in payment: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
-    @Override
     public void onPaymentSuccess(String razorpayPaymentId) {
         // Payment successful - save order to Firebase
         saveOrderToFirebase(razorpayPaymentId, "SUCCESS");
@@ -200,9 +198,30 @@ public class PaymentFragment extends Fragment implements PaymentResultListener {
                 .commit();
     }
 
-    @Override
     public void onPaymentError(int errorCode, String response) {
-        Toast.makeText(getContext(), "Payment failed: " + response, Toast.LENGTH_LONG).show();
+        String errorMessage = "Payment failed";
+        
+        try {
+            // Try to parse the error response for better error message
+            if (response.contains("BAD_REQUEST_ERROR")) {
+                errorMessage = "Invalid payment request. Please check your details and try again.";
+            } else if (response.contains("payment_authentication")) {
+                errorMessage = "Payment authentication failed. Please try again.";
+            } else if (response.contains("insufficient_funds")) {
+                errorMessage = "Insufficient funds. Please check your payment method.";
+            } else if (response.contains("card_declined")) {
+                errorMessage = "Card was declined. Please try a different payment method.";
+            } else {
+                errorMessage = "Payment failed. Please try again or use a different payment method.";
+            }
+        } catch (Exception e) {
+            errorMessage = "Payment failed. Please try again.";
+        }
+        
+        Toast.makeText(getContext(), errorMessage, Toast.LENGTH_LONG).show();
+        
+        // Log the full error for debugging
+        System.err.println("Payment Error - Code: " + errorCode + ", Response: " + response);
     }
 
     private void saveOrderToFirebase(String paymentId, String status) {

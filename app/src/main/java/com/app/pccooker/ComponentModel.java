@@ -3,7 +3,10 @@ package com.app.pccooker;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.google.firebase.firestore.PropertyName;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ComponentModel implements Parcelable {
@@ -33,6 +36,18 @@ public class ComponentModel implements Parcelable {
     private String brand = "";
     @PropertyName("model")
     private String model = "";
+    
+    // New fields for trending and enhanced features
+    @PropertyName("trendingScore")
+    private double trendingScore = 0.0;
+    @PropertyName("isTrending")
+    private boolean isTrending = false;
+    @PropertyName("buildTypes")
+    private List<String> buildTypes = new ArrayList<>();
+    @PropertyName("compatibilityTags")
+    private List<String> compatibilityTags = new ArrayList<>();
+    @PropertyName("lastUpdated")
+    private Date lastUpdated = new Date();
 
     // Default constructor for Firebase
     public ComponentModel() {}
@@ -51,6 +66,14 @@ public class ComponentModel implements Parcelable {
         inStock = in.readByte() != 0;
         brand = in.readString();
         model = in.readString();
+        
+        // Read new fields
+        trendingScore = in.readDouble();
+        isTrending = in.readByte() != 0;
+        buildTypes = in.createStringArrayList();
+        compatibilityTags = in.createStringArrayList();
+        long lastUpdatedTime = in.readLong();
+        lastUpdated = lastUpdatedTime != 0 ? new Date(lastUpdatedTime) : new Date();
         
         // Read specifications map
         int specSize = in.readInt();
@@ -77,6 +100,13 @@ public class ComponentModel implements Parcelable {
         dest.writeByte((byte) (inStock ? 1 : 0));
         dest.writeString(brand);
         dest.writeString(model);
+        
+        // Write new fields
+        dest.writeDouble(trendingScore);
+        dest.writeByte((byte) (isTrending ? 1 : 0));
+        dest.writeStringList(buildTypes);
+        dest.writeStringList(compatibilityTags);
+        dest.writeLong(lastUpdated != null ? lastUpdated.getTime() : 0);
         
         // Write specifications map
         dest.writeInt(specifications.size());
@@ -132,4 +162,16 @@ public class ComponentModel implements Parcelable {
     public void setBrand(String brand) { this.brand = brand; }
     public String getModel() { return model; }
     public void setModel(String model) { this.model = model; }
+    
+    // New getters and setters
+    public double getTrendingScore() { return trendingScore; }
+    public void setTrendingScore(double trendingScore) { this.trendingScore = trendingScore; }
+    public boolean isTrending() { return isTrending; }
+    public void setTrending(boolean trending) { isTrending = trending; }
+    public List<String> getBuildTypes() { return buildTypes; }
+    public void setBuildTypes(List<String> buildTypes) { this.buildTypes = buildTypes; }
+    public List<String> getCompatibilityTags() { return compatibilityTags; }
+    public void setCompatibilityTags(List<String> compatibilityTags) { this.compatibilityTags = compatibilityTags; }
+    public Date getLastUpdated() { return lastUpdated; }
+    public void setLastUpdated(Date lastUpdated) { this.lastUpdated = lastUpdated; }
 } 

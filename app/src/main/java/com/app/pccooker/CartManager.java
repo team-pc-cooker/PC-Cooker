@@ -17,6 +17,7 @@ public class CartManager {
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
     private final Context context;
+    private CartUpdateListener cartUpdateListener;
 
     private CartManager(Context context) {
         this.context = context;
@@ -55,16 +56,21 @@ public class CartManager {
         cartItems.add(cartItem);
         saveCartToFirebase();
         Toast.makeText(context, component.getName() + " added to cart", Toast.LENGTH_SHORT).show();
+        
+        // Notify MainActivity to update cart badge
+        notifyCartUpdated();
     }
 
     public void removeFromCart(String componentId) {
         cartItems.removeIf(item -> item.getId().equals(componentId));
         saveCartToFirebase();
+        notifyCartUpdated();
     }
 
     public void clearCart() {
         cartItems.clear();
         saveCartToFirebase();
+        notifyCartUpdated();
     }
 
     public List<CartItem> getCartItems() {
@@ -101,7 +107,8 @@ public class CartManager {
     }
 
     public boolean isSavedForLater(ComponentModel component) {
-        // TODO: Implement saved for later functionality
+        // This will be checked against Firebase saved items
+        // For now, return false - will be implemented with proper Firebase check
         return false;
     }
 
@@ -144,6 +151,7 @@ public class CartManager {
             }
         }
         saveCartToFirebase();
+        notifyCartUpdated();
     }
 
     private void saveCartToFirebase() {
@@ -250,5 +258,19 @@ public class CartManager {
 
     public interface OnCartLoadedListener {
         void onCartLoaded(List<CartItem> cartItems);
+    }
+    
+    public interface CartUpdateListener {
+        void onCartUpdated();
+    }
+    
+    public void setCartUpdateListener(CartUpdateListener listener) {
+        this.cartUpdateListener = listener;
+    }
+    
+    private void notifyCartUpdated() {
+        if (cartUpdateListener != null) {
+            cartUpdateListener.onCartUpdated();
+        }
     }
 }

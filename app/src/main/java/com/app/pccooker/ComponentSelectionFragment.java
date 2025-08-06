@@ -28,6 +28,10 @@ import android.util.Log;
 
 public class ComponentSelectionFragment extends Fragment {
 
+    public interface ComponentSelectionListener {
+        void onComponentSelected(ComponentModel component);
+    }
+
     private RecyclerView componentRecyclerView;
     private EditText searchInput;
     private TextView categoryTitle, priceRangeText, sortByText;
@@ -37,6 +41,7 @@ public class ComponentSelectionFragment extends Fragment {
     private List<ComponentModel> filteredComponents = new ArrayList<>();
     private String category;
     private double maxBudget;
+    private ComponentSelectionListener selectionListener;
 
     public static ComponentSelectionFragment newInstance(String category, double maxBudget) {
         ComponentSelectionFragment fragment = new ComponentSelectionFragment();
@@ -78,7 +83,11 @@ public class ComponentSelectionFragment extends Fragment {
         filterButton = view.findViewById(R.id.filterButton);
 
         categoryTitle.setText(category);
-        priceRangeText.setText("Up to ₹" + String.format("%.0f", maxBudget));
+        if (maxBudget > 0) {
+            priceRangeText.setText("Up to ₹" + String.format("%.0f", maxBudget));
+        } else {
+            priceRangeText.setText("All prices");
+        }
     }
 
     private void setupRecyclerView() {
@@ -95,6 +104,11 @@ public class ComponentSelectionFragment extends Fragment {
             // Update cart badge if in MainActivity
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).updateCartBadge();
+            }
+            
+            // Notify listener if set
+            if (selectionListener != null) {
+                selectionListener.onComponentSelected(component);
             }
             
             // Navigate back to build PC fragment
@@ -209,12 +223,22 @@ public class ComponentSelectionFragment extends Fragment {
     private void filterComponents(String query) {
         filteredComponents.clear();
         for (ComponentModel component : allComponents) {
-            if (component.getName().toLowerCase().contains(query.toLowerCase()) ||
-                component.getBrand().toLowerCase().contains(query.toLowerCase())) {
+            boolean matchesQuery = query.isEmpty() || 
+                component.getName().toLowerCase().contains(query.toLowerCase()) ||
+                component.getBrand().toLowerCase().contains(query.toLowerCase()) ||
+                component.getDescription().toLowerCase().contains(query.toLowerCase());
+            
+            boolean matchesBudget = maxBudget <= 0 || component.getPrice() <= maxBudget;
+            
+            if (matchesQuery && matchesBudget) {
                 filteredComponents.add(component);
             }
         }
         adapter.notifyDataSetChanged();
+    }
+
+    public void setComponentSelectionListener(ComponentSelectionListener listener) {
+        this.selectionListener = listener;
     }
 
     private void showFilterDialog() {

@@ -1,55 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="premiumAccent">#6C47FF</color>
-    <color name="premiumCardBg">#232347</color>
-    <color name="premiumInputBg">#2D2D4D</color>
-    <color name="premiumButtonBg">#6C47FF</color>
-    <color name="premiumButtonBgPressed">#4B2FCF</color>
-    <color name="premiumText">#FFFFFF</color>
-    <color name="premiumHint">#CCCCCC</color>
-    <color name="premiumDivider">#444466</color>
+    <!-- Professional Color Scheme -->
+    <color name="premiumAccent">#2196F3</color>
+    <color name="premiumCardBg">#FFFFFF</color>
+    <color name="premiumInputBg">#F5F5F5</color>
+    <color name="premiumButtonBg">#2196F3</color>
+    <color name="premiumButtonBgPressed">#1976D2</color>
+    <color name="premiumText">#212121</color>
+    <color name="premiumHint">#757575</color>
+    <color name="premiumDivider">#E0E0E0</color>
 
-    <style name="AppTheme.Premium" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="android:windowBackground">@drawable/bg_premium_gradient</item>
-        <item name="android:textColor">@color/premiumText</item>
-        <item name="android:buttonStyle">@style/PremiumButton</item>
-        <item name="android:editTextStyle">@style/PremiumEditText</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+    <!-- Base App Theme -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/background_primary</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">14sp</item>
+        <item name="colorPrimary">@color/button_primary</item>
+        <item name="colorPrimaryDark">@color/button_primary_dark</item>
+        <item name="colorAccent">@color/button_primary</item>
+        <item name="android:statusBarColor">@color/button_primary_dark</item>
     </style>
 
-    <style name="PremiumButton" parent="Widget.AppCompat.Button">
+    <!-- Professional Button Styles -->
+    <style name="ProfessionalButton" parent="Widget.MaterialComponents.Button">
         <item name="android:background">@drawable/rounded_button_bg</item>
-        <item name="android:textColor">@color/premiumText</item>
+        <item name="android:textColor">@color/text_white</item>
         <item name="android:textStyle">bold</item>
         <item name="android:padding">16dp</item>
         <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="cornerRadius">8dp</item>
     </style>
 
-    <style name="PremiumEditText" parent="Widget.AppCompat.EditText">
-        <item name="android:background">@drawable/input_bg</item>
-        <item name="android:textColor">@color/premiumText</item>
-        <item name="android:textColorHint">@color/premiumHint</item>
-        <item name="android:padding">14dp</item>
+    <style name="FilterButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:background">@drawable/auto_build_button_selector</item>
+        <item name="android:textColor">@color/auto_build_button_text_selector</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="strokeColor">@color/border_medium</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <!-- Professional EditText Styles -->
+    <style name="ProfessionalEditText" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
+        <item name="android:padding">16dp</item>
         <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="boxStrokeColor">@color/button_primary</item>
+        <item name="hintTextColor">@color/button_primary</item>
     </style>
 
-    <style name="PremiumCard" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">@color/premiumCardBg</item>
-        <item name="cardCornerRadius">16dp</item>
-        <item name="cardElevation">6dp</item>
+    <!-- Professional Card Styles -->
+    <style name="ProfessionalCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@color/background_card</item>
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">4dp</item>
         <item name="android:layout_margin">8dp</item>
+        <item name="contentPadding">16dp</item>
     </style>
 
-    <!-- Existing styles below -->
+    <!-- Professional Text Styles -->
+    <style name="HeadingText">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif-bold</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SubheadingText">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="BodyText">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="CaptionText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="ButtonText">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/text_white</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Component Selection Button Style -->
+    <style name="ComponentButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:background">@drawable/component_button_bg</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:padding">20dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="strokeColor">@color/border_light</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <!-- Profile Option Styles -->
     <style name="ProfileOptionLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:padding">16dp</item>
     </style>
 
     <style name="ProfileOptionText">
         <item name="android:textSize">16sp</item>
-        <item name="android:textColor">#000000</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <!-- Budget Slider Style -->
+    <style name="BudgetSlider" parent="Widget.AppCompat.SeekBar">
+        <item name="android:progressTint">@color/button_primary</item>
+        <item name="android:thumbTint">@color/button_primary</item>
+        <item name="android:progressBackgroundTint">@color/border_light</item>
+    </style>
+
+    <!-- Status Text Styles -->
+    <style name="StatusText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:background">@drawable/status_background</item>
+    </style>
+
+    <!-- Auto Build Section Style -->
+    <style name="AutoBuildSection">
+        <item name="android:background">@color/background_secondary</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:layout_margin">8dp</item>
+        <item name="android:elevation">2dp</item>
+    </style>
+
+    <!-- Filter Section Style -->
+    <style name="FilterSection">
+        <item name="android:background">@color/background_card</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:layout_margin">8dp</item>
+        <item name="android:elevation">1dp</item>
     </style>
 </resources>

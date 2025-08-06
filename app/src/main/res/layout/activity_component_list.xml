@@ -19,6 +19,17 @@
         android:padding="16dp"
         android:background="@color/purple_200" />
 
+    <TextView
+        android:id="@+id/componentListSubtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textColor="#666666"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:padding="8dp"
+        android:background="@color/background_secondary" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"

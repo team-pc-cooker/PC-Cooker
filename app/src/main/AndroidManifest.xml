@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -25,6 +26,12 @@
         <activity
             android:name=".AIAssistantActivity"
             android:exported="false">
+        </activity>
+        
+        <activity
+            android:name=".EnhancedAIAssistantActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PCCooker">
         </activity>
         
         <activity
@@ -51,6 +58,12 @@
         <activity android:name=".AdminPanelActivity" />
         <activity android:name=".CategoryComponentActivity" />
         <activity android:name=".BuildSummaryActivity" />
+        <activity android:name=".ComponentListActivity" />
+        <activity android:name=".AddComponentActivity" />
+        <activity android:name=".OtherPartsActivity" />
+        <activity android:name=".RemoveDuplicatesActivity" />
+        <activity android:name=".TrendingComponentsActivity" />
+        <activity android:name=".BuildManagerActivity" />
     </application>
 
 </manifest>

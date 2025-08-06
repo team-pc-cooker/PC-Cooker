@@ -1,26 +1,520 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:background="#FFFFFF">
 
-    <!-- Component Categories -->
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="🔧 Select Components"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:layout_marginBottom="12dp" />
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:background="#2196F3">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/categoryRecyclerView"
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_arrow_back"
+            android:tint="#FFFFFF"
+            android:onClick="onBackPressed" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Build Your PC"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:layout_marginStart="16dp" />
+
+        <ImageView
+            android:id="@+id/saveBuildButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_save"
+            android:tint="#FFFFFF"
+            android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <ImageView
+            android:id="@+id/trendingButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_trending"
+            android:tint="#FFFFFF"
+            android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <ImageView
+            android:id="@+id/buildManagerButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_folder"
+            android:tint="#FFFFFF"
+            android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <ImageView
+            android:id="@+id/removeDuplicatesButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_delete"
+            android:tint="#FFFFFF"
+            android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_more_vert"
+            android:tint="#FFFFFF" />
+
+    </LinearLayout>
+
+    <!-- Automatic Build Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#F5F5F5"
+        android:padding="16dp">
+
+        <!-- Automatic Build Header -->
+        <LinearLayout
+            android:id="@+id/autoBuildHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:gravity="center_vertical"
+            android:background="#2196F3"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="AUTOMATIC BUILD"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF" />
+
+            <ImageView
+                android:id="@+id/autoBuildExpandIcon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_expand_more"
+                android:tint="#FFFFFF" />
+
+        </LinearLayout>
+
+        <!-- Automatic Build Content -->
+        <LinearLayout
+            android:id="@+id/autoBuildContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <!-- Processor Type -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PROCESSOR TYPE"
+                android:textSize="12sp"
+                android:textColor="#424242"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <Button
+                    android:id="@+id/amdButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="AMD"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/auto_build_button_selector"
+                    android:layout_marginEnd="8dp" />
+
+                <Button
+                    android:id="@+id/intelButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="INTEL"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/auto_build_button_selector"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
+
+            <!-- Socket Type -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SOCKET TYPE"
+                android:textSize="12sp"
+                android:textColor="#424242"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <Button
+                    android:id="@+id/am4Button"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="AM4 (DDR4)"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/auto_build_button_selector"
+                    android:layout_marginEnd="4dp" />
+
+                <Button
+                    android:id="@+id/am5Button"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="AM5 (DDR5)"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/auto_build_button_selector"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp" />
+
+                <Button
+                    android:id="@+id/ddr3Button"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="DDR3"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/auto_build_button_selector"
+                    android:layout_marginStart="4dp" />
+
+            </LinearLayout>
+
+            <!-- Storage Type -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="STORAGE"
+                android:textSize="12sp"
+                android:textColor="#424242"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <Button
+                    android:id="@+id/hddButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="HDD"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/auto_build_button_selector"
+                    android:layout_marginEnd="8dp" />
+
+                <Button
+                    android:id="@+id/ssdButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="SSD"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/auto_build_button_selector"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
+
+            <!-- GPU Type -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="GPU"
+                android:textSize="12sp"
+                android:textColor="#424242"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <Button
+                    android:id="@+id/nvidiaButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="NVIDIA"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/auto_build_button_selector"
+                    android:layout_marginEnd="8dp" />
+
+                <Button
+                    android:id="@+id/amdGpuButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="AMD"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/auto_build_button_selector"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
+
+            <!-- Budget Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="BUDGET"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#424242" />
+
+                <TextView
+                    android:id="@+id/budgetText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₹40,000"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#2196F3" />
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/budgetSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:progressTint="#2196F3"
+                android:thumbTint="#2196F3"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Auto Build Button -->
+            <Button
+                android:id="@+id/autoBuildButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="AUTO BUILD PC"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:background="#2196F3" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Component Selection Section -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"
-        android:clipToPadding="false" />
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#FFFFFF">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SELECT COMPONENTS"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#424242"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Component Buttons Grid -->
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:rowCount="4"
+            android:alignmentMode="alignMargins"
+            android:useDefaultMargins="true">
+
+            <Button
+                android:id="@+id/processorButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_columnWeight="1"
+                android:text="+ PROCESSOR"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:background="#2196F3" />
+
+            <Button
+                android:id="@+id/memoryButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_columnWeight="1"
+                android:text="+ MEMORY"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:background="#2196F3" />
+
+            <Button
+                android:id="@+id/motherboardButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_columnWeight="1"
+                android:text="+ MOTHERBOARD"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:background="#2196F3" />
+
+            <Button
+                android:id="@+id/powerSupplyButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_columnWeight="1"
+                android:text="+ POWER SUPPLY"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:background="#2196F3" />
+
+            <Button
+                android:id="@+id/gpuButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_columnWeight="1"
+                android:text="+ GPU"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:background="#2196F3" />
+
+            <Button
+                android:id="@+id/caseButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_columnWeight="1"
+                android:text="+ CASE"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:background="#2196F3" />
+
+            <Button
+                android:id="@+id/storageButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_columnWeight="1"
+                android:text="+ STORAGE"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:background="#2196F3" />
+
+            <Button
+                android:id="@+id/coolerButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_columnWeight="1"
+                android:text="+ CPU COOLER"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:background="#2196F3" />
+
+            <Button
+                android:id="@+id/otherPartsButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_columnWeight="1"
+                android:text="+ OTHER PARTS"
+                android:textSize="12sp"
+                android:textColor="#FFFFFF"
+                android:background="#2196F3" />
+
+        </GridLayout>
+
+    </LinearLayout>
+
+    <!-- Status Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:background="#E3F2FD"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_info"
+            android:tint="#2196F3"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/compatibilityStatusText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Ready to build"
+            android:textSize="12sp"
+            android:textColor="#2196F3" />
+
+        <TextView
+            android:id="@+id/totalCostText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₹0"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#2196F3" />
+
+    </LinearLayout>
 
 </LinearLayout>

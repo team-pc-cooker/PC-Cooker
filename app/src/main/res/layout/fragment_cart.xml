@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-android:background="@drawable/bg_sky_blue_gradient"
+    android:background="@color/background_primary"
     android:padding="16dp">
 
     <!-- Header -->
@@ -13,10 +13,10 @@ android:background="@drawable/bg_sky_blue_gradient"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#FFFFFF"
+        android:background="@color/background_card"
         android:elevation="4dp"
         app:title="Shopping Cart"
-        app:titleTextColor="#000000" />
+        app:titleTextColor="@color/text_primary" />
 
     <!-- Empty Cart Message -->
     <LinearLayout
@@ -42,7 +42,7 @@ android:background="@drawable/bg_sky_blue_gradient"
             android:text="Your cart is empty"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#666"
+            android:textColor="@color/text_secondary"
             android:layout_marginBottom="8dp" />
 
         <TextView
@@ -50,7 +50,7 @@ android:background="@drawable/bg_sky_blue_gradient"
             android:layout_height="wrap_content"
             android:text="Add some components to get started!"
             android:textSize="14sp"
-            android:textColor="#999"
+            android:textColor="@color/text_tertiary"
             android:gravity="center" />
     </LinearLayout>
 
@@ -72,7 +72,7 @@ android:background="@drawable/bg_sky_blue_gradient"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:visibility="gone"
-        android:background="#FFFFFF"
+        android:background="@color/background_card"
         android:layout_margin="8dp"
         android:padding="16dp"
         android:elevation="2dp">
@@ -83,7 +83,7 @@ android:background="@drawable/bg_sky_blue_gradient"
             android:text="Saved for Later"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#333"
+            android:textColor="@color/text_primary"
             android:layout_marginBottom="12dp" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -98,7 +98,7 @@ android:background="@drawable/bg_sky_blue_gradient"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#FFFFFF"
+        android:background="@color/background_card"
         android:elevation="8dp"
         android:visibility="gone"
         android:padding="16dp">
@@ -115,7 +115,7 @@ android:background="@drawable/bg_sky_blue_gradient"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Total Amount:"
-                android:textColor="#666"
+                android:textColor="@color/text_secondary"
                 android:textSize="16sp" />
 
             <TextView
@@ -123,9 +123,9 @@ android:background="@drawable/bg_sky_blue_gradient"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="₹0"
-        android:textColor="@color/text_primary"
-        android:textStyle="bold"
-        android:textSize="20sp" />
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"
+                android:textSize="20sp" />
         </LinearLayout>
 
         <Button
@@ -133,8 +133,8 @@ android:background="@drawable/bg_sky_blue_gradient"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="Proceed to Checkout"
-            android:backgroundTint="#FF5722"
-            android:textColor="#FFF"
+            android:background="@drawable/button_primary_bg"
+            android:textColor="@color/text_white"
             android:textSize="16sp"
             android:textStyle="bold" />
     </LinearLayout>
