@@ -1,57 +1,166 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
-        android:background="#1E1E1E">
+        android:padding="16dp"
+        android:background="@color/white">
 
+        <!-- Component Image -->
         <ImageView
-            android:id="@+id/cartItemImage"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:scaleType="centerCrop" />
+            android:id="@+id/componentImage"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/ic_placeholder"
+            android:scaleType="centerCrop"
+            android:background="@drawable/bg_image_placeholder"
+            android:layout_marginEnd="16dp" />
 
+        <!-- Component Details -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="12dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginEnd="16dp">
 
+            <!-- Component Name -->
             <TextView
-                android:id="@+id/cartItemName"
-                android:layout_width="wrap_content"
+                android:id="@+id/componentName"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"
+                android:text="Component Name"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textSize="16sp" />
+                android:textColor="@color/text_primary"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginBottom="6dp" />
 
+            <!-- Component Price -->
             <TextView
-                android:id="@+id/cartItemPrice"
+                android:id="@+id/componentPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#4CAF50"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"/>
+                android:text="₹0.00"
+                android:textSize="15sp"
+                android:textColor="@color/amazon_orange"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Quantity Controls -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@color/background_secondary"
+                android:padding="8dp"
+                android:layout_marginHorizontal="4dp">
+
+                <Button
+                    android:id="@+id/decreaseButton"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:text="-"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/button_secondary_bg"
+                    android:textColor="@color/text_primary"
+                    android:minHeight="32dp"
+                    android:padding="0dp"
+                    app:cornerRadius="16dp" />
+
+                <TextView
+                    android:id="@+id/componentQuantity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="12dp"
+                    android:minWidth="24dp"
+                    android:gravity="center" />
+
+                <Button
+                    android:id="@+id/increaseButton"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:text="+"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/button_secondary_bg"
+                    android:textColor="@color/text_primary"
+                    android:minHeight="32dp"
+                    android:padding="0dp"
+                    app:cornerRadius="16dp" />
+            </LinearLayout>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/cartItemActionButton"
+        <!-- Right Side Actions -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Remove"
-            android:backgroundTint="#03A9F4"
-            android:textColor="#FFFFFF"
-            android:layout_gravity="center_vertical" />
+            android:orientation="vertical"
+            android:gravity="end">
+
+            <!-- Total Price -->
+            <TextView
+                android:id="@+id/totalPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹0.00"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/amazon_orange"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/saveForLaterButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="SAVE"
+                    android:textSize="12sp"
+                    android:background="@drawable/button_secondary_bg"
+                    android:textColor="@color/text_primary"
+                    android:minHeight="36dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:layout_marginEnd="8dp"
+                    android:textStyle="bold"
+                    app:cornerRadius="18dp" />
+
+                <Button
+                    android:id="@+id/removeButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="REMOVE"
+                    android:textSize="12sp"
+                    android:background="@drawable/button_error"
+                    android:textColor="@color/white"
+                    android:minHeight="36dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textStyle="bold"
+                    app:cornerRadius="18dp" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
+
 </androidx.cardview.widget.CardView>

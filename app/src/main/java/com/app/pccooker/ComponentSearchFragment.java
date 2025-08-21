@@ -20,7 +20,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.ComponentModel;
+import com.app.pccooker.ui.UiNotifier;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -231,7 +232,7 @@ public class ComponentSearchFragment extends Fragment {
                         }
                     } catch (NumberFormatException e) {
                         if (getContext() != null) {
-                            Toast.makeText(getContext(), "Please enter valid price values", Toast.LENGTH_SHORT).show();
+                            UiNotifier.showShort(getContext(), "Please enter valid price values");
                         }
                     }
                 });
@@ -248,7 +249,7 @@ public class ComponentSearchFragment extends Fragment {
                 return;
             }
 
-            Toast.makeText(getContext(), "Loading components...", Toast.LENGTH_SHORT).show();
+            UiNotifier.showShort(getContext(), "Loading components...");
 
             db.collection("components")
                     .get()
@@ -256,7 +257,7 @@ public class ComponentSearchFragment extends Fragment {
                         try {
                             allComponents.clear();
                             if (queryDocumentSnapshots.isEmpty()) {
-                                Toast.makeText(getContext(), "No components found. Adding sample data...", Toast.LENGTH_SHORT).show();
+                                UiNotifier.showShort(getContext(), "No components found. Adding sample data...");
                                 addSampleComponents();
                                 return;
                             }
@@ -295,7 +296,7 @@ public class ComponentSearchFragment extends Fragment {
                             // Convert back to list
                             allComponents.addAll(uniqueComponents.values());
 
-                            Toast.makeText(getContext(), "Loaded " + allComponents.size() + " unique components", Toast.LENGTH_SHORT).show();
+                            UiNotifier.showShort(getContext(), "Loaded " + allComponents.size() + " unique components");
                             applyFilters();
                         } catch (Exception e) {
                             Log.e("ComponentSearch", "Error processing components", e);
@@ -308,7 +309,7 @@ public class ComponentSearchFragment extends Fragment {
                             if (e.getMessage() != null && !e.getMessage().contains("permission")) {
                                 String errorMessage = "Failed to load components: " + e.getMessage();
                                 if (getContext() != null) {
-                                    Toast.makeText(getContext(), errorMessage, Toast.LENGTH_LONG).show();
+                                    UiNotifier.showLong(getContext(), errorMessage);
                                 }
                                 Log.e("ComponentSearch", errorMessage, e);
                             }
@@ -327,7 +328,7 @@ public class ComponentSearchFragment extends Fragment {
     }
     
     private void addSampleComponents() {
-        Toast.makeText(getContext(), "Adding sample components...", Toast.LENGTH_SHORT).show();
+        UiNotifier.showShort(getContext(), "Adding sample components...");
         
         List<ComponentModel> sampleComponents = new ArrayList<>();
         
@@ -672,7 +673,7 @@ public class ComponentSearchFragment extends Fragment {
         
         // Show success message
         if (getContext() != null) {
-            Toast.makeText(getContext(), "Loaded " + sampleComponents.size() + " sample components", Toast.LENGTH_LONG).show();
+            UiNotifier.showLong(getContext(), "Loaded " + sampleComponents.size() + " sample components");
         }
         
         applyFilters();
@@ -824,14 +825,14 @@ public class ComponentSearchFragment extends Fragment {
             
             if (filteredComponents.isEmpty()) {
                 if (!currentQuery.isEmpty()) {
-                    Toast.makeText(getContext(), "No components found matching '" + currentQuery + "'", Toast.LENGTH_SHORT).show();
+                    UiNotifier.showShort(getContext(), "No components found matching '" + currentQuery + "'");
                 }
                 // Show empty state
                 if (searchResultsRecyclerView != null) {
                     searchResultsRecyclerView.setVisibility(View.GONE);
                 }
             } else {
-                Toast.makeText(getContext(), "Found " + filteredComponents.size() + " components", Toast.LENGTH_SHORT).show();
+                UiNotifier.showShort(getContext(), "Found " + filteredComponents.size() + " components");
                 
                 // Create new adapter with proper configuration
                 try {
@@ -840,12 +841,12 @@ public class ComponentSearchFragment extends Fragment {
                             // Add to cart
                             if (getContext() != null) {
                                 CartManager.getInstance(requireContext()).addToCart(component);
-                                Toast.makeText(getContext(), component.getName() + " added to cart", Toast.LENGTH_SHORT).show();
+                                // Component added to cart (no toast shown)
                             }
                         } catch (Exception e) {
                             Log.e("ComponentSearch", "Error adding component to cart", e);
                             if (getContext() != null) {
-                                Toast.makeText(getContext(), "Error adding to cart", Toast.LENGTH_SHORT).show();
+                                UiNotifier.showShort(getContext(), "Error adding to cart");
                             }
                         }
                     });
@@ -866,7 +867,7 @@ public class ComponentSearchFragment extends Fragment {
                 } catch (Exception e) {
                     Log.e("ComponentSearch", "Error creating adapter", e);
                     if (getContext() != null) {
-                        Toast.makeText(getContext(), "Error displaying components", Toast.LENGTH_SHORT).show();
+                        UiNotifier.showShort(getContext(), "Error displaying components");
                     }
                 }
             }

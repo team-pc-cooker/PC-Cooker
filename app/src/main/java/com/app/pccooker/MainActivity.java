@@ -65,6 +65,9 @@ public class MainActivity extends AppCompatActivity implements PaymentResultList
                 selectedFragment = new CartFragment();
             } else if (id == R.id.navigation_profile) {
                 selectedFragment = new ProfileFragment();
+            } else if (id == R.id.navigation_help) {
+                // Load the HelpFragment when help is clicked
+                selectedFragment = new HelpFragment();
             }
 
             if (selectedFragment != null) {

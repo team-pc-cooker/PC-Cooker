@@ -2,7 +2,7 @@ package com.app.pccooker;
 
 import android.content.Context;
 import android.widget.Toast;
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.ComponentModel;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;

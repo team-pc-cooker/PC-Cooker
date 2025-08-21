@@ -6,6 +6,9 @@
 -dontwarn com.google.firebase.**
 -dontwarn com.google.android.gms.**
 
+# Fix SLF4J missing class issue
+-dontwarn org.slf4j.impl.StaticLoggerBinder
+
 # Keep ComponentModel for Firestore serialization
 -keep class com.app.pccooker.ComponentModel { *; }
 -keep class com.app.pccooker.models.** { *; }

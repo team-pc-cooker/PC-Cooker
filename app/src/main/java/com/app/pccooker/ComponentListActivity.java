@@ -11,7 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.ComponentModel;
+import com.app.pccooker.ui.UiNotifier;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -66,8 +67,7 @@ public class ComponentListActivity extends AppCompatActivity {
             public void onComponentClick(ComponentModel component) {
                 // Add selected component to cart
                 CartManager.getInstance(ComponentListActivity.this).addToCart(component);
-                Toast.makeText(ComponentListActivity.this, 
-                    component.getName() + " added to build", Toast.LENGTH_SHORT).show();
+                // Component added to build (no toast shown)
                 
                 // Return to previous screen
                 finish();
@@ -87,13 +87,13 @@ public class ComponentListActivity extends AppCompatActivity {
 
     private void loadComponentsFromFirebase() {
         if (category == null) {
-            Toast.makeText(this, "No category specified", Toast.LENGTH_SHORT).show();
+            UiNotifier.showShort(this, "No category specified");
             return;
         }
 
         // Show loading message
         String loadingMessage = "Loading " + category + " components";
-        Toast.makeText(this, loadingMessage, Toast.LENGTH_SHORT).show();
+        UiNotifier.showShort(this, loadingMessage);
 
         Log.d("ComponentList", "Loading components for category: " + category);
 
@@ -138,7 +138,7 @@ public class ComponentListActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                     
                     String successMessage = "Found " + allComponents.size() + " " + category + " components";
-                    Toast.makeText(this, successMessage, Toast.LENGTH_SHORT).show();
+                    UiNotifier.showShort(this, successMessage);
                     Log.d("ComponentList", successMessage);
                 }
             })
@@ -180,7 +180,7 @@ public class ComponentListActivity extends AppCompatActivity {
                 
                 if (allComponents.isEmpty()) {
                     String noComponentsMessage = "No " + category + " components found. Please add components to the database.";
-                    Toast.makeText(this, noComponentsMessage, Toast.LENGTH_LONG).show();
+                    UiNotifier.showShort(this, noComponentsMessage);
                     Log.w("ComponentList", noComponentsMessage);
                 } else {
                     // Sort components by price (cheapest first)
@@ -191,18 +191,18 @@ public class ComponentListActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                     
                     String successMessage = "Found " + allComponents.size() + " " + category + " components";
-                    Toast.makeText(this, successMessage, Toast.LENGTH_SHORT).show();
+                    UiNotifier.showShort(this, successMessage);
                     Log.d("ComponentList", successMessage);
                 }
             })
             .addOnFailureListener(e -> {
                 String errorMessage = "Failed to load " + category + " components: " + e.getMessage();
-                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+                UiNotifier.showShort(this, errorMessage);
                 Log.e("ComponentList", errorMessage, e);
                 
                 // Check if it's a permission error
                 if (e.getMessage() != null && e.getMessage().contains("permission")) {
-                    Toast.makeText(this, "Firebase permission error. Please check security rules.", Toast.LENGTH_LONG).show();
+                    UiNotifier.showShort(this, "Firebase permission error. Please check security rules.");
                 }
             });
     }

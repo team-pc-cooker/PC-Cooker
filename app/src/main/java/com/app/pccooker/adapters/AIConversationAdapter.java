@@ -7,7 +7,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.app.pccooker.R;
-import com.app.pccooker.EnhancedAIAssistantActivity.ConversationMessage;
+import com.app.pccooker.models.ChatMessage;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -18,17 +18,17 @@ public class AIConversationAdapter extends RecyclerView.Adapter<AIConversationAd
     private static final int VIEW_TYPE_USER = 1;
     private static final int VIEW_TYPE_AI = 2;
     
-    private List<ConversationMessage> messages;
+    private List<ChatMessage> messages;
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
     
-    public AIConversationAdapter(List<ConversationMessage> messages) {
+    public AIConversationAdapter(List<ChatMessage> messages) {
         this.messages = messages;
     }
     
     @Override
     public int getItemViewType(int position) {
-        ConversationMessage message = messages.get(position);
-        return message.isUser ? VIEW_TYPE_USER : VIEW_TYPE_AI;
+        ChatMessage message = messages.get(position);
+        return message.isFromUser() ? VIEW_TYPE_USER : VIEW_TYPE_AI;
     }
     
     @NonNull
@@ -44,7 +44,7 @@ public class AIConversationAdapter extends RecyclerView.Adapter<AIConversationAd
     
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
-        ConversationMessage message = messages.get(position);
+        ChatMessage message = messages.get(position);
         holder.bind(message);
     }
     
@@ -53,7 +53,7 @@ public class AIConversationAdapter extends RecyclerView.Adapter<AIConversationAd
         return messages.size();
     }
     
-    public void addMessage(ConversationMessage message) {
+    public void addMessage(ChatMessage message) {
         messages.add(message);
         notifyItemInserted(messages.size() - 1);
     }
@@ -79,17 +79,17 @@ public class AIConversationAdapter extends RecyclerView.Adapter<AIConversationAd
             responseTypeText = itemView.findViewById(R.id.responseTypeText);
         }
         
-        public void bind(ConversationMessage message) {
-            messageText.setText(message.message);
+        public void bind(ChatMessage message) {
+            messageText.setText(message.getMessage());
             
             // Format timestamp
             String time = new SimpleDateFormat("HH:mm", Locale.getDefault())
-                .format(new Date(message.timestamp));
+                .format(new Date(message.getTimestamp()));
             timeText.setText(time);
             
             // Set response type indicator for AI messages
             if (viewType == VIEW_TYPE_AI && responseTypeText != null) {
-                String typeEmoji = getResponseTypeEmoji(message.responseType);
+                String typeEmoji = getResponseTypeEmoji(message.getResponseType());
                 responseTypeText.setText(typeEmoji);
                 responseTypeText.setVisibility(View.VISIBLE);
             } else if (responseTypeText != null) {
@@ -98,6 +98,8 @@ public class AIConversationAdapter extends RecyclerView.Adapter<AIConversationAd
         }
         
         private String getResponseTypeEmoji(String responseType) {
+            if (responseType == null) return "🤖";
+            
             switch (responseType) {
                 case "build":
                     return "🚀";

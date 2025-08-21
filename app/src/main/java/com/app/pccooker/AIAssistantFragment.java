@@ -17,7 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.ComponentModel;
 import com.app.pccooker.adapters.ChatAdapter;
 import com.app.pccooker.models.ChatMessage;
 import com.google.firebase.firestore.FirebaseFirestore;

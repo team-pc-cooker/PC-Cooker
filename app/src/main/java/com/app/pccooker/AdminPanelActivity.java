@@ -1,272 +1,351 @@
 package com.app.pccooker;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.adapters.AdminRequestAdapter;
+import com.app.pccooker.models.ServiceRequest;
+import com.app.pccooker.models.SellRequest;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AdminPanelActivity extends AppCompatActivity {
 
-    private EditText componentNameInput, componentPriceInput, componentDescriptionInput;
-    private Spinner categorySpinner;
-    private Button addComponentButton, updatePriceButton;
-    private RecyclerView componentsRecyclerView;
-    private TextView totalComponentsText;
-    
+    private TabLayout tabLayout;
+    private RecyclerView recyclerView;
+    private ProgressBar progressBar;
+    private TextView noDataText;
+    private Button refreshButton;
+
     private FirebaseFirestore db;
-    private List<ComponentModel> allComponents = new ArrayList<>();
-    private AdminComponentAdapter adapter;
+    private AdminRequestAdapter adapter;
+    private List<Object> allRequests;
+    private String currentTab = "service";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_panel);
 
-        initViews();
-        setupFirebase();
+        initializeFirebase();
+        initializeViews();
+        setupToolbar();
+        setupTabLayout();
         setupRecyclerView();
-        loadAllComponents();
-        setupClickListeners();
+        loadRequests();
     }
 
-    private void initViews() {
-        componentNameInput = findViewById(R.id.componentNameInput);
-        componentPriceInput = findViewById(R.id.componentPriceInput);
-        componentDescriptionInput = findViewById(R.id.componentDescriptionInput);
-        categorySpinner = findViewById(R.id.categorySpinner);
-        addComponentButton = findViewById(R.id.addComponentButton);
-        updatePriceButton = findViewById(R.id.updatePriceButton);
-        componentsRecyclerView = findViewById(R.id.componentsRecyclerView);
-        totalComponentsText = findViewById(R.id.totalComponentsText);
-
-        // Setup category spinner
-        String[] categories = {"PROCESSOR", "GRAPHIC CARD", "RAM", "MOTHERBOARD", "STORAGE", "POWER SUPPLY", "CABINET"};
-        android.widget.ArrayAdapter<String> spinnerAdapter = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        categorySpinner.setAdapter(spinnerAdapter);
-    }
-
-    private void setupFirebase() {
+    private void initializeFirebase() {
         db = FirebaseFirestore.getInstance();
     }
 
+    private void initializeViews() {
+        tabLayout = findViewById(R.id.tabLayout);
+        recyclerView = findViewById(R.id.recyclerView);
+        progressBar = findViewById(R.id.progressBar);
+        noDataText = findViewById(R.id.noDataText);
+        refreshButton = findViewById(R.id.refreshButton);
+
+        refreshButton.setOnClickListener(v -> loadRequests());
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("Admin Panel");
+        }
+    }
+
+    private void setupTabLayout() {
+        tabLayout.addTab(tabLayout.newTab().setText("Service Requests"));
+        tabLayout.addTab(tabLayout.newTab().setText("Sell Requests"));
+        tabLayout.addTab(tabLayout.newTab().setText("Help Queries"));
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                switch (tab.getPosition()) {
+                    case 0:
+                        currentTab = "service";
+                        break;
+                    case 1:
+                        currentTab = "sell";
+                        break;
+                    case 2:
+                        currentTab = "help";
+                        break;
+                }
+                filterRequestsByTab();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
+    }
+
     private void setupRecyclerView() {
-        componentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new AdminComponentAdapter(this, allComponents, new AdminComponentAdapter.OnComponentActionListener() {
-            @Override
-            public void onEditPrice(ComponentModel component) {
-                showPriceEditDialog(component);
-            }
-
-            @Override
-            public void onToggleStock(ComponentModel component) {
-                toggleComponentStock(component);
-            }
-
-            @Override
-            public void onDeleteComponent(ComponentModel component) {
-                deleteComponent(component);
-            }
-        });
-        componentsRecyclerView.setAdapter(adapter);
-    }
-
-    private void loadAllComponents() {
-        String[] categories = {"PROCESSOR", "GRAPHIC CARD", "RAM", "MOTHERBOARD", "STORAGE", "POWER SUPPLY", "CABINET"};
+        allRequests = new ArrayList<>();
+        adapter = new AdminRequestAdapter(allRequests, this::showRequestDetails, this::updateRequestStatus);
         
-        allComponents.clear();
-        int[] loadedCategories = {0};
-        int totalCategories = categories.length;
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+    }
 
-        for (String category : categories) {
-            db.collection("pc_components")
-                .document(category)
-                .collection("items")
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    for (QueryDocumentSnapshot doc : querySnapshot) {
-                        try {
-                            ComponentModel component = doc.toObject(ComponentModel.class);
-                            if (component != null) {
-                                component.setId(doc.getId());
-                                allComponents.add(component);
+    private void loadRequests() {
+        progressBar.setVisibility(View.VISIBLE);
+        noDataText.setVisibility(View.GONE);
+        allRequests.clear();
+
+        // Load Service Requests
+        db.collection("serviceRequests")
+            .get()
+            .addOnSuccessListener(queryDocumentSnapshots -> {
+                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                    ServiceRequest request = document.toObject(ServiceRequest.class);
+                    if (request != null) {
+                        request.setRequestId(document.getId());
+                        allRequests.add(request);
+                    }
+                }
+
+                // Load Sell Requests
+                db.collection("sellRequests")
+                    .get()
+                    .addOnSuccessListener(sellSnapshots -> {
+                        for (QueryDocumentSnapshot document : sellSnapshots) {
+                            SellRequest request = document.toObject(SellRequest.class);
+                            if (request != null) {
+                                request.setRequestId(document.getId());
+                                allRequests.add(request);
                             }
-                        } catch (Exception e) {
-                            // Skip this component if deserialization fails
-                            System.err.println("Failed to deserialize component in admin panel: " + e.getMessage());
                         }
-                    }
-                    
-                    loadedCategories[0]++;
-                    if (loadedCategories[0] == totalCategories) {
-                        updateUI();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    loadedCategories[0]++;
-                    if (loadedCategories[0] == totalCategories) {
-                        updateUI();
-                    }
-                });
-        }
+
+                        // Load Help Queries (from HelpFragment)
+                        loadHelpQueries();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Failed to load sell requests: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        loadHelpQueries();
+                    });
+            })
+            .addOnFailureListener(e -> {
+                Toast.makeText(this, "Failed to load service requests: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                loadHelpQueries();
+            });
     }
 
-    private void updateUI() {
-        adapter.notifyDataSetChanged();
-        totalComponentsText.setText("Total Components: " + allComponents.size());
+    private void loadHelpQueries() {
+        // For now, we'll create mock help queries
+        // In a real implementation, you'd load these from Firestore
+        progressBar.setVisibility(View.GONE);
+        filterRequestsByTab();
     }
 
-    private void setupClickListeners() {
-        addComponentButton.setOnClickListener(v -> addNewComponent());
-        updatePriceButton.setOnClickListener(v -> updateAllPrices());
-    }
-
-    private void addNewComponent() {
-        String name = componentNameInput.getText().toString().trim();
-        String priceStr = componentPriceInput.getText().toString().trim();
-        String description = componentDescriptionInput.getText().toString().trim();
-        String category = categorySpinner.getSelectedItem().toString();
-
-        if (name.isEmpty() || priceStr.isEmpty() || description.isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        try {
-            double price = Double.parseDouble(priceStr);
-            
-            ComponentModel newComponent = new ComponentModel();
-            newComponent.setName(name);
-            newComponent.setPrice(price);
-            newComponent.setDescription(description);
-            newComponent.setCategory(category);
-            newComponent.setBrand("Brand"); // Default
-            newComponent.setModel("Model"); // Default
-            newComponent.setRating(4.0); // Default
-            newComponent.setRatingCount(0);
-            newComponent.setInStock(true);
-            newComponent.setImageUrl("https://via.placeholder.com/300x300?text=" + name.replace(" ", "+"));
-            newComponent.setProductUrl("https://amazon.in/dp/example");
-
-            // Add to Firebase
-            db.collection("pc_components")
-                .document(category)
-                .collection("items")
-                .add(newComponent)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "Component added successfully", Toast.LENGTH_SHORT).show();
-                    clearInputs();
-                    loadAllComponents();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to add component", Toast.LENGTH_SHORT).show();
-                });
-
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Please enter a valid price", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void clearInputs() {
-        componentNameInput.setText("");
-        componentPriceInput.setText("");
-        componentDescriptionInput.setText("");
-    }
-
-    private void showPriceEditDialog(ComponentModel component) {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setTitle("Edit Price: " + component.getName());
-
-        final EditText priceInput = new EditText(this);
-        priceInput.setText(String.valueOf((int) component.getPrice()));
-        priceInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        builder.setView(priceInput);
-
-        builder.setPositiveButton("Update", (dialog, which) -> {
-            try {
-                double newPrice = Double.parseDouble(priceInput.getText().toString());
-                updateComponentPrice(component, newPrice);
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Please enter a valid price", Toast.LENGTH_SHORT).show();
+    private void filterRequestsByTab() {
+        List<Object> filteredRequests = new ArrayList<>();
+        
+        for (Object request : allRequests) {
+            if (currentTab.equals("service") && request instanceof ServiceRequest) {
+                filteredRequests.add(request);
+            } else if (currentTab.equals("sell") && request instanceof SellRequest) {
+                filteredRequests.add(request);
             }
-        });
+            // Help queries would be handled here
+        }
 
-        builder.setNegativeButton("Cancel", null);
+        if (filteredRequests.isEmpty()) {
+            noDataText.setVisibility(View.VISIBLE);
+            noDataText.setText("No " + getTabTitle() + " found");
+        } else {
+            noDataText.setVisibility(View.GONE);
+        }
+
+        adapter.updateRequests(filteredRequests);
+    }
+
+    private String getTabTitle() {
+        switch (currentTab) {
+            case "service": return "Service Requests";
+            case "sell": return "Sell Requests";
+            case "help": return "Help Queries";
+            default: return "Requests";
+        }
+    }
+
+    private void showRequestDetails(Object request) {
+        if (request instanceof ServiceRequest) {
+            showServiceRequestDetails((ServiceRequest) request);
+        } else if (request instanceof SellRequest) {
+            showSellRequestDetails((SellRequest) request);
+        }
+    }
+
+    private void showServiceRequestDetails(ServiceRequest request) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Service Request Details");
+
+        StringBuilder details = new StringBuilder();
+        details.append("Request ID: ").append(request.getRequestId()).append("\n\n");
+        details.append("User ID: ").append(request.getUserId()).append("\n");
+        details.append("PC Model: ").append(request.getPcModel()).append("\n");
+        details.append("Year: ").append(request.getYear()).append("\n");
+        details.append("Issue Type: ").append(request.getIssueType()).append("\n");
+        details.append("Priority: ").append(request.getPriority()).append("\n");
+        details.append("Contact: ").append(request.getContact()).append("\n");
+        details.append("Status: ").append(request.getStatus()).append("\n");
+        details.append("Submitted: ").append(request.getFormattedTimestamp()).append("\n\n");
+        details.append("Description:\n").append(request.getDescription());
+
+        if (request.hasMedia()) {
+            details.append("\n\nMedia Files: ").append(request.getMediaCount());
+        }
+
+        builder.setMessage(details.toString());
+        builder.setPositiveButton("Close", null);
         builder.show();
     }
 
-    private void updateComponentPrice(ComponentModel component, double newPrice) {
-        db.collection("pc_components")
-            .document(component.getCategory())
-            .collection("items")
-            .document(component.getId())
-            .update("price", newPrice)
-            .addOnSuccessListener(aVoid -> {
-                Toast.makeText(this, "Price updated successfully", Toast.LENGTH_SHORT).show();
-                loadAllComponents();
-            })
-            .addOnFailureListener(e -> {
-                Toast.makeText(this, "Failed to update price", Toast.LENGTH_SHORT).show();
-            });
-    }
+    private void showSellRequestDetails(SellRequest request) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Sell Request Details");
 
-    private void toggleComponentStock(ComponentModel component) {
-        boolean newStockStatus = !component.isInStock();
+        StringBuilder details = new StringBuilder();
+        details.append("Request ID: ").append(request.getRequestId()).append("\n\n");
+        details.append("User ID: ").append(request.getUserId()).append("\n");
+        details.append("PC Type: ").append(request.getPcType()).append("\n");
+        details.append("PC Model: ").append(request.getPcModel()).append("\n");
+        details.append("Year: ").append(request.getYear()).append("\n");
+        details.append("Condition: ").append(request.getCondition()).append("\n");
+        details.append("Condition Rating: ").append(request.getConditionRating()).append("\n");
+        details.append("Price: ").append(request.getFormattedPrice()).append("\n");
+        details.append("Contact: ").append(request.getContact()).append("\n");
+        details.append("Status: ").append(request.getStatus()).append("\n");
+        details.append("Submitted: ").append(request.getFormattedTimestamp()).append("\n\n");
+        details.append("Description:\n").append(request.getDescription());
+
+        if (request.hasMedia()) {
+            details.append("\n\nMedia Files: ").append(request.getMediaCount());
+            details.append("\n\nClick 'View Media' to see uploaded photos/videos");
+        }
+
+        builder.setMessage(details.toString());
         
-        db.collection("pc_components")
-            .document(component.getCategory())
-            .collection("items")
-            .document(component.getId())
-            .update("inStock", newStockStatus)
-            .addOnSuccessListener(aVoid -> {
-                Toast.makeText(this, "Stock status updated", Toast.LENGTH_SHORT).show();
-                loadAllComponents();
-            })
-            .addOnFailureListener(e -> {
-                Toast.makeText(this, "Failed to update stock status", Toast.LENGTH_SHORT).show();
+        if (request.hasMedia()) {
+            builder.setNeutralButton("View Media", (dialog, which) -> {
+                showMediaFiles(request);
             });
+        }
+        
+        builder.setPositiveButton("Close", null);
+        builder.show();
     }
 
-    private void deleteComponent(ComponentModel component) {
-        new android.app.AlertDialog.Builder(this)
-            .setTitle("Delete Component")
-            .setMessage("Are you sure you want to delete " + component.getName() + "?")
-            .setPositiveButton("Delete", (dialog, which) -> {
-                db.collection("pc_components")
-                    .document(component.getCategory())
-                    .collection("items")
-                    .document(component.getId())
-                    .delete()
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "Component deleted", Toast.LENGTH_SHORT).show();
-                        loadAllComponents();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Failed to delete component", Toast.LENGTH_SHORT).show();
-                    });
+    private void showMediaFiles(SellRequest request) {
+        if (request.getMediaUrls() == null || request.getMediaUrls().isEmpty()) {
+            Toast.makeText(this, "No media files found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create a custom dialog with media display
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Media Files - " + request.getPcModel());
+
+        // Create a simple list of media files with clickable items
+        String[] mediaItems = new String[request.getMediaUrls().size()];
+        for (int i = 0; i < request.getMediaUrls().size(); i++) {
+            String url = request.getMediaUrls().get(i);
+            String fileName = url.substring(url.lastIndexOf("/") + 1);
+            mediaItems[i] = "📸 " + fileName;
+        }
+
+        builder.setItems(mediaItems, (dialog, which) -> {
+            String mediaUrl = request.getMediaUrls().get(which);
+            openMediaInBrowser(mediaUrl);
+        });
+
+        builder.setPositiveButton("Close", null);
+        builder.show();
+    }
+
+    private void openMediaInBrowser(String mediaUrl) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(mediaUrl));
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(this, "Unable to open media: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updateRequestStatus(Object request) {
+        String[] statusOptions = {"Pending", "In Progress", "Completed", "Rejected"};
+        
+        new AlertDialog.Builder(this)
+            .setTitle("Update Status")
+            .setItems(statusOptions, (dialog, which) -> {
+                String newStatus = statusOptions[which];
+                updateRequestStatusInFirestore(request, newStatus);
             })
-            .setNegativeButton("Cancel", null)
             .show();
     }
 
-    private void updateAllPrices() {
-        // This would typically connect to external APIs to get current prices
-        Toast.makeText(this, "Price update feature coming soon!", Toast.LENGTH_SHORT).show();
+    private void updateRequestStatusInFirestore(Object request, String newStatus) {
+        String collectionName;
+        String documentId;
+
+        if (request instanceof ServiceRequest) {
+            collectionName = "serviceRequests";
+            documentId = ((ServiceRequest) request).getRequestId();
+        } else if (request instanceof SellRequest) {
+            collectionName = "sellRequests";
+            documentId = ((SellRequest) request).getRequestId();
+        } else {
+            return;
+        }
+
+        db.collection(collectionName)
+            .document(documentId)
+            .update("status", newStatus)
+            .addOnSuccessListener(aVoid -> {
+                Toast.makeText(this, "Status updated to: " + newStatus, Toast.LENGTH_SHORT).show();
+                loadRequests(); // Refresh the list
+            })
+            .addOnFailureListener(e -> {
+                Toast.makeText(this, "Failed to update status: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 } 

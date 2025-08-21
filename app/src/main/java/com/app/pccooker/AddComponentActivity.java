@@ -6,7 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.ComponentModel;
 import java.util.Map;
 import java.util.HashMap;
 

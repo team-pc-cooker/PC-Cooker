@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.pccooker.R;
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.ComponentModel;
 import com.app.pccooker.ImageCacheManager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;

@@ -16,7 +16,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.app.pccooker.adapters.CartItemAdapter;
 import com.app.pccooker.models.CartItem;
+import com.app.pccooker.models.ComponentModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -74,7 +76,7 @@ public class CartFragment extends Fragment {
                 if (!isCartEmpty) {
                     totalPriceText.setText("₹" + String.format("%.2f", total));
                     
-                    cartAdapter = new CartItemAdapter(requireContext(), cartItems, new CartItemAdapter.OnCartActionListener() {
+                    cartAdapter = new CartItemAdapter(requireContext(), cartItems, new CartItemAdapter.OnCartItemActionListener() {
                         @Override
                         public void onRemoveClicked(CartItem cartItem) {
                             CartManager.getInstance(requireContext()).removeFromCart(cartItem.getId());
@@ -102,12 +104,7 @@ public class CartFragment extends Fragment {
                             CartManager.getInstance(requireContext()).updateQuantity(cartItem.getId(), newQuantity);
                             refreshCart();
                         }
-
-                        @Override
-                        public void onMoveToCartClicked(CartItem cartItem) {
-                            // Not used here
-                        }
-                    }, false);
+                    });
                     cartRecyclerView.setAdapter(cartAdapter);
                 }
             }

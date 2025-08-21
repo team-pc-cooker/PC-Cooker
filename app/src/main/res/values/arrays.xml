@@ -5,4 +5,65 @@
         <item>0.0</item>
         <item>50000.0</item>
     </array>
+
+    <!-- Issue Types for PC Service & Repair -->
+    <string-array name="issue_types">
+        <item>Hardware Problem</item>
+        <item>Software Issue</item>
+        <item>Performance Problem</item>
+        <item>Boot/Startup Issue</item>
+        <item>Internet/Network Problem</item>
+        <item>Display/Monitor Issue</item>
+        <item>Sound/Audio Problem</item>
+        <item>Battery/Charging Issue</item>
+        <item>Overheating</item>
+        <item>Other</item>
+    </string-array>
+
+    <!-- Priority Levels for PC Service & Repair -->
+    <string-array name="priority_levels">
+        <item>Low - Can wait</item>
+        <item>Medium - Within a week</item>
+        <item>High - Urgent</item>
+        <item>Critical - System down</item>
+    </string-array>
+
+    <!-- PC Types for Sell Your PC -->
+    <string-array name="pc_types">
+        <item>Desktop</item>
+        <item>Gaming PC</item>
+        <item>Workstation</item>
+        <item>All-in-One</item>
+        <item>Mini PC</item>
+        <item>Server</item>
+        <item>Other</item>
+    </string-array>
+
+    <!-- Condition Ratings for Sell Your PC -->
+    <string-array name="condition_ratings">
+        <item>Excellent - Like New</item>
+        <item>Very Good - Minor wear</item>
+        <item>Good - Some wear</item>
+        <item>Fair - Visible wear</item>
+        <item>Poor - Significant wear</item>
+    </string-array>
+
+    <!-- Feedback types -->
+    <array name="feedback_types">
+        <item>General Feedback</item>
+        <item>Bug Report</item>
+        <item>Feature Request</item>
+        <item>Complaint</item>
+        <item>Compliment</item>
+        <item>Other</item>
+    </array>
+
+    <!-- Rating options -->
+    <array name="rating_options">
+        <item>1 - Poor</item>
+        <item>2 - Fair</item>
+        <item>3 - Good</item>
+        <item>4 - Very Good</item>
+        <item>5 - Excellent</item>
+    </array>
 </resources>

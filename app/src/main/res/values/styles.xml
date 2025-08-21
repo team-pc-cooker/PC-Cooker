@@ -158,4 +158,16 @@
         <item name="android:layout_margin">8dp</item>
         <item name="android:elevation">1dp</item>
     </style>
+    
+    <!-- Circle Image View Style -->
+    <style name="CircleImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- Circular Image View Style -->
+    <style name="CircularImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>

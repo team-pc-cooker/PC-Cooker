@@ -1,5 +1,6 @@
 package com.app.pccooker;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -142,12 +143,8 @@ public class AddressInputFragment extends Fragment {
     }
 
     private void proceedToPayment() {
-        // Navigate to payment fragment
-        PaymentFragment paymentFragment = new PaymentFragment();
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, paymentFragment)
-                .addToBackStack(null)
-                .commit();
+        // Navigate to NEW PaymentActivity instead of old PaymentFragment
+        Intent intent = new Intent(requireActivity(), PaymentActivity.class);
+        startActivity(intent);
     }
 }

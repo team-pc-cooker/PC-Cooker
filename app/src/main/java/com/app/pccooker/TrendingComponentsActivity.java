@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.pccooker.adapters.TrendingComponentAdapter;
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.ComponentModel;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -31,7 +32,7 @@ public class TrendingComponentsActivity extends AppCompatActivity {
     private RecyclerView trendingRecyclerView;
     private TrendingComponentAdapter adapter;
     private ProgressBar loadingProgress;
-    private TextView noResultsText;
+    private LinearLayout noResultsText;
     private ChipGroup categoryFilterGroup, buildTypeFilterGroup;
     private Button refreshButton;
     

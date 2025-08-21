@@ -1,16 +1,38 @@
 {
-  "name": "pccooker-firestore-import",
+  "name": "pc-cooker-chatbot-tests",
   "version": "1.0.0",
-  "description": "Script to import PC component data into Firestore",
-  "main": "firestore-import-script.js",
+  "description": "Enhanced testing system for PC-Cooker chatbot functionality",
+  "main": "test-chatbot.js",
   "scripts": {
-    "import": "node firestore-import-script.js",
-    "test": "node test-firebase-connection.js"
+    "test": "node test-chatbot.js test",
+    "verify": "node test-chatbot.js verify",
+    "cleanup": "node test-chatbot.js cleanup",
+    "runner": "node test-chatbot-runner.js",
+    "start": "node test-chatbot-runner.js"
   },
+  "keywords": [
+    "pc-cooker",
+    "chatbot",
+    "testing",
+    "firebase",
+    "firestore",
+    "android",
+    "components"
+  ],
+  "author": "PC-Cooker Team",
+  "license": "MIT",
   "dependencies": {
     "firebase-admin": "^11.11.0"
   },
-  "keywords": ["firebase", "firestore", "import", "pc-components"],
-  "author": "PC Cooker Team",
-  "license": "MIT"
-} 
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/pc-cooker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/pc-cooker/issues"
+  },
+  "homepage": "https://github.com/your-username/pc-cooker#readme"
+}

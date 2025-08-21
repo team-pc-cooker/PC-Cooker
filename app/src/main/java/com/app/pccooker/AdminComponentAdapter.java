@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.ComponentModel;
 
 import java.util.List;
 

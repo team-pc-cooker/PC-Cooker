@@ -23,7 +23,7 @@
             android:layout_marginBottom="8dp"
             android:src="@drawable/ic_pc"
             android:scaleType="fitCenter"
-            android:tint="#2196F3" />
+            app:tint="#2196F3" />
 
         <!-- Name -->
         <TextView

@@ -375,14 +375,12 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        // Check if user is already signed in
-        // Commented out for development - uncomment when ready for production
-        /*
+        // Check if user is already signed in - Persistent login enabled
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            startActivity(new Intent(LoginActivity.this, AIAssistantActivity.class));
+            // User is already logged in, go to MainActivity
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         }
-        */
     }
 }

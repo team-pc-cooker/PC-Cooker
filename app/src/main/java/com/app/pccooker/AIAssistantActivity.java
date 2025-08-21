@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.app.pccooker.utils.AIPromptParser;
 import com.app.pccooker.utils.AIPromptParser.Requirements;
+import com.app.pccooker.models.ComponentModel;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.List;

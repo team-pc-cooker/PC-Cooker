@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/orderCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp"
-    android:background="?android:selectableItemBackground">
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardUseCompatPadding="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,29 +20,46 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
+            android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/orderNumber"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Order #PC123456789"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#000000" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/orderIdText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Order #PC20241201ABC123"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black" />
+
+                <TextView
+                    android:id="@+id/orderDateText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="01 Dec 2024, 14:30"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/orderStatus"
+                android:id="@+id/statusBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Confirmed"
+                android:text="CONFIRMED"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:padding="6dp"
-                android:background="@drawable/status_background"
-                android:textColor="#FFFFFF" />
+                android:textColor="@android:color/white"
+                android:background="@drawable/status_badge_background"
+                android:padding="8dp"
+                android:minWidth="80dp"
+                android:gravity="center" />
 
         </LinearLayout>
 
@@ -49,36 +67,91 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/orderDate"
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/statusText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Status: Confirmed"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/black" />
+
+                <TextView
+                    android:id="@+id/itemsCountText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2 items"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="15 Dec 2024, 14:30"
-                android:textSize="14sp"
-                android:textColor="#666666"
-                android:layout_marginBottom="4dp" />
+                android:orientation="vertical"
+                android:gravity="end">
 
-            <TextView
-                android:id="@+id/componentCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="7 components"
-                android:textSize="14sp"
-                android:textColor="#666666"
-                android:layout_marginBottom="8dp" />
+                <TextView
+                    android:id="@+id/totalText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₹1,200.00"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary" />
 
-            <TextView
-                android:id="@+id/orderAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="₹45,999"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#4CAF50" />
+                <Button
+                    android:id="@+id/downloadInvoiceButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="8dp"
+                    android:text="📄 Invoice"
+                    android:textSize="12sp"
+                    android:background="@drawable/button_secondary_bg"
+                    android:textColor="@android:color/white"
+                    android:minWidth="80dp"
+                    android:padding="4dp" />
+
+                <Button
+                    android:id="@+id/trackOrderButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="4dp"
+                    android:text="🚚 Track"
+                    android:textSize="12sp"
+                    android:background="@drawable/button_primary_bg"
+                    android:textColor="@android:color/white"
+                    android:minWidth="80dp"
+                    android:padding="4dp" />
+
+                <Button
+                    android:id="@+id/cancelOrderButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="4dp"
+                    android:text="❌ Cancel"
+                    android:textSize="12sp"
+                    android:background="@drawable/button_danger_bg"
+                    android:textColor="@android:color/white"
+                    android:minWidth="80dp"
+                    android:padding="4dp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
     </LinearLayout>
+
 </androidx.cardview.widget.CardView> 

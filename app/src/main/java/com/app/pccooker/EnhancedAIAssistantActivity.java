@@ -18,6 +18,8 @@ import com.app.pccooker.utils.AdvancedAIPromptParser;
 import com.app.pccooker.utils.AdvancedAIPromptParser.AdvancedRequirements;
 import com.app.pccooker.utils.AdvancedAIPromptParser.ConversationContext;
 import com.app.pccooker.adapters.AIConversationAdapter;
+import com.app.pccooker.models.ChatMessage;
+import com.app.pccooker.models.ComponentModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -36,21 +38,7 @@ public class EnhancedAIAssistantActivity extends AppCompatActivity {
     private boolean isProcessing = false;
     private String currentUserId;
     private ConversationContext currentContext;
-    private List<ConversationMessage> conversationHistory = new ArrayList<>();
-
-    public static class ConversationMessage {
-        public String message;
-        public boolean isUser;
-        public long timestamp;
-        public String responseType; // "build", "suggestion", "help", "error"
-
-        public ConversationMessage(String message, boolean isUser, String responseType) {
-            this.message = message;
-            this.isUser = isUser;
-            this.timestamp = System.currentTimeMillis();
-            this.responseType = responseType;
-        }
-    }
+        private List<ChatMessage> conversationHistory = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -326,9 +314,9 @@ public class EnhancedAIAssistantActivity extends AppCompatActivity {
         }
         
         StringBuilder history = new StringBuilder("📜 **Conversation History:**\n\n");
-        for (ConversationMessage msg : conversationHistory) {
-            String prefix = msg.isUser ? "👤 You: " : "🤖 AI: ";
-            history.append(prefix).append(msg.message).append("\n\n");
+        for (ChatMessage msg : conversationHistory) {
+            String prefix = msg.isFromUser() ? "👤 You: " : "🤖 AI: ";
+            history.append(prefix).append(msg.getMessage()).append("\n\n");
         }
         
         addConversationMessage(history.toString(), false, "help");
@@ -347,7 +335,7 @@ public class EnhancedAIAssistantActivity extends AppCompatActivity {
     }
 
     private void addConversationMessage(String message, boolean isUser, String responseType) {
-        ConversationMessage msg = new ConversationMessage(message, isUser, responseType);
+        ChatMessage msg = new ChatMessage(message, isUser, responseType);
         conversationHistory.add(msg);
         conversationAdapter.notifyItemInserted(conversationHistory.size() - 1);
         aiConversationRecyclerView.smoothScrollToPosition(conversationHistory.size() - 1);

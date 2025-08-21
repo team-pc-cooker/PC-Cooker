@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.app.pccooker.models.ComponentModel;
 
 import java.util.List;
 
@@ -35,9 +36,21 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.CartVi
         holder.nameText.setText(component.getName());
         holder.priceText.setText("₹" + component.getPrice());
 
-        Glide.with(holder.itemView.getContext())
-                .load(component.getImageUrl())
-                .into(holder.imageView);
+        // Enhanced image loading with error handling
+        String imageUrl = component.getImageUrl();
+        android.util.Log.d("CartListAdapter", "Loading image for " + component.getName() + ": " + imageUrl);
+        
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_placeholder)
+                    .error(R.drawable.ic_placeholder)
+                    .centerCrop()
+                    .into(holder.imageView);
+        } else {
+            holder.imageView.setImageResource(R.drawable.ic_placeholder);
+            android.util.Log.w("CartListAdapter", "No image URL for component: " + component.getName());
+        }
     }
 
     @Override
@@ -51,9 +64,9 @@ public class CartListAdapter extends RecyclerView.Adapter<CartListAdapter.CartVi
 
         public CartViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.cartItemImage);
-            nameText = itemView.findViewById(R.id.cartItemName);
-            priceText = itemView.findViewById(R.id.cartItemPrice);
+            imageView = itemView.findViewById(R.id.componentImage);
+            nameText = itemView.findViewById(R.id.componentName);
+            priceText = itemView.findViewById(R.id.componentPrice);
         }
     }
 }

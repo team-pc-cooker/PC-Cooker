@@ -1,5 +1,6 @@
 package com.app.pccooker;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +15,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.adapters.CartItemAdapter;
+import com.app.pccooker.models.ComponentModel;
 import com.app.pccooker.models.CartItem;
 
 import java.util.List;
@@ -25,7 +27,7 @@ public class CheckoutFragment extends Fragment {
     private TextView summaryTotal;
     private Button payTokenButton;
     private Button payFullButton;
-    private PaymentService paymentService;
+    // Payment is now handled by PaymentActivity
 
     @Nullable
     @Override
@@ -43,26 +45,7 @@ public class CheckoutFragment extends Fragment {
 
         summaryRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Initialize payment service
-        paymentService = new PaymentService(requireContext(), new PaymentService.PaymentCallback() {
-            @Override
-            public void onPaymentSuccess(String paymentId) {
-                // Handle successful payment
-                Toast.makeText(getContext(), "Payment successful! Order placed.", Toast.LENGTH_LONG).show();
-                // Navigate to order confirmation
-                requireActivity().getSupportFragmentManager().popBackStack();
-            }
-
-            @Override
-            public void onPaymentError(String error) {
-                Toast.makeText(getContext(), "Payment failed: " + error, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onPaymentCancelled() {
-                Toast.makeText(getContext(), "Payment cancelled", Toast.LENGTH_SHORT).show();
-            }
-        });
+        // Payment is now handled by PaymentActivity
 
         setupPaymentButtons();
         loadSummary();
@@ -82,8 +65,23 @@ public class CheckoutFragment extends Fragment {
                 double total = CartManager.getInstance(requireContext()).getCartTotal();
                 summaryTotal.setText(String.format("Total: ₹%.0f", total));
 
-                // read-only = true for checkout
-                CartItemAdapter adapter = new CartItemAdapter(requireContext(), cartItems, null, true);
+                // Create read-only adapter for checkout display
+                CartItemAdapter adapter = new CartItemAdapter(requireContext(), cartItems, new CartItemAdapter.OnCartItemActionListener() {
+                    @Override
+                    public void onQuantityChanged(CartItem item, int newQuantity) {
+                        // Read-only in checkout - do nothing
+                    }
+
+                    @Override
+                    public void onRemoveClicked(CartItem item) {
+                        // Read-only in checkout - do nothing
+                    }
+
+                    @Override
+                    public void onSaveForLaterClicked(CartItem item) {
+                        // Read-only in checkout - do nothing
+                    }
+                });
                 summaryRecyclerView.setAdapter(adapter);
             }
         });
@@ -100,11 +98,15 @@ public class CheckoutFragment extends Fragment {
                 payFullButton.setText(String.format("Pay Full Amount (₹%.0f)", total));
                 
                 payTokenButton.setOnClickListener(v -> {
-                    paymentService.startTokenPayment(total);
+                    // Navigate to PaymentActivity for token payment
+                    Intent intent = new Intent(requireContext(), PaymentActivity.class);
+                    startActivity(intent);
                 });
                 
                 payFullButton.setOnClickListener(v -> {
-                    paymentService.startPayment(total, "INR", "Full payment for PC components");
+                    // Navigate to PaymentActivity for full payment
+                    Intent intent = new Intent(requireContext(), PaymentActivity.class);
+                    startActivity(intent);
                 });
             }
         });

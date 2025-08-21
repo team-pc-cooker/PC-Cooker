@@ -6,10 +6,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.ComponentModel;
+import com.app.pccooker.ui.UiNotifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +56,7 @@ public class BuildSummaryActivity extends AppCompatActivity {
             // From AI Assistant
             selectedComponents = (ArrayList<ComponentModel>) getIntent().getSerializableExtra("selected_components");
             if (selectedComponents == null || selectedComponents.isEmpty()) {
-                Toast.makeText(this, "No components selected!", Toast.LENGTH_SHORT).show();
+                UiNotifier.showShort(this, "No components selected!");
                 finish();
                 return;
             }
@@ -86,7 +86,7 @@ public class BuildSummaryActivity extends AppCompatActivity {
 
     private void showSummary() {
         if (selectedComponents == null || selectedComponents.isEmpty()) {
-            Toast.makeText(this, "No components selected!", Toast.LENGTH_SHORT).show();
+            UiNotifier.showShort(this, "No components selected!");
             finish();
             return;
         }
@@ -130,18 +130,14 @@ public class BuildSummaryActivity extends AppCompatActivity {
                     for (ComponentModel component : selectedComponents) {
                         cartManager.addToCart(component);
                     }
-                    
-                    Toast.makeText(this, "Components added to cart successfully!", Toast.LENGTH_SHORT).show();
-                    
                     // Navigate to MainActivity with cart flag
                     Intent intent = new Intent(BuildSummaryActivity.this, MainActivity.class);
-                    intent.putExtra("from_ai_summary", true);
                     intent.putExtra("show_cart", true);
                     startActivity(intent);
                     finish();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(this, "Error adding components to cart: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    UiNotifier.showShort(this, "Error adding components to cart: " + e.getMessage());
                 }
             });
         }
@@ -159,7 +155,7 @@ public class BuildSummaryActivity extends AppCompatActivity {
                 cartManager.addToCart(component);
             }
             
-            Toast.makeText(this, "Components added to cart successfully!", Toast.LENGTH_SHORT).show();
+            // Components added to cart (no toast shown)
             
             // Navigate to MainActivity with cart flag
             Intent intent = new Intent(BuildSummaryActivity.this, MainActivity.class);
@@ -169,7 +165,7 @@ public class BuildSummaryActivity extends AppCompatActivity {
         } catch (Exception e) {
             isNavigating = false; // Reset on error
             e.printStackTrace();
-            Toast.makeText(this, "Error adding components to cart: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            UiNotifier.showShort(this, "Error adding components to cart: " + e.getMessage());
         }
     }
 
@@ -287,7 +283,7 @@ public class BuildSummaryActivity extends AppCompatActivity {
             public void onSuccess(List<ComponentModel> alternatives) {
                 runOnUiThread(() -> {
                     if (alternatives.isEmpty()) {
-                        Toast.makeText(BuildSummaryActivity.this, "No alternatives found.", Toast.LENGTH_SHORT).show();
+                        UiNotifier.showShort(BuildSummaryActivity.this, "No alternatives found.");
                         return;
                     }
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(BuildSummaryActivity.this, android.R.layout.simple_list_item_1);
@@ -313,7 +309,7 @@ public class BuildSummaryActivity extends AppCompatActivity {
             }
             @Override
             public void onError(String message) {
-                runOnUiThread(() -> Toast.makeText(BuildSummaryActivity.this, message, Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> UiNotifier.showShort(BuildSummaryActivity.this, message));
             }
         });
     }

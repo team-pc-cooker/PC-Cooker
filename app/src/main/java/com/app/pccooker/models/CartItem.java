@@ -40,4 +40,18 @@ public class CartItem {
 
     public double getRating() { return rating; }
     public void setRating(double rating) { this.rating = rating; }
+    
+    /**
+     * Convert CartItem to ComponentModel for compatibility
+     */
+    public ComponentModel toComponentModel() {
+        ComponentModel component = new ComponentModel();
+        component.setId(this.id);
+        component.setName(this.name);
+        component.setImageUrl(this.imageUrl);
+        component.setPrice(this.price);
+        component.setDescription(this.description);
+        component.setRating(this.rating);
+        return component;
+    }
 }

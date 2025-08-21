@@ -7,20 +7,22 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.SeekBar;
 import android.widget.ImageView;
 import android.os.Handler;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.ComponentModel;
+import com.app.pccooker.ui.UiNotifier;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +32,8 @@ import java.util.stream.Collectors;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import android.util.Log;
 import android.app.AlertDialog;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 
 public class BuildPCFragment extends Fragment {
 
@@ -50,9 +54,13 @@ public class BuildPCFragment extends Fragment {
     
     private Button amdButton;
     private Button intelButton;
+    private Button ddr3Button;
+    private Button ddr4Button;
+    private Button ddr5Button;
+    private LinearLayout legacySocketLayout;
     private Button am4Button;
     private Button am5Button;
-    private Button ddr3Button;
+    private Button lga1700Button;
     private Button hddButton;
     private Button ssdButton;
     private Button nvidiaButton;
@@ -74,12 +82,15 @@ public class BuildPCFragment extends Fragment {
     private ImageView removeDuplicatesButton;
     private ImageView trendingButton;
     private ImageView buildManagerButton;
+    
+    // Floating chat assistant button
+    private FloatingActionButton floatingChatButton;
 
     private int currentBudget = 40000; // Default budget
-    private String selectedProcessorType = "AMD";
-    private String selectedSocketType = "AM4";
+    private String selectedProcessorType = null; // No default selection
+    private String selectedSocketType = null; // No default DDR selection
     private String selectedStorageType = "SSD";
-    private String selectedGpuType = "NVIDIA";
+    private String selectedGpuType = null; // No default GPU selection
 
     @Nullable
     @Override
@@ -110,9 +121,13 @@ public class BuildPCFragment extends Fragment {
         // Component type selection buttons
         amdButton = view.findViewById(R.id.amdButton);
         intelButton = view.findViewById(R.id.intelButton);
+        ddr3Button = view.findViewById(R.id.ddr3Button);
+        ddr4Button = view.findViewById(R.id.ddr4Button);
+        ddr5Button = view.findViewById(R.id.ddr5Button);
+        legacySocketLayout = view.findViewById(R.id.legacySocketLayout);
         am4Button = view.findViewById(R.id.am4Button);
         am5Button = view.findViewById(R.id.am5Button);
-        ddr3Button = view.findViewById(R.id.ddr3Button);
+        lga1700Button = view.findViewById(R.id.lga1700Button);
         hddButton = view.findViewById(R.id.hddButton);
         ssdButton = view.findViewById(R.id.ssdButton);
         nvidiaButton = view.findViewById(R.id.nvidiaButton);
@@ -143,6 +158,17 @@ public class BuildPCFragment extends Fragment {
         
         // Build Manager button
         buildManagerButton = view.findViewById(R.id.buildManagerButton);
+        
+        // Floating chat assistant button
+        floatingChatButton = view.findViewById(R.id.floatingChatButton);
+        
+        // Back button
+        ImageView backButton = view.findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> {
+            if (getActivity() != null) {
+                getActivity().onBackPressed();
+            }
+        });
         
         // Initialize Firebase
         db = FirebaseFirestore.getInstance();
@@ -177,8 +203,14 @@ public class BuildPCFragment extends Fragment {
         // Set up build manager button
         setupBuildManagerButton();
         
+        // Set up floating chat assistant button
+        setupFloatingChatButton();
+        
         // Load current build
         loadCurrentBuild();
+        
+        // Initialize button states
+        updateButtonStates();
     }
     
     private void setupAutoBuildSection() {
@@ -192,6 +224,8 @@ public class BuildPCFragment extends Fragment {
             if (isAutoBuildExpanded) {
                 autoBuildContent.setVisibility(View.VISIBLE);
                 autoBuildExpandIcon.setRotation(180); // Rotate arrow down
+                
+                // Removed annoying tip message
             } else {
                 autoBuildContent.setVisibility(View.GONE);
                 autoBuildExpandIcon.setRotation(0); // Rotate arrow up
@@ -226,7 +260,7 @@ public class BuildPCFragment extends Fragment {
     
     private void setupComponentTypeSelection() {
         // Ensure buttons are properly initialized and clickable
-        if (amdButton == null || intelButton == null || am4Button == null || am5Button == null ||
+        if (amdButton == null || intelButton == null || ddr3Button == null || ddr4Button == null || ddr5Button == null ||
             hddButton == null || ssdButton == null || nvidiaButton == null || amdGpuButton == null) {
             Log.e("BuildPC", "One or more filter buttons are null!");
             return;
@@ -237,10 +271,12 @@ public class BuildPCFragment extends Fragment {
         amdButton.setFocusable(true);
         intelButton.setClickable(true);
         intelButton.setFocusable(true);
-        am4Button.setClickable(true);
-        am4Button.setFocusable(true);
-        am5Button.setClickable(true);
-        am5Button.setFocusable(true);
+        ddr3Button.setClickable(true);
+        ddr3Button.setFocusable(true);
+        ddr4Button.setClickable(true);
+        ddr4Button.setFocusable(true);
+        ddr5Button.setClickable(true);
+        ddr5Button.setFocusable(true);
         hddButton.setClickable(true);
         hddButton.setFocusable(true);
         ssdButton.setClickable(true);
@@ -250,12 +286,28 @@ public class BuildPCFragment extends Fragment {
         amdGpuButton.setClickable(true);
         amdGpuButton.setFocusable(true);
         
-        // Processor type selection - allow toggling
+        // Processor type selection - EXCLUSIVE selection (only one can be selected)
         amdButton.setOnClickListener(v -> {
             if ("AMD".equals(selectedProcessorType)) {
-                selectedProcessorType = null; // Deselect
+                // Already selected - deselect
+                selectedProcessorType = null;
+                // AMD processor deselected
             } else {
+                // Select AMD, deselect Intel
                 selectedProcessorType = "AMD";
+                // Auto-adjust DDR type based on budget if none selected
+                if (selectedSocketType == null) {
+                    if (currentBudget >= 50000) {
+                        selectedSocketType = "DDR5"; // High-end builds
+                    } else if (currentBudget >= 30000) {
+                        selectedSocketType = "DDR4"; // Mid-range builds
+                    } else {
+                        selectedSocketType = "DDR3"; // Budget builds
+                    }
+                    // AMD selected - auto-selected DDR type for budget
+                } else {
+                    // AMD processor selected
+                }
             }
             Log.d("BuildPC", "AMD button clicked - selectedProcessorType: " + selectedProcessorType);
             updateButtonStates();
@@ -263,51 +315,117 @@ public class BuildPCFragment extends Fragment {
         
         intelButton.setOnClickListener(v -> {
             if ("Intel".equals(selectedProcessorType)) {
-                selectedProcessorType = null; // Deselect
+                // Already selected - deselect
+                selectedProcessorType = null;
+                // Intel processor deselected
             } else {
+                // Select Intel, deselect AMD
                 selectedProcessorType = "Intel";
+                // Auto-adjust DDR type based on budget if none selected
+                if (selectedSocketType == null) {
+                    if (currentBudget >= 50000) {
+                        selectedSocketType = "DDR5"; // High-end Intel builds (i7, i9, 12th+ gen)
+                    } else if (currentBudget >= 30000) {
+                        selectedSocketType = "DDR4"; // Mid-range Intel builds (i5, i7)
+                    } else {
+                        selectedSocketType = "DDR3"; // Budget Intel builds (i3, older gen)
+                    }
+                    // Intel selected - auto-selected DDR type for budget
+                } else {
+                    // Intel processor selected
+                }
             }
             Log.d("BuildPC", "Intel button clicked - selectedProcessorType: " + selectedProcessorType);
             updateButtonStates();
         });
         
-        // Socket type selection - allow toggling
-        am4Button.setOnClickListener(v -> {
-            if ("AM4".equals(selectedSocketType)) {
-                selectedSocketType = null; // Deselect
-            } else {
-                selectedSocketType = "AM4";
-            }
-            Log.d("BuildPC", "AM4 button clicked - selectedSocketType: " + selectedSocketType);
-            updateButtonStates();
-        });
-        
-        am5Button.setOnClickListener(v -> {
-            if ("AM5".equals(selectedSocketType)) {
-                selectedSocketType = null; // Deselect
-            } else {
-                selectedSocketType = "AM5";
-            }
-            Log.d("BuildPC", "AM5 button clicked - selectedSocketType: " + selectedSocketType);
-            updateButtonStates();
-        });
-        
+        // DDR type selection - EXCLUSIVE selection (only one can be selected)
         ddr3Button.setOnClickListener(v -> {
             if ("DDR3".equals(selectedSocketType)) {
-                selectedSocketType = null; // Deselect
+                // Already selected - deselect
+                selectedSocketType = null;
+                // DDR3 deselected
             } else {
+                // Select DDR3, deselect others
                 selectedSocketType = "DDR3";
+                // DDR3 selected - compatible with budget AMD and Intel builds
+                
+                // Show DDR3 recommendations after selection
+                new Handler().postDelayed(() -> {
+                    showDDR3Recommendations();
+                }, 2000);
+                
+                // Auto-adjust processor type if none selected
+                if (selectedProcessorType == null) {
+                    selectedProcessorType = "Intel"; // DDR3 works best with Intel
+                    // Auto-selected Intel processor for DDR3 compatibility
+                    updateButtonStates();
+                }
             }
             Log.d("BuildPC", "DDR3 button clicked - selectedSocketType: " + selectedSocketType);
             updateButtonStates();
         });
         
-        // Storage type selection - allow toggling
+        // Add long press listener for DDR3 button to show detailed recommendations
+        ddr3Button.setOnLongClickListener(v -> {
+            showDDR3Recommendations();
+            return true;
+        });
+        
+        ddr4Button.setOnClickListener(v -> {
+            if ("DDR4".equals(selectedSocketType)) {
+                // Already selected - deselect
+                selectedSocketType = null;
+                // DDR4 deselected
+            } else {
+                // Select DDR4, deselect others
+                selectedSocketType = "DDR4";
+                // DDR4 selected - compatible with mid-range AMD and Intel builds
+            }
+            Log.d("BuildPC", "DDR4 button clicked - selectedSocketType: " + selectedSocketType);
+            updateButtonStates();
+        });
+        
+        ddr5Button.setOnClickListener(v -> {
+            if ("DDR5".equals(selectedSocketType)) {
+                // Already selected - deselect
+                selectedSocketType = null;
+                // DDR5 deselected
+            } else {
+                // Select DDR5, deselect others
+                selectedSocketType = "DDR5";
+                // DDR5 selected - compatible with high-end AMD and Intel builds
+            }
+            Log.d("BuildPC", "DDR5 button clicked - selectedSocketType: " + selectedSocketType);
+            updateButtonStates();
+        });
+        
+        // Legacy socket buttons (only shown when DDR3 is selected)
+        am4Button.setOnClickListener(v -> {
+            // AM4 is compatible with DDR4, but we're in DDR3 mode
+            // AM4 requires DDR4. Please select DDR4 first.
+        });
+        
+        am5Button.setOnClickListener(v -> {
+            // AM5 is compatible with DDR5, but we're in DDR3 mode
+            // AM5 requires DDR5. Please select DDR5 first.
+        });
+        
+        lga1700Button.setOnClickListener(v -> {
+            // LGA1700 is compatible with DDR4/DDR5, but we're in DDR3 mode
+            // LGA1700 requires DDR4/DDR5. Please select DDR4 or DDR5 first.
+        });
+        
+        // Storage type selection - EXCLUSIVE selection (only one can be selected)
         hddButton.setOnClickListener(v -> {
             if ("HDD".equals(selectedStorageType)) {
-                selectedStorageType = null; // Deselect
+                // Already selected - deselect
+                selectedStorageType = null;
+                // HDD deselected
             } else {
+                // Select HDD, deselect SSD
                 selectedStorageType = "HDD";
+                // HDD storage selected
             }
             Log.d("BuildPC", "HDD button clicked - selectedStorageType: " + selectedStorageType);
             updateButtonStates();
@@ -315,20 +433,28 @@ public class BuildPCFragment extends Fragment {
         
         ssdButton.setOnClickListener(v -> {
             if ("SSD".equals(selectedStorageType)) {
-                selectedStorageType = null; // Deselect
+                // Already selected - deselect
+                selectedStorageType = "SSD"; // Keep SSD as default, don't allow deselection
+                // SSD is the default storage type
             } else {
+                // Select SSD, deselect HDD
                 selectedStorageType = "SSD";
+                // SSD storage selected
             }
             Log.d("BuildPC", "SSD button clicked - selectedStorageType: " + selectedStorageType);
             updateButtonStates();
         });
         
-        // GPU type selection - allow toggling
+        // GPU type selection - EXCLUSIVE selection (only one can be selected)
         nvidiaButton.setOnClickListener(v -> {
             if ("NVIDIA".equals(selectedGpuType)) {
-                selectedGpuType = null; // Deselect
+                // Already selected - deselect
+                selectedGpuType = null;
+                // NVIDIA GPU deselected
             } else {
+                // Select NVIDIA, deselect AMD
                 selectedGpuType = "NVIDIA";
+                // NVIDIA GPU selected
             }
             Log.d("BuildPC", "NVIDIA button clicked - selectedGpuType: " + selectedGpuType);
             updateButtonStates();
@@ -336,31 +462,25 @@ public class BuildPCFragment extends Fragment {
         
         amdGpuButton.setOnClickListener(v -> {
             if ("AMD".equals(selectedGpuType)) {
-                selectedGpuType = null; // Deselect
+                // Already selected - deselect
+                selectedGpuType = null;
+                // AMD GPU deselected
             } else {
+                // Select AMD, deselect NVIDIA
                 selectedGpuType = "AMD";
+                // AMD GPU selected
             }
             Log.d("BuildPC", "AMD GPU button clicked - selectedGpuType: " + selectedGpuType);
             updateButtonStates();
         });
         
-        // Debug: Check if buttons are properly initialized
-        Log.d("BuildPC", "AMD Button: " + (amdButton != null ? "Initialized" : "NULL"));
-        Log.d("BuildPC", "Intel Button: " + (intelButton != null ? "Initialized" : "NULL"));
-        Log.d("BuildPC", "AM4 Button: " + (am4Button != null ? "Initialized" : "NULL"));
-        Log.d("BuildPC", "AM5 Button: " + (am5Button != null ? "Initialized" : "NULL"));
-        Log.d("BuildPC", "HDD Button: " + (hddButton != null ? "Initialized" : "NULL"));
-        Log.d("BuildPC", "SSD Button: " + (ssdButton != null ? "Initialized" : "NULL"));
-        Log.d("BuildPC", "NVIDIA Button: " + (nvidiaButton != null ? "Initialized" : "NULL"));
-        Log.d("BuildPC", "AMD GPU Button: " + (amdGpuButton != null ? "Initialized" : "NULL"));
-        
-        // Update button states based on current selections
+        // Initialize button states
         updateButtonStates();
     }
     
     private void updateButtonStates() {
         // Ensure buttons are not null before updating
-        if (amdButton == null || intelButton == null || am4Button == null || am5Button == null ||
+        if (amdButton == null || intelButton == null || ddr3Button == null || ddr4Button == null || ddr5Button == null ||
             hddButton == null || ssdButton == null || nvidiaButton == null || amdGpuButton == null) {
             Log.e("BuildPC", "Cannot update button states - buttons are null");
             return;
@@ -370,79 +490,219 @@ public class BuildPCFragment extends Fragment {
         boolean amdSelected = "AMD".equals(selectedProcessorType);
         boolean intelSelected = "Intel".equals(selectedProcessorType);
         
-        amdButton.setSelected(amdSelected);
-        intelButton.setSelected(intelSelected);
+        // Use background tinting for visual feedback
+        if (amdSelected) {
+            amdButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50"))); // Green
+            amdButton.setTextColor(Color.WHITE);
+            amdButton.setElevation(8f); // Add elevation for selected state
+        } else {
+            amdButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#2196F3"))); // Blue
+            amdButton.setTextColor(Color.WHITE);
+            amdButton.setElevation(2f); // Normal elevation
+        }
         
-        // Update socket type buttons
-        boolean am4Selected = "AM4".equals(selectedSocketType);
-        boolean am5Selected = "AM5".equals(selectedSocketType);
+        if (intelSelected) {
+            intelButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50"))); // Green
+            intelButton.setTextColor(Color.WHITE);
+            intelButton.setElevation(8f); // Add elevation for selected state
+        } else {
+            intelButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#2196F3"))); // Blue
+            intelButton.setTextColor(Color.WHITE);
+            intelButton.setElevation(2f); // Normal elevation
+        }
+        
+        // Update DDR type buttons
         boolean ddr3Selected = "DDR3".equals(selectedSocketType);
+        boolean ddr4Selected = "DDR4".equals(selectedSocketType);
+        boolean ddr5Selected = "DDR5".equals(selectedSocketType);
         
-        am4Button.setSelected(am4Selected);
-        am5Button.setSelected(am5Selected);
-        ddr3Button.setSelected(ddr3Selected);
+        if (ddr3Selected) {
+            ddr3Button.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FF9800"))); // Orange
+            ddr3Button.setTextColor(Color.WHITE);
+            ddr3Button.setElevation(8f); // Add elevation for selected state
+        } else {
+            ddr3Button.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#2196F3"))); // Blue
+            ddr3Button.setTextColor(Color.WHITE);
+            ddr3Button.setElevation(2f); // Normal elevation
+        }
         
+        if (ddr4Selected) {
+            ddr4Button.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FF9800"))); // Orange
+            ddr4Button.setTextColor(Color.WHITE);
+            ddr4Button.setElevation(8f); // Add elevation for selected state
+        } else {
+            ddr4Button.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#2196F3"))); // Blue
+            ddr4Button.setTextColor(Color.WHITE);
+            ddr4Button.setElevation(2f); // Normal elevation
+        }
+        
+        if (ddr5Selected) {
+            ddr5Button.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FF9800"))); // Orange
+            ddr5Button.setTextColor(Color.WHITE);
+            ddr5Button.setElevation(8f); // Add elevation for selected state
+        } else {
+            ddr5Button.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#2196F3"))); // Blue
+            ddr5Button.setTextColor(Color.WHITE);
+            ddr5Button.setElevation(2f); // Normal elevation
+        }
+
         // Update storage type buttons
         boolean hddSelected = "HDD".equals(selectedStorageType);
         boolean ssdSelected = "SSD".equals(selectedStorageType);
         
-        hddButton.setSelected(hddSelected);
-        ssdButton.setSelected(ssdSelected);
+        if (hddSelected) {
+            hddButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#9C27B0"))); // Purple
+            hddButton.setTextColor(Color.WHITE);
+            hddButton.setElevation(8f); // Add elevation for selected state
+        } else {
+            hddButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#2196F3"))); // Blue
+            hddButton.setTextColor(Color.WHITE);
+            hddButton.setElevation(2f); // Normal elevation
+        }
+        
+        if (ssdSelected) {
+            ssdButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#9C27B0"))); // Purple
+            ssdButton.setTextColor(Color.WHITE);
+            ssdButton.setElevation(8f); // Add elevation for selected state
+        } else {
+            ssdButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#2196F3"))); // Blue
+            ssdButton.setTextColor(Color.WHITE);
+            ssdButton.setElevation(2f); // Normal elevation
+        }
         
         // Update GPU type buttons
         boolean nvidiaSelected = "NVIDIA".equals(selectedGpuType);
         boolean amdGpuSelected = "AMD".equals(selectedGpuType);
         
-        nvidiaButton.setSelected(nvidiaSelected);
-        amdGpuButton.setSelected(amdGpuSelected);
+        if (nvidiaSelected) {
+            nvidiaButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#E91E63"))); // Pink
+            nvidiaButton.setTextColor(Color.WHITE);
+            nvidiaButton.setElevation(8f); // Add elevation for selected state
+        } else {
+            nvidiaButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#2196F3"))); // Blue
+            nvidiaButton.setTextColor(Color.WHITE);
+            nvidiaButton.setElevation(2f); // Normal elevation
+        }
+        
+        if (amdGpuSelected) {
+            amdGpuButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#E91E63"))); // Pink
+            amdGpuButton.setTextColor(Color.WHITE);
+            amdGpuButton.setElevation(8f); // Add elevation for selected state
+        } else {
+            amdGpuButton.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#2196F3"))); // Blue
+            amdGpuButton.setTextColor(Color.WHITE);
+            amdGpuButton.setElevation(2f); // Normal elevation
+        }
         
         // Log current selections
         Log.d("BuildPC", "Current selections - Processor: " + selectedProcessorType + 
-              ", Socket: " + selectedSocketType + 
+              ", DDR: " + selectedSocketType + 
               ", Storage: " + selectedStorageType + 
               ", GPU: " + selectedGpuType);
         
-        // Force refresh the button backgrounds and states
-        amdButton.invalidate();
-        intelButton.invalidate();
-        am4Button.invalidate();
-        am5Button.invalidate();
-        ddr3Button.invalidate();
-        hddButton.invalidate();
-        ssdButton.invalidate();
-        nvidiaButton.invalidate();
-        amdGpuButton.invalidate();
-        
-        // Refresh button states
-        amdButton.refreshDrawableState();
-        intelButton.refreshDrawableState();
-        am4Button.refreshDrawableState();
-        am5Button.refreshDrawableState();
-        ddr3Button.refreshDrawableState();
-        hddButton.refreshDrawableState();
-        ssdButton.refreshDrawableState();
-        nvidiaButton.refreshDrawableState();
-        amdGpuButton.refreshDrawableState();
-        
         // Log button states for debugging
         Log.d("BuildPC", "Button states - AMD: " + amdSelected + ", Intel: " + intelSelected + 
-              ", AM4: " + am4Selected + ", AM5: " + am5Selected + 
-              ", DDR3: " + ddr3Selected + ", HDD: " + hddSelected + ", SSD: " + ssdSelected + 
+              ", DDR3: " + ddr3Selected + ", DDR4: " + ddr4Selected + ", DDR5: " + ddr5Selected + 
+              ", HDD: " + hddSelected + ", SSD: " + ssdSelected + 
               ", NVIDIA: " + nvidiaSelected + ", AMD GPU: " + amdGpuSelected);
         
         // Update build summary
         updateBuildSummary();
+        
+        // Animate button state changes for better visual feedback
+        animateButtonStateChanges();
+    }
+    
+    private void animateButtonStateChanges() {
+        // Add subtle scale animation to selected buttons
+        if (amdButton != null && "AMD".equals(selectedProcessorType)) {
+            amdButton.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
+        } else if (amdButton != null) {
+            amdButton.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
+        }
+        
+        if (intelButton != null && "Intel".equals(selectedProcessorType)) {
+            intelButton.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
+        } else if (intelButton != null) {
+            intelButton.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
+        }
+        
+        if (ddr3Button != null && "DDR3".equals(selectedSocketType)) {
+            ddr3Button.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
+        } else if (ddr3Button != null) {
+            ddr3Button.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
+        }
+        
+        if (ddr4Button != null && "DDR4".equals(selectedSocketType)) {
+            ddr4Button.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
+        } else if (ddr4Button != null) {
+            ddr4Button.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
+        }
+        
+        if (ddr5Button != null && "DDR5".equals(selectedSocketType)) {
+            ddr5Button.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
+        } else if (ddr5Button != null) {
+            ddr5Button.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
+        }
+        
+        if (hddButton != null && "HDD".equals(selectedStorageType)) {
+            hddButton.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
+        } else if (hddButton != null) {
+            hddButton.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
+        }
+        
+        if (ssdButton != null && "SSD".equals(selectedStorageType)) {
+            ssdButton.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
+        } else if (ssdButton != null) {
+            ssdButton.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
+        }
+        
+        if (nvidiaButton != null && "NVIDIA".equals(selectedGpuType)) {
+            nvidiaButton.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
+        } else if (nvidiaButton != null) {
+            nvidiaButton.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
+        }
+        
+        if (amdGpuButton != null && "AMD".equals(selectedGpuType)) {
+            amdGpuButton.animate().scaleX(1.05f).scaleY(1.05f).setDuration(200).start();
+        } else if (amdGpuButton != null) {
+            amdGpuButton.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start();
+        }
     }
     
     private void setupAutoBuild() {
         autoBuildButton.setOnClickListener(v -> {
             if (currentBudget < 10000) {
-                Toast.makeText(getContext(), "Minimum budget required: ₹10,000", Toast.LENGTH_SHORT).show();
+                UiNotifier.showShort(getContext(), "Minimum budget required: ₹10,000");
                 return;
             }
             
             showAutoBuildProgress();
             autoBuildPCWithinBudget();
+        });
+        
+        // Long press for DDR3 components
+        autoBuildButton.setOnLongClickListener(v -> {
+            addDDR3Components();
+            return true;
+        });
+        
+        // Double tap for compatibility summary
+        final long[] lastTapTime = {0};
+        final long DOUBLE_TAP_TIME_DELTA = 300; // milliseconds
+        
+        autoBuildButton.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - lastTapTime[0] < DOUBLE_TAP_TIME_DELTA) {
+                    // Double tap detected
+                    showComprehensiveCompatibilitySummary();
+                    lastTapTime[0] = 0; // Reset to prevent triple tap
+                    return true;
+                }
+                lastTapTime[0] = currentTime;
+            }
+            return false;
         });
     }
     
@@ -469,14 +729,8 @@ public class BuildPCFragment extends Fragment {
         powerSupplyButton.setOnClickListener(v -> openComponentSelection("POWER SUPPLY"));
         caseButton.setOnClickListener(v -> openComponentSelection("CABINET"));
         
-        // Temporary button to add DDR3 components (for testing)
-        // You can remove this after adding components to Firebase
-        if (autoBuildButton != null) {
-            autoBuildButton.setOnLongClickListener(v -> {
-                addDDR3Components();
-                return true;
-            });
-        }
+        // Note: DDR3 components can be accessed via long-press on Auto-Build button
+        // Compatibility summary can be accessed via double-tap on Auto-Build button
     }
     
     private void openComponentSelection(String category) {
@@ -497,38 +751,10 @@ public class BuildPCFragment extends Fragment {
         
         totalCostText.setText("₹" + String.format("%,.0f", totalCost));
         
-        // Update status text to show current selections and compatibility warnings
-        StringBuilder statusText = new StringBuilder();
+        // Hide the permanent status display
+        compatibilityStatusText.setVisibility(View.GONE);
         
-        if (selectedProcessorType != null) {
-            statusText.append("CPU: ").append(selectedProcessorType);
-        }
-        if (selectedSocketType != null) {
-            if (statusText.length() > 0) statusText.append(", ");
-            statusText.append("Socket: ").append(selectedSocketType);
-        }
-        if (selectedStorageType != null) {
-            if (statusText.length() > 0) statusText.append(", ");
-            statusText.append("Storage: ").append(selectedStorageType);
-        }
-        if (selectedGpuType != null) {
-            if (statusText.length() > 0) statusText.append(", ");
-            statusText.append("GPU: ").append(selectedGpuType);
-        }
-        
-        // Add compatibility warnings
-        String compatibilityWarning = checkCompatibilityWarnings();
-        if (!compatibilityWarning.isEmpty()) {
-            statusText.append("\n⚠️ ").append(compatibilityWarning);
-        }
-        
-        compatibilityStatusText.setText(statusText.toString());
-        
-        if (isCompatible && compatibilityWarning.isEmpty()) {
-            compatibilityStatusText.setTextColor(getResources().getColor(R.color.green));
-        } else {
-            compatibilityStatusText.setTextColor(getResources().getColor(R.color.red));
-        }
+        // Status information is now shown in the build summary instead
     }
     
     private double calculateTotalCost() {
@@ -570,35 +796,96 @@ public class BuildPCFragment extends Fragment {
     private String checkCompatibilityWarnings() {
         StringBuilder warnings = new StringBuilder();
         
-        // Check processor and socket compatibility
-        if ("Intel".equals(selectedProcessorType) && "AM4".equals(selectedSocketType)) {
-            warnings.append("Intel processors don't use AM4 sockets. Consider LGA1155/LGA1150 for DDR3 or LGA1700 for DDR5.");
+        // Check processor and DDR type compatibility with more balanced messaging
+        if ("Intel".equals(selectedProcessorType) && "DDR3".equals(selectedSocketType)) {
+            warnings.append("💡 Intel DDR3 builds are great for budget builds under ₹15,000!\n");
+            warnings.append("✅ Perfect for: Basic computing, office work, light gaming\n");
+            warnings.append("⚠️ Limited to: 2nd/3rd gen Intel processors, max 16GB RAM\n");
+            warnings.append("🔧 Compatible sockets: LGA1155, LGA1150, LGA1156\n");
+            warnings.append("💾 RAM: DDR3-1333/1600, max 16GB (2x8GB)\n\n");
         }
         
-        if ("Intel".equals(selectedProcessorType) && "AM5".equals(selectedSocketType)) {
-            warnings.append("Intel processors don't use AM5 sockets. Consider LGA1700 for DDR5.");
+        if ("Intel".equals(selectedProcessorType) && "DDR4".equals(selectedSocketType)) {
+            warnings.append("💡 Intel DDR4 builds offer good performance for mid-range builds!\n");
+            warnings.append("✅ Perfect for: Gaming, content creation, multitasking\n");
+            warnings.append("⚠️ Consider DDR5 for: Future-proofing, high-end builds\n");
+            warnings.append("🔧 Compatible sockets: LGA1151, LGA1200, LGA1700\n");
+            warnings.append("💾 RAM: DDR4-2133 to DDR4-3600, max 128GB\n\n");
+        }
+        
+        if ("Intel".equals(selectedProcessorType) && "DDR5".equals(selectedSocketType)) {
+            warnings.append("💡 Intel DDR5 builds are excellent for high-end performance!\n");
+            warnings.append("✅ Perfect for: Gaming, streaming, content creation, workstation\n");
+            warnings.append("🔧 Compatible sockets: LGA1700, LGA1851\n");
+            warnings.append("💾 RAM: DDR5-4800 to DDR5-7200, max 128GB\n");
+            warnings.append("💰 Recommended budget: ₹50,000+\n\n");
         }
         
         if ("AMD".equals(selectedProcessorType) && "DDR3".equals(selectedSocketType)) {
-            warnings.append("AMD processors don't use DDR3. Consider AM4 for DDR4 or AM5 for DDR5.");
+            warnings.append("⚠️ AMD DDR3 builds are limited to older AM3+ socket processors\n");
+            warnings.append("💡 Consider AM4 with DDR4 for better performance and value\n");
+            warnings.append("🔧 Compatible sockets: AM3+ (limited options)\n");
+            warnings.append("💾 RAM: DDR3-1333/1600, max 32GB\n\n");
         }
         
-        // Check budget compatibility
+        if ("AMD".equals(selectedProcessorType) && "DDR4".equals(selectedSocketType)) {
+            warnings.append("💡 AMD DDR4 builds are excellent for performance and value!\n");
+            warnings.append("✅ Perfect for: Gaming, streaming, content creation\n");
+            warnings.append("💡 Consider AM5 with DDR5 for: Future-proofing, high-end builds\n");
+            warnings.append("🔧 Compatible sockets: AM4\n");
+            warnings.append("💾 RAM: DDR4-2133 to DDR4-3600, max 128GB\n\n");
+        }
+        
+        if ("AMD".equals(selectedProcessorType) && "DDR5".equals(selectedSocketType)) {
+            warnings.append("💡 AMD DDR5 builds are cutting-edge for maximum performance!\n");
+            warnings.append("✅ Perfect for: High-end gaming, content creation, workstation\n");
+            warnings.append("🔧 Compatible sockets: AM5\n");
+            warnings.append("💾 RAM: DDR5-4800 to DDR5-7200, max 128GB\n");
+            warnings.append("💰 Recommended budget: ₹60,000+\n\n");
+        }
+        
+        // Check budget compatibility with helpful suggestions
         if (currentBudget < 10000) {
-            warnings.append("Budget below ₹10,000 may limit component options. Consider DDR3 builds.");
+            warnings.append("💰 Budget below ₹10,000 - DDR3 components recommended!\n");
+            warnings.append("💡 Great options: Intel 2nd/3rd gen, H61 motherboards, DDR3 RAM\n");
+            warnings.append("🎯 Target: Basic computing, office work, light browsing\n\n");
+        } else if (currentBudget < 25000) {
+            warnings.append("💰 Budget ₹10,000-25,000 - DDR4 components recommended!\n");
+            warnings.append("💡 Great options: Intel 6th-10th gen, AMD Ryzen 3000 series\n");
+            warnings.append("🎯 Target: Gaming, content creation, multitasking\n\n");
+        } else if (currentBudget < 50000) {
+            warnings.append("💰 Budget ₹25,000-50,000 - DDR4/DDR5 components recommended!\n");
+            warnings.append("💡 Great options: Intel 12th-13th gen, AMD Ryzen 5000 series\n");
+            warnings.append("🎯 Target: High-end gaming, streaming, content creation\n\n");
+        } else {
+            warnings.append("💰 Budget above ₹50,000 - DDR5 components recommended!\n");
+            warnings.append("💡 Great options: Intel 13th-14th gen, AMD Ryzen 7000 series\n");
+            warnings.append("🎯 Target: Professional work, high-end gaming, future-proofing\n\n");
         }
         
         return warnings.toString();
     }
     
     private void autoBuildPCWithinBudget() {
+        // Check for incompatible selections before building
+        String compatibilityWarning = checkCompatibilityWarnings();
+        if (!compatibilityWarning.isEmpty()) {
+            // Silently auto-adjust and proceed without pop-up
+            autoAdjustIncompatibleSelections();
+        }
+        
+        // Proceed with build
+        proceedWithBuild();
+    }
+    
+    private void proceedWithBuild() {
         // Clear previous selections
         selectedComponents.clear();
         
         // Show loading message with user preferences
-        String preferences = String.format("Building with: %s CPU, %s Socket, %s Storage, %s GPU", 
+        String preferences = String.format("Building with: %s CPU, %s DDR, %s Storage, %s GPU", 
             selectedProcessorType, selectedSocketType, selectedStorageType, selectedGpuType);
-        Toast.makeText(getContext(), preferences, Toast.LENGTH_LONG).show();
+        UiNotifier.showLong(getContext(), preferences);
         
         Log.d("BuildPC", "Auto-build started with preferences: " + preferences);
         
@@ -615,7 +902,7 @@ public class BuildPCFragment extends Fragment {
                 }
                 
                 if (allComponents.isEmpty()) {
-                    Toast.makeText(getContext(), "No components found in database. Please add components first.", Toast.LENGTH_LONG).show();
+                    UiNotifier.showLong(getContext(), "No components found in database. Please add components first.");
                     return;
                 }
                 
@@ -627,12 +914,12 @@ public class BuildPCFragment extends Fragment {
             })
             .addOnFailureListener(e -> {
                 String errorMessage = "Failed to load components: " + e.getMessage();
-                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_LONG).show();
+                UiNotifier.showLong(getContext(), errorMessage);
                 Log.e("BuildPC", errorMessage, e);
                 
                 // Check if it's a permission error
                 if (e.getMessage() != null && e.getMessage().contains("permission")) {
-                    Toast.makeText(getContext(), "Firebase permission error. Please check security rules.", Toast.LENGTH_LONG).show();
+                    UiNotifier.showLong(getContext(), "Firebase permission error. Please check security rules.");
                 }
             });
     }
@@ -644,35 +931,49 @@ public class BuildPCFragment extends Fragment {
         // Clear previous selections
         selectedComponents.clear();
 
-        // Step 1: Select motherboard based on user preferences (AM4/AM5, DDR4/DDR5)
+        // Determine RAM type from DDR selection
+        String ramType = "DDR4"; // Default
+        if (selectedSocketType != null) {
+            if (selectedSocketType.contains("DDR5")) {
+                ramType = "DDR5";
+            } else if (selectedSocketType.contains("DDR4")) {
+                ramType = "DDR4";
+            } else if (selectedSocketType.contains("DDR3")) {
+                ramType = "DDR3";
+            }
+        }
+
+        // Step 1: Select motherboard based on DDR type and processor brand
         ComponentModel selectedMobo = selectCompatibleMotherboard(allComponents, remainingBudget);
         if (selectedMobo == null) {
-            Toast.makeText(getContext(), "No suitable motherboard found for ₹" + String.format("%,d", currentBudget), Toast.LENGTH_LONG).show();
+            UiNotifier.showLong(getContext(), "No suitable " + ramType + " motherboard found for ₹" + String.format("%,d", currentBudget));
             return;
         }
         selectedComponents.put("MOTHERBOARD", selectedMobo);
         totalCost += selectedMobo.getPrice();
         remainingBudget -= selectedMobo.getPrice();
 
-        // Step 2: Select compatible CPU based on user preferences (AMD/Intel)
+        // Step 2: Select compatible CPU based on DDR type and processor brand
         ComponentModel selectedCPU = selectCompatibleCPU(allComponents, selectedMobo, remainingBudget);
         if (selectedCPU == null) {
-            Toast.makeText(getContext(), "No compatible CPU found for the selected motherboard", Toast.LENGTH_LONG).show();
+            UiNotifier.showLong(getContext(), "No compatible " + ramType + " CPU found for the selected motherboard");
             return;
         }
         selectedComponents.put("PROCESSOR", selectedCPU);
         totalCost += selectedCPU.getPrice();
         remainingBudget -= selectedCPU.getPrice();
 
-        // Step 3: Select compatible RAM (DDR3/DDR4/DDR5 based on motherboard)
+        // Step 3: Select compatible RAM based on DDR type
         ComponentModel selectedRAM = selectCompatibleRAM(allComponents, selectedMobo, remainingBudget);
-        if (selectedRAM != null) {
-            selectedComponents.put("RAM", selectedRAM);
-            totalCost += selectedRAM.getPrice();
-            remainingBudget -= selectedRAM.getPrice();
+        if (selectedRAM == null) {
+            UiNotifier.showLong(getContext(), "No compatible " + ramType + " RAM found");
+            return;
         }
+        selectedComponents.put("RAM", selectedRAM);
+        totalCost += selectedRAM.getPrice();
+        remainingBudget -= selectedRAM.getPrice();
 
-        // Step 4: Select storage based on user preference (HDD/SSD)
+        // Step 4: Select storage based on user preference
         ComponentModel selectedStorage = selectStorageByPreference(allComponents, remainingBudget);
         if (selectedStorage != null) {
             selectedComponents.put("STORAGE", selectedStorage);
@@ -680,7 +981,15 @@ public class BuildPCFragment extends Fragment {
             remainingBudget -= selectedStorage.getPrice();
         }
 
-        // Step 5: Select PSU
+        // Step 5: Select GPU based on user preference
+        ComponentModel selectedGPU = selectGPUByPreference(allComponents, remainingBudget);
+        if (selectedGPU != null) {
+            selectedComponents.put("GRAPHIC CARD", selectedGPU);
+            totalCost += selectedGPU.getPrice();
+            remainingBudget -= selectedGPU.getPrice();
+        }
+
+        // Step 6: Select power supply
         ComponentModel selectedPSU = selectCheapestComponent(allComponents, "POWER SUPPLY", remainingBudget);
         if (selectedPSU != null) {
             selectedComponents.put("POWER SUPPLY", selectedPSU);
@@ -688,7 +997,7 @@ public class BuildPCFragment extends Fragment {
             remainingBudget -= selectedPSU.getPrice();
         }
 
-        // Step 6: Select case
+        // Step 7: Select case
         ComponentModel selectedCase = selectCheapestComponent(allComponents, "CABINET", remainingBudget);
         if (selectedCase != null) {
             selectedComponents.put("CABINET", selectedCase);
@@ -696,17 +1005,7 @@ public class BuildPCFragment extends Fragment {
             remainingBudget -= selectedCase.getPrice();
         }
 
-        // Step 7: Select GPU based on user preference (NVIDIA/AMD) if budget allows
-        if (remainingBudget > 0) {
-            ComponentModel selectedGPU = selectGPUByPreference(allComponents, remainingBudget);
-            if (selectedGPU != null) {
-                selectedComponents.put("GRAPHIC CARD", selectedGPU);
-                totalCost += selectedGPU.getPrice();
-                remainingBudget -= selectedGPU.getPrice();
-            }
-        }
-
-        // Update UI
+        // Update UI and show results
         updateBuildSummary();
         
         // Save the build
@@ -714,21 +1013,12 @@ public class BuildPCFragment extends Fragment {
         
         // Add components to cart
         addComponentsToCart();
-
-        // Show result
-        if (selectedComponents.size() > 0) {
-            String preferences = String.format("Built with: %s, %s, %s, %s", 
-                selectedProcessorType, selectedSocketType, selectedStorageType, selectedGpuType);
-            Toast.makeText(getContext(), "Auto-build complete! " + preferences + 
-                "\nSelected " + selectedComponents.size() + " components. Total: ₹" + String.format("%.0f", totalCost) +
-                " (Remaining: ₹" + String.format("%.0f", remainingBudget) + ")", Toast.LENGTH_LONG).show();
-            
-            // Show success dialog with option to proceed to cart
-            showAutoBuildSuccessDialog(totalCost, remainingBudget);
-        } else {
-            Toast.makeText(getContext(), "No suitable components found for ₹" + String.format("%,d", currentBudget) +
-                ". Please try increasing your budget.", Toast.LENGTH_LONG).show();
-        }
+        
+        // Show success dialog
+        showAutoBuildSuccessDialog(totalCost, remainingBudget);
+        
+        Log.d("BuildPC", "Auto-build completed. Total cost: ₹" + String.format("%,d", (int)totalCost) + 
+              ", Remaining budget: ₹" + String.format("%,d", (int)remainingBudget));
     }
 
     // Select the CHEAPEST component in a category within budget
@@ -807,6 +1097,12 @@ public class BuildPCFragment extends Fragment {
         Log.d("BuildPC", "Looking for " + selectedProcessorType + " CPU with socket " + moboSocket);
 
         // STRICT filtering: Only select CPUs that match the user's processor type preference
+        // Add null safety for selectedProcessorType
+        if (selectedProcessorType == null) {
+            Log.w("BuildPC", "No processor type selected, using default Intel");
+            selectedProcessorType = "Intel";
+        }
+        
         List<ComponentModel> compatibleCPUs = components.stream()
             .filter(c -> c.getCategory().equals("PROCESSOR") &&
                         c.getPrice() <= maxBudget &&
@@ -827,7 +1123,7 @@ public class BuildPCFragment extends Fragment {
         
         // If no CPUs match the user's processor type preference, show error instead of fallback
         Log.w("BuildPC", "No compatible CPUs found for " + selectedProcessorType + " with socket " + moboSocket);
-        Toast.makeText(getContext(), "No " + selectedProcessorType + " processors found for " + moboSocket + " socket. Please try different preferences.", Toast.LENGTH_LONG).show();
+        UiNotifier.showLong(getContext(), "No " + selectedProcessorType + " processors found for " + moboSocket + " socket. Please try different preferences.");
         return null;
     }
 
@@ -838,6 +1134,14 @@ public class BuildPCFragment extends Fragment {
         }
 
         String targetRamType;
+        // Add null safety for selectedProcessorType and selectedSocketType
+        if (selectedProcessorType == null) {
+            selectedProcessorType = "Intel"; // Default to Intel
+        }
+        if (selectedSocketType == null) {
+            selectedSocketType = "AM4"; // Default to AM4
+        }
+        
         if ("AMD".equals(selectedProcessorType)) {
             targetRamType = selectedSocketType.equals("AM4") ? "DDR4" : "DDR5";
         } else {
@@ -864,6 +1168,11 @@ public class BuildPCFragment extends Fragment {
 
     // Select storage based on user preference (HDD/SSD)
     private ComponentModel selectStorageByPreference(List<ComponentModel> components, double maxBudget) {
+        // Add null safety for selectedStorageType
+        if (selectedStorageType == null) {
+            selectedStorageType = "SSD"; // Default to SSD
+        }
+        
         List<ComponentModel> preferredStorage = components.stream()
             .filter(c -> c.getCategory().equals("STORAGE") &&
                         c.getPrice() <= maxBudget &&
@@ -883,6 +1192,11 @@ public class BuildPCFragment extends Fragment {
 
     // Select GPU based on user preference (NVIDIA/AMD)
     private ComponentModel selectGPUByPreference(List<ComponentModel> components, double maxBudget) {
+        // Add null safety for selectedGpuType
+        if (selectedGpuType == null) {
+            selectedGpuType = "NVIDIA"; // Default to NVIDIA
+        }
+        
         List<ComponentModel> preferredGPU = components.stream()
             .filter(c -> c.getCategory().equals("GRAPHIC CARD") &&
                         c.getPrice() <= maxBudget &&
@@ -901,15 +1215,129 @@ public class BuildPCFragment extends Fragment {
     }
     
     private void loadCurrentBuild() {
-        // Implementation for loading current build
+        // Load the current build from SharedPreferences or Firebase
+        if (auth.getCurrentUser() == null) {
+            return; // No user logged in
+        }
+        
+        String userId = auth.getCurrentUser().getUid();
+        db.collection("users").document(userId)
+            .collection("currentBuild")
+            .document("latest")
+            .get()
+            .addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    Map<String, Object> buildData = documentSnapshot.getData();
+                    if (buildData != null) {
+                        // Load budget
+                        if (buildData.containsKey("budget")) {
+                            currentBudget = ((Number) buildData.get("budget")).intValue();
+                            updateBudgetDisplay(currentBudget);
+                        }
+                        
+                        // Load component preferences
+                        if (buildData.containsKey("processorType")) {
+                            selectedProcessorType = (String) buildData.get("processorType");
+                        }
+                        if (buildData.containsKey("socketType")) {
+                            selectedSocketType = (String) buildData.get("socketType");
+                        }
+                        if (buildData.containsKey("storageType")) {
+                            selectedStorageType = (String) buildData.get("storageType");
+                        }
+                        if (buildData.containsKey("gpuType")) {
+                            selectedGpuType = (String) buildData.get("gpuType");
+                        }
+                        
+                        // Update UI
+                        updateButtonStates();
+                        updateBuildSummary();
+                        
+                        Log.d("BuildPC", "Current build loaded successfully");
+                    }
+                }
+            })
+            .addOnFailureListener(e -> {
+                Log.w("BuildPC", "Failed to load current build", e);
+            });
     }
     
     private void saveCurrentBuild() {
-        // Implementation for saving current build
+        // Save the current build to Firebase
+        if (auth.getCurrentUser() == null) {
+            return; // No user logged in
+        }
+        
+        Map<String, Object> buildData = new HashMap<>();
+        buildData.put("budget", currentBudget);
+        buildData.put("processorType", selectedProcessorType);
+        buildData.put("socketType", selectedSocketType);
+        buildData.put("storageType", selectedStorageType);
+        buildData.put("gpuType", selectedGpuType);
+        buildData.put("timestamp", System.currentTimeMillis());
+        buildData.put("totalCost", calculateTotalCost());
+        
+        String userId = auth.getCurrentUser().getUid();
+        db.collection("users").document(userId)
+            .collection("currentBuild")
+            .document("latest")
+            .set(buildData)
+            .addOnSuccessListener(aVoid -> {
+                Log.d("BuildPC", "Current build saved successfully");
+            })
+            .addOnFailureListener(e -> {
+                Log.w("BuildPC", "Failed to save current build", e);
+            });
     }
     
     private void addComponentsToCart() {
-        // Implementation for adding components to cart
+        // Add selected components to the user's cart
+        if (auth.getCurrentUser() == null) {
+            UiNotifier.showShort(getContext(), "Please login to add components to cart");
+            return;
+        }
+        
+        if (selectedComponents.isEmpty()) {
+            UiNotifier.showShort(getContext(), "No components selected to add to cart");
+            return;
+        }
+        
+        String userId = auth.getCurrentUser().getUid();
+        final int totalComponents = selectedComponents.size();
+        final int[] addedCount = {0};
+        
+        for (Map.Entry<String, ComponentModel> entry : selectedComponents.entrySet()) {
+            ComponentModel component = entry.getValue();
+            
+            Map<String, Object> cartItem = new HashMap<>();
+            cartItem.put("componentId", component.getId());
+            cartItem.put("name", component.getName());
+            cartItem.put("category", component.getCategory());
+            cartItem.put("price", component.getPrice());
+            cartItem.put("brand", component.getBrand());
+            cartItem.put("specifications", component.getSpecifications());
+            cartItem.put("addedAt", System.currentTimeMillis());
+            cartItem.put("quantity", 1);
+            
+            db.collection("users").document(userId)
+                .collection("cart")
+                .add(cartItem)
+                .addOnSuccessListener(documentReference -> {
+                    addedCount[0]++;
+                    if (addedCount[0] == totalComponents) {
+                        // All components added successfully
+                        UiNotifier.showShort(getContext(), 
+                            "Added " + addedCount[0] + " components to cart successfully!");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("BuildPC", "Failed to add component to cart: " + component.getName(), e);
+                    UiNotifier.showShort(getContext(), 
+                        "Failed to add " + component.getName() + " to cart");
+                });
+        }
+        
+        Log.d("BuildPC", "Adding " + selectedComponents.size() + " components to cart");
     }
     
     private void showAutoBuildSuccessDialog(double totalCost, double remainingBudget) {
@@ -947,7 +1375,7 @@ public class BuildPCFragment extends Fragment {
     
     private void viewBuildSummary() {
         if (selectedComponents.isEmpty()) {
-            Toast.makeText(getContext(), "Please select at least one component first", Toast.LENGTH_SHORT).show();
+            UiNotifier.showShort(getContext(), "Please select at least one component first");
             return;
         }
         
@@ -964,7 +1392,7 @@ public class BuildPCFragment extends Fragment {
     private void setupSaveFunctionality() {
         saveBuildButton.setOnClickListener(v -> {
             if (selectedComponents.isEmpty()) {
-                Toast.makeText(getContext(), "No components selected to save", Toast.LENGTH_SHORT).show();
+                UiNotifier.showShort(getContext(), "No components selected to save");
                 return;
             }
             showSaveBuildDialog();
@@ -999,22 +1427,51 @@ public class BuildPCFragment extends Fragment {
         });
     }
     
+    private void setupFloatingChatButton() {
+        floatingChatButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), ChatbotActivity.class);
+            startActivity(intent);
+        });
+    }
+    
     private void useSmartBuildEngine(List<ComponentModel> allComponents) {
         Log.d("BuildPC", "Using Smart Build Engine for intelligent component selection");
         
-        // Use Smart Build Engine
+        // Determine RAM type from DDR selection
+        String ramType = "DDR4"; // Default
+        if (selectedSocketType != null) {
+            if (selectedSocketType.contains("DDR5")) {
+                ramType = "DDR5";
+            } else if (selectedSocketType.contains("DDR4")) {
+                ramType = "DDR4";
+            } else if (selectedSocketType.contains("DDR3")) {
+                ramType = "DDR3";
+            }
+        }
+        
+        // Determine processor brand and generation based on budget
+        String processorBrand = (selectedProcessorType != null && selectedProcessorType.equals("AMD")) ? "AMD" : "Intel";
+        String gpuBrand = (selectedGpuType != null && selectedGpuType.equals("NVIDIA")) ? "NVIDIA" : "AMD";
+        
+        // Determine target processor generation based on budget
+        String targetGeneration = determineTargetGeneration(currentBudget, processorBrand, ramType);
+        
+        Log.d("BuildPC", "Smart Build Parameters - Budget: ₹" + String.format("%,d", currentBudget) + 
+              ", Processor: " + processorBrand + ", DDR: " + ramType + ", Target Gen: " + targetGeneration);
+        
         SmartBuildEngine.BuildResult result = SmartBuildEngine.buildSmartPC(
             allComponents,
             currentBudget,
-            selectedProcessorType.equals("AMD") ? "AMD" : "Intel",
-            selectedGpuType.equals("NVIDIA") ? "NVIDIA" : "AMD",
-            selectedSocketType,
-            selectedSocketType.contains("AM5") ? "DDR5" : (selectedSocketType.contains("AM4") ? "DDR4" : "DDR3"),
-            selectedStorageType
+            processorBrand,
+            gpuBrand,
+            null, // No socket type needed with DDR approach
+            ramType, // DDR type
+            selectedStorageType != null ? selectedStorageType : "SSD",
+            targetGeneration // Pass target generation for smarter selection
         );
         
         if (result.selectedComponents.isEmpty()) {
-            Toast.makeText(getContext(), "Could not build a PC within your budget and preferences", Toast.LENGTH_LONG).show();
+            UiNotifier.showLong(getContext(), "Could not build a PC within your budget and preferences");
             return;
         }
         
@@ -1039,6 +1496,41 @@ public class BuildPCFragment extends Fragment {
         
         Log.d("BuildPC", "Smart Build completed. Total cost: ₹" + String.format("%,d", (int)result.totalCost) + 
               ", Performance Score: " + String.format("%.1f", result.performanceScore));
+    }
+    
+    /**
+     * Determine target processor generation based on budget and DDR type
+     */
+    private String determineTargetGeneration(int budget, String processorBrand, String ramType) {
+        if ("AMD".equals(processorBrand)) {
+            if ("DDR5".equals(ramType)) {
+                if (budget >= 80000) return "Ryzen 9 7000"; // High-end DDR5
+                else if (budget >= 50000) return "Ryzen 7 7000"; // Mid-high DDR5
+                else return "Ryzen 5 7000"; // Mid DDR5
+            } else if ("DDR4".equals(ramType)) {
+                if (budget >= 60000) return "Ryzen 9 5000"; // High-end DDR4
+                else if (budget >= 40000) return "Ryzen 7 5000"; // Mid-high DDR4
+                else return "Ryzen 5 5000"; // Mid DDR4
+            } else { // DDR3
+                if (budget >= 40000) return "Ryzen 7 3000"; // High-end DDR3
+                else if (budget >= 25000) return "Ryzen 5 3000"; // Mid DDR3
+                else return "Ryzen 3 3000"; // Budget DDR3
+            }
+        } else { // Intel
+            if ("DDR5".equals(ramType)) {
+                if (budget >= 80000) return "i9 13th/14th Gen"; // High-end DDR5
+                else if (budget >= 50000) return "i7 13th/14th Gen"; // Mid-high DDR5
+                else return "i5 13th/14th Gen"; // Mid DDR5
+            } else if ("DDR4".equals(ramType)) {
+                if (budget >= 60000) return "i9 12th Gen"; // High-end DDR4
+                else if (budget >= 40000) return "i7 12th Gen"; // Mid-high DDR4
+                else return "i5 12th Gen"; // Mid DDR4
+            } else { // DDR3
+                if (budget >= 40000) return "i7 4th Gen"; // High-end DDR3
+                else if (budget >= 25000) return "i5 4th Gen"; // Mid DDR3
+                else return "i3 4th Gen"; // Budget DDR3
+            }
+        }
     }
     
     private void showSmartBuildResults(SmartBuildEngine.BuildResult result) {
@@ -1072,11 +1564,14 @@ public class BuildPCFragment extends Fragment {
         
         // Show as a Toast for quick feedback, like the original
         String preferences = String.format("Built with: %s, %s, %s, %s", 
-            selectedProcessorType, selectedSocketType, selectedStorageType, selectedGpuType);
-        Toast.makeText(getContext(), "Smart Auto-build complete! " + preferences + 
+            selectedProcessorType != null ? selectedProcessorType : "Default",
+            selectedSocketType != null ? selectedSocketType : "Default", 
+            selectedStorageType != null ? selectedStorageType : "Default",
+            selectedGpuType != null ? selectedGpuType : "Default");
+        UiNotifier.showLong(getContext(), "Smart Auto-build complete! " + preferences + 
             "\nSelected " + result.selectedComponents.size() + " components. " +
             "Performance Score: " + String.format("%.1f/100", result.performanceScore) +
-            (validation.isCompatible ? " ✅" : " ⚠️"), Toast.LENGTH_LONG).show();
+            (validation.isCompatible ? " ✅" : " ⚠️"));
         
         // Only show dialog if there are critical compatibility issues
         if (!validation.isCompatible) {
@@ -1138,7 +1633,7 @@ public class BuildPCFragment extends Fragment {
     
     private void saveBuildToProfile(String buildName) {
         if (auth.getCurrentUser() == null) {
-            Toast.makeText(getContext(), "Please login to save builds", Toast.LENGTH_SHORT).show();
+            UiNotifier.showShort(getContext(), "Please login to save builds");
             return;
         }
         
@@ -1167,17 +1662,309 @@ public class BuildPCFragment extends Fragment {
             .collection("savedBuilds")
             .add(buildData)
             .addOnSuccessListener(documentReference -> {
-                Toast.makeText(getContext(), "Build saved successfully!", Toast.LENGTH_SHORT).show();
+                UiNotifier.showShort(getContext(), "Build saved successfully!");
             })
             .addOnFailureListener(e -> {
-                Toast.makeText(getContext(), "Failed to save build: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                UiNotifier.showShort(getContext(), "Failed to save build: " + e.getMessage());
             });
     }
 
+    // Method to auto-adjust incompatible selections
+    private void autoAdjustIncompatibleSelections() {
+        StringBuilder adjustmentMessage = new StringBuilder();
+        
+        // Auto-adjust Intel + DDR3 combinations
+        if ("Intel".equals(selectedProcessorType) && "DDR3".equals(selectedSocketType)) {
+            if (currentBudget >= 50000) {
+                // High budget - recommend modern DDR5
+                selectedSocketType = "DDR5";
+                adjustmentMessage.append("💰 High budget detected (₹").append(currentBudget).append(")\n");
+                adjustmentMessage.append("🔄 Auto-adjusted: Intel + DDR5 for modern performance\n");
+                adjustmentMessage.append("💡 DDR5 offers better future-proofing and performance\n\n");
+            } else if (currentBudget >= 25000) {
+                // Mid budget - recommend DDR4
+                selectedSocketType = "DDR4";
+                adjustmentMessage.append("💰 Mid budget detected (₹").append(currentBudget).append(")\n");
+                adjustmentMessage.append("🔄 Auto-adjusted: Intel + DDR4 for balanced performance\n");
+                adjustmentMessage.append("💡 DDR4 offers good performance at reasonable cost\n\n");
+            } else {
+                // Low budget - keep DDR3 but optimize socket
+                selectedSocketType = "LGA1155";
+                adjustmentMessage.append("💰 Budget build detected (₹").append(currentBudget).append(")\n");
+                adjustmentMessage.append("🔄 Auto-adjusted: Intel + LGA1155 for DDR3 compatibility\n");
+                adjustmentMessage.append("✅ DDR3 is perfect for budget builds under ₹15,000\n");
+                adjustmentMessage.append("💡 Great for: Basic computing, office work, light gaming\n\n");
+            }
+        }
+        
+        // Auto-adjust AMD + DDR3 combinations
+        if ("AMD".equals(selectedProcessorType) && "DDR3".equals(selectedSocketType)) {
+            if (currentBudget >= 30000) {
+                // Switch to AM4 with DDR4 for better performance
+                selectedSocketType = "AM4";
+                adjustmentMessage.append("💰 Budget allows for AM4 upgrade (₹").append(currentBudget).append(")\n");
+                adjustmentMessage.append("🔄 Auto-adjusted: AMD + AM4 for DDR4 compatibility\n");
+                adjustmentMessage.append("💡 AM4 offers much better performance than AM3+\n\n");
+            } else {
+                // Keep DDR3 but inform about limitations
+                adjustmentMessage.append("⚠️ AMD DDR3 builds limited to AM3+ socket\n");
+                adjustmentMessage.append("💡 Consider Intel DDR3 for better budget options\n");
+                adjustmentMessage.append("💡 Or increase budget for AM4 DDR4 build\n\n");
+            }
+        }
+        
+        // Auto-adjust storage type based on budget
+        if (currentBudget < 15000 && "SSD".equals(selectedStorageType)) {
+            selectedStorageType = "HDD";
+            adjustmentMessage.append("💰 Budget optimization: Switched to HDD for more storage\n");
+            adjustmentMessage.append("💡 HDD offers more GB per rupee for budget builds\n\n");
+        }
+        
+        // Show comprehensive adjustment message
+        if (adjustmentMessage.length() > 0) {
+            // Silently apply adjustments without showing dialog
+            updateButtonStates();
+            updateBuildSummary();
+        } else {
+            // No adjustments needed
+        }
+    }
+    
     // Method to add DDR3 components (for testing)
     private void addDDR3Components() {
-        Intent intent = new Intent(requireContext(), AddComponentActivity.class);
-        startActivity(intent);
+        // Show a dialog explaining DDR3 components and providing options
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("DDR3 Budget Components");
+        builder.setMessage("DDR3 components are available for budget builds including:\n\n" +
+                         "• Intel 2nd/3rd gen processors (i3, i5, i7)\n" +
+                         "• H61/H81 motherboards\n" +
+                         "• DDR3 RAM modules\n" +
+                         "• Budget graphics cards\n\n" +
+                         "These components are perfect for entry-level builds under ₹15,000.");
+        
+        builder.setPositiveButton("View DDR3 Components", (dialog, which) -> {
+            // Open component selection filtered for DDR3 compatible components
+            Intent intent = new Intent(requireContext(), ComponentListActivity.class);
+            intent.putExtra("category", "MOTHERBOARD"); // Start with motherboards
+            intent.putExtra("budget", currentBudget);
+            intent.putExtra("processorType", "Intel");
+            intent.putExtra("socketType", "DDR3");
+            intent.putExtra("storageType", selectedStorageType);
+            intent.putExtra("gpuType", selectedGpuType);
+            startActivity(intent);
+        });
+        
+        builder.setNeutralButton("Run DDR3 Script", (dialog, which) -> {
+            // Show information about running the Python script
+            showDDR3ScriptInfo();
+        });
+        
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+    
+    // Method to get DDR3 component recommendations
+    private void showDDR3Recommendations() {
+        StringBuilder recommendations = new StringBuilder();
+        recommendations.append("💡 DDR3 Budget Build Recommendations:\n\n");
+        
+        if (currentBudget < 10000) {
+            recommendations.append("💰 Ultra-Budget Build (Under ₹10,000):\n");
+            recommendations.append("• Intel Core i3-2120/3220 (2nd/3rd gen)\n");
+            recommendations.append("• H61 motherboard (LGA1155)\n");
+            recommendations.append("• 4GB DDR3-1333 RAM\n");
+            recommendations.append("• 500GB HDD\n");
+            recommendations.append("• Integrated graphics\n");
+            recommendations.append("• 300W power supply\n");
+            recommendations.append("• Basic case\n\n");
+        } else if (currentBudget < 15000) {
+            recommendations.append("💰 Budget Build (₹10,000-15,000):\n");
+            recommendations.append("• Intel Core i5-2400/3470 (2nd/3rd gen)\n");
+            recommendations.append("• H61/H81 motherboard (LGA1155)\n");
+            recommendations.append("• 8GB DDR3-1600 RAM\n");
+            recommendations.append("• 1TB HDD or 120GB SSD\n");
+            recommendations.append("• GT 730 or R7 240 graphics card\n");
+            recommendations.append("• 400W power supply\n");
+            recommendations.append("• ATX case\n\n");
+        } else if (currentBudget < 20000) {
+            recommendations.append("💰 Mid-Budget Build (₹15,000-20,000):\n");
+            recommendations.append("• Intel Core i5-3570/4670 (3rd/4th gen)\n");
+            recommendations.append("• H81/B85 motherboard (LGA1150)\n");
+            recommendations.append("• 8GB DDR3-1600 RAM\n");
+            recommendations.append("• 240GB SSD + 1TB HDD\n");
+            recommendations.append("• GTX 750 Ti or R7 360 graphics card\n");
+            recommendations.append("• 450W power supply\n");
+            recommendations.append("• Gaming case\n\n");
+        }
+        
+        recommendations.append("✅ DDR3 Advantages:\n");
+        recommendations.append("• Very affordable components\n");
+        recommendations.append("• Good for basic computing needs\n");
+        recommendations.append("• Easy to find used parts\n");
+        recommendations.append("• Perfect for entry-level builds under ₹15,000\n\n");
+        
+        recommendations.append("⚠️ DDR3 Limitations:\n");
+        recommendations.append("• Limited to older processors\n");
+        recommendations.append("• Max 16GB RAM support\n");
+        recommendations.append("• Lower performance than modern DDR4/DDR5\n");
+        recommendations.append("• Limited upgrade path\n\n");
+        
+        recommendations.append("🎯 Best Use Cases:\n");
+        recommendations.append("• Office computers\n");
+        recommendations.append("• Student builds\n");
+        recommendations.append("• Basic web browsing\n");
+        recommendations.append("• Light document editing\n");
+        recommendations.append("• Entry-level gaming\n");
+        
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("DDR3 Component Recommendations");
+        builder.setMessage(recommendations.toString());
+        builder.setPositiveButton("Build DDR3 PC", (dialog, which) -> {
+            // Auto-select DDR3 components and build
+            selectedProcessorType = "Intel";
+            selectedSocketType = "DDR3";
+            selectedStorageType = "HDD"; // Better for budget
+            selectedGpuType = "NVIDIA"; // Better budget options
+            
+            // Update UI
+            updateButtonStates();
+            updateBuildSummary();
+            
+            // Auto-build with DDR3 preferences
+            autoBuildPCWithinBudget();
+        });
+        builder.setNegativeButton("Close", null);
+        builder.show();
+    }
+    
+    private void showDDR3ScriptInfo() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("DDR3 Components Script");
+        builder.setMessage("To add DDR3 components to the database:\n\n" +
+                         "1. Run the Python script: add_ddr3_components.py\n" +
+                         "2. Ensure serviceAccountKey.json is in the project root\n" +
+                         "3. The script will add:\n" +
+                         "   • Intel H61/H81 motherboards\n" +
+                         "   • 2nd/3rd gen Intel processors\n" +
+                         "   • DDR3 RAM modules\n" +
+                         "   • Budget graphics cards\n\n" +
+                         "After running the script, DDR3 components will be available in the app.");
+        
+        builder.setPositiveButton("OK", null);
+        builder.show();
+    }
+
+    // Method to show a temporary status message
+    private void showTemporaryStatus(String message, int duration) {
+        UiNotifier.show(getContext(), message, duration);
+    }
+    
+    // Method to show a comprehensive temporary status message with all selections
+    private void showComprehensiveStatus() {
+        // Removed status display to prevent annoying overlays
+        // Status information is now shown in the build summary instead
+    }
+    
+    // Method to show comprehensive compatibility summary
+    private void showComprehensiveCompatibilitySummary() {
+        StringBuilder summary = new StringBuilder();
+        summary.append("🔍 Compatibility Summary for Your Build\n\n");
+        
+        // Current selections
+        summary.append("📋 Current Selections:\n");
+        summary.append("• Processor: ").append(selectedProcessorType != null ? selectedProcessorType : "Not selected").append("\n");
+        summary.append("• DDR Type: ").append(selectedSocketType != null ? selectedSocketType : "Not selected").append("\n");
+        summary.append("• Storage: ").append(selectedStorageType != null ? selectedStorageType : "Not selected").append("\n");
+        summary.append("• GPU: ").append(selectedGpuType != null ? selectedGpuType : "Not selected").append("\n");
+        summary.append("• Budget: ₹").append(String.format("%,d", currentBudget)).append("\n\n");
+        
+        // Compatibility analysis
+        summary.append("✅ Compatibility Analysis:\n");
+        
+        if (selectedProcessorType != null && selectedSocketType != null) {
+            if ("Intel".equals(selectedProcessorType) && "DDR3".equals(selectedSocketType)) {
+                summary.append("• Intel + DDR3: ✅ Compatible for budget builds\n");
+                summary.append("• Performance: ⚠️ Limited but sufficient for basic tasks\n");
+                summary.append("• Upgrade Path: ❌ Limited future options\n");
+                summary.append("• Cost: 💰 Very affordable\n\n");
+            } else if ("Intel".equals(selectedProcessorType) && "DDR4".equals(selectedSocketType)) {
+                summary.append("• Intel + DDR4: ✅ Excellent compatibility\n");
+                summary.append("• Performance: ⭐ Good for gaming and work\n");
+                summary.append("• Upgrade Path: ✅ Moderate future options\n");
+                summary.append("• Cost: 💰 Good value for money\n\n");
+            } else if ("Intel".equals(selectedProcessorType) && "DDR5".equals(selectedSocketType)) {
+                summary.append("• Intel + DDR5: ✅ Cutting-edge compatibility\n");
+                summary.append("• Performance: ⭐⭐⭐ Maximum performance\n");
+                summary.append("• Upgrade Path: ✅ Excellent future options\n");
+                summary.append("• Cost: 💰 Premium pricing\n\n");
+            } else if ("AMD".equals(selectedProcessorType) && "DDR3".equals(selectedSocketType)) {
+                summary.append("• AMD + DDR3: ⚠️ Limited compatibility\n");
+                summary.append("• Performance: ❌ Restricted by older socket\n");
+                summary.append("• Upgrade Path: ❌ Very limited options\n");
+                summary.append("• Cost: 💰 Affordable but not recommended\n\n");
+            } else if ("AMD".equals(selectedProcessorType) && "DDR4".equals(selectedSocketType)) {
+                summary.append("• AMD + DDR4: ✅ Excellent compatibility\n");
+                summary.append("• Performance: ⭐⭐⭐ Great performance\n");
+                summary.append("• Upgrade Path: ✅ Good future options\n");
+                summary.append("• Cost: 💰 Excellent value for money\n\n");
+            } else if ("AMD".equals(selectedProcessorType) && "DDR5".equals(selectedSocketType)) {
+                summary.append("• AMD + DDR5: ✅ Cutting-edge compatibility\n");
+                summary.append("• Performance: ⭐⭐⭐ Maximum performance\n");
+                summary.append("• Upgrade Path: ✅ Excellent future options\n");
+                summary.append("• Cost: 💰 Premium pricing\n\n");
+            }
+        }
+        
+        // Budget recommendations
+        summary.append("💰 Budget Recommendations:\n");
+        if (currentBudget < 15000) {
+            summary.append("• DDR3 components recommended\n");
+            summary.append("• Focus on essential components\n");
+            summary.append("• Consider used parts for better value\n\n");
+        } else if (currentBudget < 30000) {
+            summary.append("• DDR4 components recommended\n");
+            summary.append("• Good balance of performance and value\n");
+            summary.append("• Modern components with upgrade path\n\n");
+        } else if (currentBudget < 60000) {
+            summary.append("• DDR4/DDR5 components recommended\n");
+            summary.append("• High performance builds\n");
+            summary.append("• Future-proof components\n\n");
+        } else {
+            summary.append("• DDR5 components recommended\n");
+            summary.append("• Maximum performance builds\n");
+            summary.append("• Cutting-edge technology\n\n");
+        }
+        
+        // Action items
+        summary.append("🎯 Recommended Actions:\n");
+        if (selectedProcessorType == null) {
+            summary.append("• Select a processor type (Intel/AMD)\n");
+        }
+        if (selectedSocketType == null) {
+            summary.append("• Select DDR type based on budget\n");
+        }
+        if (selectedComponents.isEmpty()) {
+            summary.append("• Use Auto-Build to select components\n");
+        }
+        
+        summary.append("• Check compatibility warnings above\n");
+        summary.append("• Consider your specific use case\n");
+        
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("🔍 Compatibility Summary");
+        builder.setMessage(summary.toString());
+        builder.setPositiveButton("Auto-Build PC", (dialog, which) -> {
+            if (selectedComponents.isEmpty()) {
+                autoBuildPCWithinBudget();
+            } else {
+                UiNotifier.showShort(getContext(), "Components already selected. Use 'Build PC' button.");
+            }
+        });
+        builder.setNegativeButton("Close", null);
+        builder.setNeutralButton("DDR3 Guide", (dialog, which) -> {
+            showDDR3Recommendations();
+        });
+        builder.show();
     }
 }
 

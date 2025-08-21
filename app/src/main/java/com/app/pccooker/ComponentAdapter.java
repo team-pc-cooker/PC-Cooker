@@ -5,7 +5,7 @@ import android.view.*;
 import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.ComponentModel;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
@@ -96,16 +96,23 @@ public class ComponentAdapter extends RecyclerView.Adapter<ComponentAdapter.Comp
                 ", Brand: " + brand + ", Category: " + category + 
                 ", Price: " + price + ", Rating: " + rating);
 
-            // Enhanced image loading with ImageCacheManager
+            // Enhanced image loading with better error handling
             try {
                 String imageUrl = component.getImageUrl();
+                android.util.Log.d("ComponentAdapter", "Loading image for " + component.getName() + ": " + imageUrl);
+                
                 if (imageUrl != null && !imageUrl.isEmpty()) {
-                    ImageCacheManager.getInstance(holder.itemView.getContext())
-                            .loadImage(imageUrl, holder.imageView, component.getCategory());
+                    // Use Glide directly for more reliable loading
+                    Glide.with(holder.itemView.getContext())
+                            .load(imageUrl)
+                            .placeholder(R.drawable.ic_placeholder)
+                            .error(R.drawable.ic_placeholder)
+                            .centerCrop()
+                            .into(holder.imageView);
                 } else {
-                    // Use ImageCacheManager to get fallback image for category
-                    ImageCacheManager.getInstance(holder.itemView.getContext())
-                            .loadImage(null, holder.imageView, component.getCategory());
+                    // Set placeholder if no image URL
+                    holder.imageView.setImageResource(R.drawable.ic_placeholder);
+                    android.util.Log.w("ComponentAdapter", "No image URL for component: " + component.getName());
                 }
             } catch (Exception e) {
                 // If image loading fails, set placeholder

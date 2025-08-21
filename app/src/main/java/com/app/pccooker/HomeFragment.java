@@ -120,6 +120,7 @@ public class HomeFragment extends Fragment {
         Button buildPcButton = view.findViewById(R.id.buildPcButton);
         Button serviceButton = view.findViewById(R.id.serviceButton);
         Button sellPcButton = view.findViewById(R.id.sellPcButton);
+        Button chatbotButton = view.findViewById(R.id.chatbotButton);
 
         buildPcButton.setOnClickListener(v -> {
             ((MainActivity) requireActivity()).loadFragment(new BuildPCFragment());
@@ -136,6 +137,12 @@ public class HomeFragment extends Fragment {
         // AI Assistant button
         aiAssistantButton.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), AIAssistantActivity.class);
+            startActivity(intent);
+        });
+
+        // Chatbot button
+        chatbotButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), ChatbotActivity.class);
             startActivity(intent);
         });
     }

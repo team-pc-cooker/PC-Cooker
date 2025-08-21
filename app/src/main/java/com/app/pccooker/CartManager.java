@@ -1,9 +1,10 @@
 package com.app.pccooker;
 
 import android.content.Context;
-import android.widget.Toast;
-import com.app.pccooker.ComponentModel;
+import android.util.Log;
+import com.app.pccooker.models.ComponentModel;
 import com.app.pccooker.models.CartItem;
+import com.app.pccooker.ui.UiNotifier;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
@@ -36,8 +37,7 @@ public class CartManager {
         // Check if component already exists in cart
         for (CartItem item : cartItems) {
             if (item.getId().equals(component.getId())) {
-                // Don't increment quantity - just show message
-                Toast.makeText(context, component.getName() + " is already in cart", Toast.LENGTH_SHORT).show();
+                // Already in cart; do not increment quantity
                 return;
             }
         }
@@ -55,10 +55,21 @@ public class CartManager {
         
         cartItems.add(cartItem);
         saveCartToFirebase();
-        Toast.makeText(context, component.getName() + " added to cart", Toast.LENGTH_SHORT).show();
         
         // Notify MainActivity to update cart badge
         notifyCartUpdated();
+    }
+    
+    /**
+     * Check if component is already in cart
+     */
+    public boolean isInCart(String componentId) {
+        for (CartItem item : cartItems) {
+            if (item.getId().equals(componentId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void removeFromCart(String componentId) {
@@ -82,6 +93,13 @@ public class CartManager {
         for (CartItem item : cartItems) {
             total += item.getPrice() * item.getQuantity();
         }
+        
+        // Debug: Log cart total calculation
+        Log.d("CartManager", "Calculating cart total from " + cartItems.size() + " items: ₹" + total);
+        for (CartItem item : cartItems) {
+            Log.d("CartManager", "  " + item.getName() + ": ₹" + item.getPrice() + " x" + item.getQuantity() + " = ₹" + (item.getPrice() * item.getQuantity()));
+        }
+        
         return total;
     }
 
@@ -136,10 +154,10 @@ public class CartManager {
             .collection("saved_items")
             .add(savedItem)
             .addOnSuccessListener(documentReference -> {
-                Toast.makeText(context, component.getName() + " saved for later", Toast.LENGTH_SHORT).show();
+                UiNotifier.showShort(context, component.getName() + " saved for later");
             })
             .addOnFailureListener(e -> {
-                Toast.makeText(context, "Failed to save item", Toast.LENGTH_SHORT).show();
+                UiNotifier.showShort(context, "Failed to save item");
             });
     }
 
@@ -182,7 +200,7 @@ public class CartManager {
                 // Cart saved successfully
             })
             .addOnFailureListener(e -> {
-                Toast.makeText(context, "Failed to save cart", Toast.LENGTH_SHORT).show();
+                UiNotifier.showShort(context, "Failed to save cart");
             });
     }
 
@@ -200,7 +218,8 @@ public class CartManager {
             .document("items")
             .get()
             .addOnSuccessListener(documentSnapshot -> {
-                cartItems.clear(); // Always clear first to prevent duplicates
+                // Clear existing cart items to prevent duplicates
+                cartItems.clear();
                 
                 // Only load items if document exists and has valid data
                 if (documentSnapshot.exists() && documentSnapshot.getData() != null) {
@@ -208,12 +227,17 @@ public class CartManager {
                     if (itemsObj instanceof List) {
                         List<Map<String, Object>> cartData = (List<Map<String, Object>>) itemsObj;
                         
+                        // Use a Set to track unique IDs and prevent duplicates
+                        java.util.Set<String> addedIds = new java.util.HashSet<>();
+                        
                         for (Map<String, Object> itemData : cartData) {
                             try {
                                 // Validate required fields
                                 String id = (String) itemData.get("id");
                                 String name = (String) itemData.get("name");
-                                if (id == null || name == null) continue;
+                                if (id == null || name == null || addedIds.contains(id)) {
+                                    continue; // Skip invalid or duplicate items
+                                }
                                 
                                 CartItem cartItem = new CartItem(
                                     id,
@@ -239,18 +263,25 @@ public class CartManager {
                                 }
                                 
                                 cartItems.add(cartItem);
+                                addedIds.add(id); // Mark this ID as added
+                                
+                                Log.d("CartManager", "Added cart item: " + name + " (ID: " + id + ")");
                             } catch (Exception e) {
-                                // Skip invalid items
-                                System.err.println("Error loading cart item: " + e.getMessage());
+                                Log.e("CartManager", "Error loading cart item: " + e.getMessage());
                             }
                         }
+                        
+                        Log.d("CartManager", "Successfully loaded " + cartItems.size() + " unique cart items");
                     }
                 }
                 
-                if (listener != null) listener.onCartLoaded(new ArrayList<>(cartItems));
+                // Return a fresh copy of the cart items
+                if (listener != null) {
+                    listener.onCartLoaded(new ArrayList<>(cartItems));
+                }
             })
             .addOnFailureListener(e -> {
-                System.err.println("Failed to load cart: " + e.getMessage());
+                Log.e("CartManager", "Failed to load cart: " + e.getMessage());
                 cartItems.clear(); // Clear on error
                 if (listener != null) listener.onCartLoaded(new ArrayList<>());
             });

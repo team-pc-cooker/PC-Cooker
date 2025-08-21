@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.ComponentModel;
 import com.app.pccooker.R;
 import com.bumptech.glide.Glide;
 
@@ -19,13 +19,14 @@ import java.util.List;
 
 public class SavedItemsAdapter extends RecyclerView.Adapter<SavedItemsAdapter.SavedItemViewHolder> {
 
-    private Context context;
-    private List<ComponentModel> savedItems;
-    private OnSavedItemActionListener listener;
+    private final Context context;
+    private final List<ComponentModel> savedItems;
+    private final OnSavedItemActionListener listener;
 
     public interface OnSavedItemActionListener {
         void onAddToCartClicked(ComponentModel component);
         void onRemoveClicked(ComponentModel component);
+        void onItemClicked(ComponentModel component);
     }
 
     public SavedItemsAdapter(Context context, List<ComponentModel> savedItems, OnSavedItemActionListener listener) {
@@ -53,17 +54,19 @@ public class SavedItemsAdapter extends RecyclerView.Adapter<SavedItemsAdapter.Sa
     }
 
     class SavedItemViewHolder extends RecyclerView.ViewHolder {
-        private ImageView componentImage;
-        private TextView componentName;
-        private TextView componentPrice;
-        private TextView componentRating;
-        private Button addToCartButton;
-        private Button removeButton;
+        private final ImageView componentImage;
+        private final TextView componentName;
+
+        private final TextView componentPrice;
+        private final TextView componentRating;
+        private final Button addToCartButton;
+        private final Button removeButton;
 
         public SavedItemViewHolder(@NonNull View itemView) {
             super(itemView);
             componentImage = itemView.findViewById(R.id.componentImage);
             componentName = itemView.findViewById(R.id.componentName);
+
             componentPrice = itemView.findViewById(R.id.componentPrice);
             componentRating = itemView.findViewById(R.id.componentRating);
             addToCartButton = itemView.findViewById(R.id.addToCartButton);
@@ -72,19 +75,33 @@ public class SavedItemsAdapter extends RecyclerView.Adapter<SavedItemsAdapter.Sa
 
         public void bind(ComponentModel component) {
             componentName.setText(component.getName());
-            componentPrice.setText("₹" + String.format("%.2f", component.getPrice()));
-            componentRating.setText("★ " + String.format("%.1f", component.getRating()));
 
-            // Load image using Glide
+            componentPrice.setText("₹" + component.getPrice());
+            
+            if (component.getRating() > 0) {
+                componentRating.setText(String.format("%.1f", component.getRating()));
+                componentRating.setVisibility(View.VISIBLE);
+            } else {
+                componentRating.setVisibility(View.GONE);
+            }
+
+            // Load image
             if (component.getImageUrl() != null && !component.getImageUrl().isEmpty()) {
                 Glide.with(context)
                     .load(component.getImageUrl())
-                    .placeholder(R.drawable.placeholder_image)
-                    .error(R.drawable.placeholder_image)
+                    .placeholder(R.drawable.ic_placeholder)
+                    .error(R.drawable.ic_placeholder)
                     .into(componentImage);
             } else {
-                componentImage.setImageResource(R.drawable.placeholder_image);
+                componentImage.setImageResource(R.drawable.ic_placeholder);
             }
+
+            // Click listeners
+            itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onItemClicked(component);
+                }
+            });
 
             addToCartButton.setOnClickListener(v -> {
                 if (listener != null) {

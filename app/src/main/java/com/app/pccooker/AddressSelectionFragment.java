@@ -1,5 +1,6 @@
 package com.app.pccooker;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -137,17 +138,13 @@ public class AddressSelectionFragment extends Fragment {
             return;
         }
 
-        // Navigate to payment fragment with selected address
-        PaymentFragment paymentFragment = new PaymentFragment();
-        Bundle args = new Bundle();
-        args.putString("address_id", selectedAddress.getId());
-        paymentFragment.setArguments(args);
-
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, paymentFragment)
-                .addToBackStack("address_to_payment")
-                .commit();
+        // Navigate to NEW PaymentActivity instead of old PaymentFragment
+        Intent intent = new Intent(requireActivity(), PaymentActivity.class);
+        // Pass address info if needed
+        if (selectedAddress != null) {
+            intent.putExtra("address_id", selectedAddress.getId());
+        }
+        startActivity(intent);
     }
 
     private void deleteAddress(AddressModel address) {

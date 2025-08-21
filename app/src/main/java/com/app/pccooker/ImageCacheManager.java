@@ -49,16 +49,16 @@ public class ImageCacheManager {
     private static final String PIXABAY_API_BASE = "https://pixabay.com/api/";
     private static final String PIXABAY_API_KEY = "YOUR_PIXABAY_API_KEY";
     
-    // Fallback high-quality component images
+    // Fallback high-quality component images - Using working placeholder images
     private static final String[] COMPONENT_FALLBACK_IMAGES = {
-        "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&h=400&fit=crop", // Intel CPU
-        "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=400&h=400&fit=crop", // NVIDIA GPU
-        "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&h=400&fit=crop", // Motherboard
-        "https://images.unsplash.com/photo-1562976540-8c2d6a2e8d6b?w=400&h=400&fit=crop", // RAM
-        "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&h=400&fit=crop", // Storage
-        "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&h=400&fit=crop", // PC Case
-        "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=400&h=400&fit=crop", // Power Supply
-        "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=400&h=400&fit=crop"  // CPU Cooler
+        "https://via.placeholder.com/400x400/FF6B35/FFFFFF?text=CPU", // Intel CPU
+        "https://via.placeholder.com/400x400/2196F3/FFFFFF?text=GPU", // NVIDIA GPU
+        "https://via.placeholder.com/400x400/4CAF50/FFFFFF?text=Motherboard", // Motherboard
+        "https://via.placeholder.com/400x400/9C27B0/FFFFFF?text=RAM", // RAM
+        "https://via.placeholder.com/400x400/FF9800/FFFFFF?text=Storage", // Storage
+        "https://via.placeholder.com/400x400/607D8B/FFFFFF?text=PC+Case", // PC Case
+        "https://via.placeholder.com/400x400/F44336/FFFFFF?text=Power+Supply", // Power Supply
+        "https://via.placeholder.com/400x400/00BCD4/FFFFFF?text=CPU+Cooler"  // CPU Cooler
     };
     
     private ImageCacheManager(Context context) {

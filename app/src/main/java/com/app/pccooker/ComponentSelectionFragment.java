@@ -17,7 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.app.pccooker.ComponentModel;
+import com.app.pccooker.models.ComponentModel;
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -25,6 +25,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 import android.util.Log;
+import com.app.pccooker.ui.UiNotifier;
 
 public class ComponentSelectionFragment extends Fragment {
 
@@ -99,7 +100,7 @@ public class ComponentSelectionFragment extends Fragment {
             // Also add to cart
             CartManager.getInstance(requireContext()).addToCart(component);
             
-            Toast.makeText(getContext(), component.getName() + " added to cart!", Toast.LENGTH_SHORT).show();
+            // Component added to cart (no toast shown)
             
             // Update cart badge if in MainActivity
             if (getActivity() instanceof MainActivity) {
@@ -243,12 +244,12 @@ public class ComponentSelectionFragment extends Fragment {
 
     private void showFilterDialog() {
         // TODO: Implement filter dialog with price range, brand, rating filters
-        Toast.makeText(getContext(), "Filter options coming soon!", Toast.LENGTH_SHORT).show();
+        UiNotifier.showShort(requireContext(), "Filter options coming soon!");
     }
 
     private void showSortDialog() {
         // TODO: Implement sort dialog (Price: Low to High, High to Low, Rating, etc.)
-        Toast.makeText(getContext(), "Sort options coming soon!", Toast.LENGTH_SHORT).show();
+        UiNotifier.showShort(requireContext(), "Sort options coming soon!");
     }
 
     private void showLoadingState() {
@@ -264,6 +265,6 @@ public class ComponentSelectionFragment extends Fragment {
     }
 
     private void showErrorState(String message) {
-        Toast.makeText(getContext(), "Error: " + message, Toast.LENGTH_SHORT).show();
+        UiNotifier.showShort(requireContext(), "Error: " + message);
     }
 } 

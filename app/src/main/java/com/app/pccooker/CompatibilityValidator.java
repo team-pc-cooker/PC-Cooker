@@ -3,6 +3,7 @@ package com.app.pccooker;
 import android.util.Log;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.app.pccooker.models.ComponentModel;
 
 /**
  * Advanced Component Compatibility Validation System
@@ -20,28 +21,34 @@ public class CompatibilityValidator {
         put("TR4", new HashSet<>(Arrays.asList("AMD")));
         put("sTRX4", new HashSet<>(Arrays.asList("AMD")));
         
-        // Intel Sockets
-        put("LGA1700", new HashSet<>(Arrays.asList("Intel")));
-        put("LGA1200", new HashSet<>(Arrays.asList("Intel")));
-        put("LGA1151", new HashSet<>(Arrays.asList("Intel")));
-        put("LGA1155", new HashSet<>(Arrays.asList("Intel")));
-        put("LGA1150", new HashSet<>(Arrays.asList("Intel")));
-        put("LGA2066", new HashSet<>(Arrays.asList("Intel")));
+        // Intel Sockets - Updated to include newer generations
+        put("LGA1851", new HashSet<>(Arrays.asList("Intel")));  // Intel 14th/15th Gen
+        put("LGA1700", new HashSet<>(Arrays.asList("Intel")));  // Intel 12th/13th Gen
+        put("LGA1200", new HashSet<>(Arrays.asList("Intel")));  // Intel 10th/11th Gen
+        put("LGA1151", new HashSet<>(Arrays.asList("Intel")));  // Intel 6th/7th/8th/9th Gen
+        put("LGA1155", new HashSet<>(Arrays.asList("Intel")));  // Intel 2nd/3rd Gen
+        put("LGA1150", new HashSet<>(Arrays.asList("Intel")));  // Intel 4th Gen
+        put("LGA2066", new HashSet<>(Arrays.asList("Intel")));  // Intel HEDT
+        put("LGA2011", new HashSet<>(Arrays.asList("Intel")));  // Intel HEDT
     }};
     
     // RAM compatibility with sockets
     private static final Map<String, Set<String>> SOCKET_RAM_COMPATIBILITY = new HashMap<String, Set<String>>() {{
-        // AMD
+        // AMD Sockets
         put("AM5", new HashSet<>(Arrays.asList("DDR5")));
         put("AM4", new HashSet<>(Arrays.asList("DDR4")));
+        put("TR4", new HashSet<>(Arrays.asList("DDR4")));
+        put("sTRX4", new HashSet<>(Arrays.asList("DDR4")));
         
-        // Intel
-        put("LGA1700", new HashSet<>(Arrays.asList("DDR4", "DDR5")));
-        put("LGA1200", new HashSet<>(Arrays.asList("DDR4")));
-        put("LGA1151", new HashSet<>(Arrays.asList("DDR4")));
-        put("LGA1155", new HashSet<>(Arrays.asList("DDR3")));
-        put("LGA1150", new HashSet<>(Arrays.asList("DDR3")));
-        put("LGA2066", new HashSet<>(Arrays.asList("DDR4")));
+        // Intel Sockets - Fixed to support modern Intel processors
+        put("LGA1851", new HashSet<>(Arrays.asList("DDR5")));  // Intel 14th/15th Gen
+        put("LGA1700", new HashSet<>(Arrays.asList("DDR4", "DDR5")));  // Intel 12th/13th Gen
+        put("LGA1200", new HashSet<>(Arrays.asList("DDR4")));  // Intel 10th/11th Gen
+        put("LGA1151", new HashSet<>(Arrays.asList("DDR4")));  // Intel 6th/7th/8th/9th Gen
+        put("LGA1155", new HashSet<>(Arrays.asList("DDR3")));  // Intel 2nd/3rd Gen
+        put("LGA1150", new HashSet<>(Arrays.asList("DDR3")));  // Intel 4th Gen
+        put("LGA2066", new HashSet<>(Arrays.asList("DDR4")));  // Intel HEDT
+        put("LGA2011", new HashSet<>(Arrays.asList("DDR3", "DDR4")));  // Intel HEDT
     }};
     
     // Power requirements (rough estimates in watts)

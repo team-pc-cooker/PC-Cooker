@@ -3,6 +3,7 @@ package com.app.pccooker;
 import android.util.Log;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.app.pccooker.models.ComponentModel;
 
 /**
  * Enhanced Auto-Build Engine with Smart Budget Allocation and Compatibility Suggestions
@@ -82,13 +83,15 @@ public class SmartBuildEngine {
                                          String preferredGPUBrand,
                                          String preferredSocket,
                                          String preferredRAMType,
-                                         String preferredStorage) {
+                                         String preferredStorage,
+                                         String targetGeneration) {
         
         BuildResult result = new BuildResult();
         
         // Determine build type based on budget
         result.buildType = determineBuildType(budget);
-        Log.d(TAG, "Determined build type: " + result.buildType + " for budget: ₹" + String.format("%,d", (int)budget));
+        Log.d(TAG, "Determined build type: " + result.buildType + " for budget: ₹" + String.format("%,d", (int)budget) + 
+              ", Target Generation: " + targetGeneration);
         
         // Get budget allocation for this build type
         Map<String, Double> allocation = BUDGET_ALLOCATIONS.get(result.buildType);
@@ -132,6 +135,7 @@ public class SmartBuildEngine {
                 preferredSocket,
                 preferredRAMType,
                 preferredStorage,
+                targetGeneration,
                 result.selectedComponents
             );
             
@@ -175,39 +179,112 @@ public class SmartBuildEngine {
                                                     String preferredSocket,
                                                     String preferredRAMType,
                                                     String preferredStorage,
+                                                    String targetGeneration,
                                                     Map<String, ComponentModel> selectedComponents) {
         
         // Filter compatible components
         List<ComponentModel> compatible = filterCompatibleComponents(
             components, category, preferredCPUBrand, preferredGPUBrand, 
-            preferredSocket, preferredRAMType, preferredStorage, selectedComponents
+            preferredSocket, preferredRAMType, preferredStorage, selectedComponents, targetGeneration
         );
         
         if (compatible.isEmpty()) {
             return null;
         }
         
-        // Sort by value score (performance per rupee)
-        compatible.sort((a, b) -> Double.compare(
+        // Prioritize components that match target generation
+        List<ComponentModel> prioritized = new ArrayList<>();
+        List<ComponentModel> others = new ArrayList<>();
+        
+        for (ComponentModel component : compatible) {
+            if (matchesTargetGeneration(component, targetGeneration, category)) {
+                prioritized.add(component);
+            } else {
+                others.add(component);
+            }
+        }
+        
+        // Sort prioritized components by value score
+        prioritized.sort((a, b) -> Double.compare(
             calculateValueScore(b, category), 
             calculateValueScore(a, category)
         ));
         
-        // Find best component within budget
-        for (ComponentModel component : compatible) {
+        // Sort other components by value score
+        others.sort((a, b) -> Double.compare(
+            calculateValueScore(b, category), 
+            calculateValueScore(a, category)
+        ));
+        
+        // Combine lists with prioritized first
+        List<ComponentModel> sortedComponents = new ArrayList<>();
+        sortedComponents.addAll(prioritized);
+        sortedComponents.addAll(others);
+        
+        // Find best component within budget (prioritizing target generation matches)
+        for (ComponentModel component : sortedComponents) {
             if (component.getPrice() <= Math.min(categoryBudget * 1.2, remainingBudget)) {
                 return component;
             }
         }
         
         // If nothing found within category budget, try with remaining budget
-        for (ComponentModel component : compatible) {
+        for (ComponentModel component : sortedComponents) {
             if (component.getPrice() <= remainingBudget) {
                 return component;
             }
         }
         
         return null;
+    }
+    
+    /**
+     * Check if a component matches the target generation
+     */
+    private static boolean matchesTargetGeneration(ComponentModel component, String targetGeneration, String category) {
+        if (targetGeneration == null || targetGeneration.isEmpty()) {
+            return false;
+        }
+        
+        String componentName = component.getName().toLowerCase();
+        String componentDesc = component.getDescription().toLowerCase();
+        String target = targetGeneration.toLowerCase();
+        
+        // For processors, check generation compatibility
+        if ("PROCESSOR".equalsIgnoreCase(category)) {
+            if (target.contains("ryzen 9") && componentName.contains("ryzen 9")) return true;
+            if (target.contains("ryzen 7") && componentName.contains("ryzen 7")) return true;
+            if (target.contains("ryzen 5") && componentName.contains("ryzen 5")) return true;
+            if (target.contains("ryzen 3") && componentName.contains("ryzen 3")) return true;
+            if (target.contains("i9") && componentName.contains("i9")) return true;
+            if (target.contains("i7") && componentName.contains("i7")) return true;
+            if (target.contains("i5") && componentName.contains("i5")) return true;
+            if (target.contains("i3") && componentName.contains("i3")) return true;
+            
+            // Check generation numbers
+            if (target.contains("7000") && componentName.contains("7000")) return true;
+            if (target.contains("5000") && componentName.contains("5000")) return true;
+            if (target.contains("3000") && componentName.contains("3000")) return true;
+            if (target.contains("14th") && (componentName.contains("14th") || componentDesc.contains("14th"))) return true;
+            if (target.contains("13th") && (componentName.contains("13th") || componentDesc.contains("13th"))) return true;
+            if (target.contains("12th") && (componentName.contains("12th") || componentDesc.contains("12th"))) return true;
+        }
+        
+        // For motherboards, check DDR compatibility
+        if ("MOTHERBOARD".equalsIgnoreCase(category)) {
+            if (target.contains("ddr5") && (componentName.contains("ddr5") || componentDesc.contains("ddr5"))) return true;
+            if (target.contains("ddr4") && (componentName.contains("ddr4") || componentDesc.contains("ddr4"))) return true;
+            if (target.contains("ddr3") && (componentName.contains("ddr3") || componentDesc.contains("ddr3"))) return true;
+        }
+        
+        // For RAM, check DDR type
+        if ("RAM".equalsIgnoreCase(category)) {
+            if (target.contains("ddr5") && (componentName.contains("ddr5") || componentDesc.contains("ddr5"))) return true;
+            if (target.contains("ddr4") && (componentName.contains("ddr4") || componentDesc.contains("ddr4"))) return true;
+            if (target.contains("ddr3") && (componentName.contains("ddr3") || componentDesc.contains("ddr3"))) return true;
+        }
+        
+        return false;
     }
     
     private static List<ComponentModel> filterCompatibleComponents(List<ComponentModel> components,
@@ -217,13 +294,14 @@ public class SmartBuildEngine {
                                                                  String preferredSocket,
                                                                  String preferredRAMType,
                                                                  String preferredStorage,
-                                                                 Map<String, ComponentModel> selectedComponents) {
+                                                                 Map<String, ComponentModel> selectedComponents,
+                                                                 String targetGeneration) {
         
         return components.stream()
             .filter(c -> c.getCategory().equalsIgnoreCase(category))
             .filter(c -> c.isInStock())
             .filter(c -> isComponentCompatible(c, category, preferredCPUBrand, preferredGPUBrand, 
-                                             preferredSocket, preferredRAMType, preferredStorage, selectedComponents))
+                                             preferredSocket, preferredRAMType, preferredStorage, selectedComponents, targetGeneration))
             .collect(Collectors.toList());
     }
     
@@ -234,7 +312,8 @@ public class SmartBuildEngine {
                                                String preferredSocket,
                                                String preferredRAMType,
                                                String preferredStorage,
-                                               Map<String, ComponentModel> selectedComponents) {
+                                               Map<String, ComponentModel> selectedComponents,
+                                               String targetGeneration) {
         
         Map<String, String> specs = component.getSpecifications();
         if (specs == null) specs = new HashMap<>();
@@ -247,15 +326,59 @@ public class SmartBuildEngine {
                         return false;
                     }
                 }
-                // Check socket compatibility
-                if (preferredSocket != null && !preferredSocket.isEmpty()) {
-                    String socket = specs.get("Socket");
-                    if (socket != null) {
-                        if (preferredCPUBrand != null) {
-                            if (preferredCPUBrand.equalsIgnoreCase("Intel") && socket.startsWith("AM")) {
+                
+                // Check DDR type compatibility based on target generation
+                if (preferredRAMType != null && !preferredRAMType.isEmpty()) {
+                    String cpuName = component.getName().toLowerCase();
+                    String cpuSpecs = component.getDescription().toLowerCase();
+                    
+                    // For Intel processors
+                    if (preferredCPUBrand != null && preferredCPUBrand.equalsIgnoreCase("Intel")) {
+                        if ("DDR5".equals(preferredRAMType)) {
+                            // DDR5 compatible Intel processors (12th gen+)
+                            if (!cpuName.contains("12th") && !cpuName.contains("13th") && !cpuName.contains("14th") && 
+                                !cpuName.contains("15th") && !cpuSpecs.contains("12th") && !cpuSpecs.contains("13th") && 
+                                !cpuSpecs.contains("14th") && !cpuSpecs.contains("15th")) {
                                 return false;
                             }
-                            if (preferredCPUBrand.equalsIgnoreCase("AMD") && socket.startsWith("LGA")) {
+                        } else if ("DDR4".equals(preferredRAMType)) {
+                            // DDR4 compatible Intel processors (6th gen+)
+                            if (!cpuName.contains("6th") && !cpuName.contains("7th") && !cpuName.contains("8th") && 
+                                !cpuName.contains("9th") && !cpuName.contains("10th") && !cpuName.contains("11th") && 
+                                !cpuName.contains("12th") && !cpuName.contains("13th") && !cpuSpecs.contains("6th") && 
+                                !cpuSpecs.contains("7th") && !cpuSpecs.contains("8th") && !cpuSpecs.contains("9th") && 
+                                !cpuSpecs.contains("10th") && !cpuSpecs.contains("11th") && !cpuSpecs.contains("12th") && 
+                                !cpuSpecs.contains("13th")) {
+                                return false;
+                            }
+                        } else if ("DDR3".equals(preferredRAMType)) {
+                            // DDR3 compatible Intel processors (2nd-4th gen)
+                            if (!cpuName.contains("2nd") && !cpuName.contains("3rd") && !cpuName.contains("4th") && 
+                                !cpuSpecs.contains("2nd") && !cpuSpecs.contains("3rd") && !cpuSpecs.contains("4th")) {
+                                return false;
+                            }
+                        }
+                    }
+                    
+                    // For AMD processors
+                    if (preferredCPUBrand != null && preferredCPUBrand.equalsIgnoreCase("AMD")) {
+                        if ("DDR5".equals(preferredRAMType)) {
+                            // DDR5 compatible AMD processors (Ryzen 7000 series)
+                            if (!cpuName.contains("7000") && !cpuName.contains("ryzen 9") && !cpuName.contains("ryzen 7") && 
+                                !cpuName.contains("ryzen 5") && !cpuSpecs.contains("7000")) {
+                                return false;
+                            }
+                        } else if ("DDR4".equals(preferredRAMType)) {
+                            // DDR4 compatible AMD processors (Ryzen 3000, 5000 series)
+                            if (!cpuName.contains("3000") && !cpuName.contains("5000") && !cpuName.contains("ryzen 9") && 
+                                !cpuName.contains("ryzen 7") && !cpuName.contains("ryzen 5") && !cpuName.contains("ryzen 3") && 
+                                !cpuSpecs.contains("3000") && !cpuSpecs.contains("5000")) {
+                                return false;
+                            }
+                        } else if ("DDR3".equals(preferredRAMType)) {
+                            // DDR3 compatible AMD processors (older Ryzen, FX series)
+                            if (!cpuName.contains("fx") && !cpuName.contains("athlon") && !cpuSpecs.contains("fx") && 
+                                !cpuSpecs.contains("athlon")) {
                                 return false;
                             }
                         }
@@ -273,24 +396,37 @@ public class SmartBuildEngine {
                 break;
                 
             case "MOTHERBOARD":
-                // Check socket compatibility with selected CPU
+                // Check DDR type compatibility
+                if (preferredRAMType != null && !preferredRAMType.isEmpty()) {
+                    String moboRAM = specs.get("RAM");
+                    if (moboRAM != null && !moboRAM.equalsIgnoreCase(preferredRAMType)) {
+                        return false;
+                    }
+                }
+                
+                // Check brand compatibility with selected CPU
                 ComponentModel cpu = selectedComponents.get("PROCESSOR");
                 if (cpu != null) {
-                    String cpuSocket = cpu.getSpecifications().get("Socket");
-                    String moboSocket = specs.get("Socket");
-                    if (cpuSocket != null && moboSocket != null && !cpuSocket.equals(moboSocket)) {
-                        return false;
+                    String cpuBrand = cpu.getBrand();
+                    String moboBrand = specs.get("Brand");
+                    if (cpuBrand != null && moboBrand != null) {
+                        // Intel CPUs should work with Intel-compatible motherboards
+                        // AMD CPUs should work with AMD-compatible motherboards
+                        if (cpuBrand.equalsIgnoreCase("Intel") && moboBrand.equalsIgnoreCase("AMD")) {
+                            return false;
+                        }
+                        if (cpuBrand.equalsIgnoreCase("AMD") && moboBrand.equalsIgnoreCase("Intel")) {
+                            return false;
+                        }
                     }
                 }
                 break;
                 
             case "RAM":
-                // Check RAM type compatibility
-                ComponentModel motherboard = selectedComponents.get("MOTHERBOARD");
-                if (motherboard != null) {
-                    String moboRAM = motherboard.getSpecifications().get("RAM");
+                // Check RAM type compatibility with DDR preference
+                if (preferredRAMType != null && !preferredRAMType.isEmpty()) {
                     String ramType = specs.get("Type");
-                    if (moboRAM != null && ramType != null && !moboRAM.equals(ramType)) {
+                    if (ramType != null && !ramType.equalsIgnoreCase(preferredRAMType)) {
                         return false;
                     }
                 }
